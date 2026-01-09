@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (UPDATED FOR HIGH CONTRAST) ---
+# --- 2. THE "EMPIRE" STYLING (SECURITY UPGRADE) ---
 st.markdown("""
     <style>
     /* Main Background */
@@ -18,7 +18,7 @@ st.markdown("""
         color: #FFFFFF;
     }
     
-    /* GLOBAL TEXT OVERRIDES - This fixes the dark font issue */
+    /* GLOBAL TEXT OVERRIDES */
     h1, h2, h3, h4, h5, h6, p, li, span, div {
         color: #FFFFFF !important;
     }
@@ -45,30 +45,31 @@ st.markdown("""
     
     /* Metric Label Styling */
     div[data-testid="stMetricLabel"] p {
-        color: #9CA3AF !important; /* Lighter Gray for labels */
+        color: #9CA3AF !important; 
     }
     
     /* Metric Value Styling */
     div[data-testid="stMetricValue"] div {
-        color: #00C805 !important; /* Green for numbers */
+        color: #00C805 !important; 
     }
     
-    /* Ensure Sidebar Open/Close button is ALWAYS visible and Green */
-    [data-testid="stSidebarCollapseBtn"] {
-        color: #00C805 !important;
-    }
-
-    /* Hide Branding but keep Header Navigation */
+    /* --- SECURITY & CLEAN UP CSS --- */
+    
+    /* Hides the Streamlit Hamburger Menu (Top Right) */
     #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    .viewerBadge_container__1QSob {display: none !important;}
-    [data-testid="stStatusWidget"] {display: none !important;}
     
-    /* Adjusting the Header to be invisible but functional */
-    header {
-        background-color: rgba(0,0,0,0) !important;
-        color: white !important;
-    }
+    /* Hides the Streamlit Footer (Made with Streamlit) */
+    footer {visibility: hidden;}
+    
+    /* Hides the Header Bar completely (contains the Deploy button) */
+    header {visibility: hidden;}
+    
+    /* Hides the "View Source" button if it somehow appears */
+    [data-testid="stToolbar"] {visibility: hidden !important;}
+    
+    /* Hides the colored bar at the very top */
+    .stApp > header {visibility: hidden;}
+    
     </style>
     """, unsafe_allow_html=True)
 
@@ -204,3 +205,4 @@ st.plotly_chart(fig, use_container_width=True)
 # Data breakdown
 with st.expander("View Raw Data Table"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
+
