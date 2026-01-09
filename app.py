@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded" 
 )
 
-# --- 2. THE "EMPIRE" STYLING (MARK XVI: BEDROCK BUILD) ---
+# --- 2. THE "EMPIRE" STYLING (MARK XVII: THE MONOLITH) ---
 # Core: #0D1117 | Accent: #8AC7DE | Tertiary: #1E293B
 st.markdown("""
     <style>
@@ -20,34 +20,44 @@ st.markdown("""
         background-color: #0D1117; 
         color: #E6EDF3;
     }
+    
+    /* ------------------------------------------------------------------- */
+    /* B. PERMANENT SIDEBAR (LOCKED OPEN)                                  */
+    /* ------------------------------------------------------------------- */
+    
     [data-testid="stSidebar"] {
         background-color: #0D1117; 
         border-right: 1px solid #30363d;
+        width: 300px !important; /* Fixed width */
     }
 
-    /* ------------------------------------------------------------------- */
-    /* B. PERMANENT SIDEBAR FIX (NO COLLAPSE)                              */
-    /* ------------------------------------------------------------------- */
-    
-    /* 1. HIDE the Close Sidebar Button (The X) */
+    /* 1. HIDE the Close Sidebar Button (The X) - USER CANNOT CLOSE IT */
     [data-testid="stSidebarCollapseBtn"] {
         display: none !important;
     }
     
-    /* 2. HIDE the Open Sidebar Arrow (Just in case) */
+    /* 2. HIDE the Open Sidebar Arrow (It is not needed anymore) */
     [data-testid="stSidebarCollapsedControl"] {
         display: none !important;
     }
     
-    /* 3. Hide Toolbar & Decoration */
+    /* ------------------------------------------------------------------- */
+    /* C. HEADER FIX (NO WHITE BANNER)                                     */
+    /* ------------------------------------------------------------------- */
+    
+    /* Force Header to match Background exactly */
+    header[data-testid="stHeader"] {
+        background-color: #0D1117 !important;
+        height: 3rem !important;
+    }
+    
+    /* Hide Toolbar & Decoration */
     [data-testid="stToolbar"] {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
-    
-    /* 4. Hide Footer */
     footer {display: none !important;}
 
     /* ------------------------------------------------------------------- */
-    /* C. DROPDOWN VISIBILITY (NUCLEAR OPTION)                             */
+    /* D. DROPDOWN VISIBILITY (HIGH CONTRAST)                              */
     /* ------------------------------------------------------------------- */
     
     /* The Box you click */
@@ -64,7 +74,7 @@ st.markdown("""
         color: #FFFFFF !important;
     }
     
-    /* THE POPUP MENU CONTAINER (Crucial Fix) */
+    /* THE POPUP MENU (Dark Background, White Text) */
     div[data-baseweb="popover"], div[data-baseweb="menu"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
@@ -87,18 +97,17 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* D. RADIO BUTTONS (RED/WHITE CIRCLES)                                */
+    /* E. RADIO BUTTONS (REVERTED TO CIRCLES)                              */
     /* ------------------------------------------------------------------- */
-    /* This targets the circle radio buttons to match your preference */
     div[role="radiogroup"] label {
         color: #E6EDF3 !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* E. ANTI-SCROLL (COMPACT LAYOUT)                                     */
+    /* F. ANTI-SCROLL (COMPACT LAYOUT)                                     */
     /* ------------------------------------------------------------------- */
     
-    /* 1. Push content up to the very top */
+    /* Push content up to the very top */
     .block-container {
         padding-top: 1rem !important; 
         padding-bottom: 0rem !important;
@@ -107,13 +116,13 @@ st.markdown("""
         max-width: 100%;
     }
     
-    /* 2. Hide Scrollbars (Visual only - you can still scroll if needed) */
+    /* Hide Scrollbars */
     ::-webkit-scrollbar {
         display: none;
     }
     
     /* ------------------------------------------------------------------- */
-    /* F. METRICS & TEXT                                                   */
+    /* G. METRICS & TEXT                                                   */
     /* ------------------------------------------------------------------- */
     h1, h2, h3, h4, h5, h6, p, label {
         color: #E6EDF3 !important;
@@ -158,7 +167,7 @@ if df_unified is None:
 
 # --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
-    st.header("🛡️ Simulator") # Using header instead of title to save space
+    st.header("🛡️ Simulator") 
     
     # Ticker
     tickers = sorted(df_unified['Ticker'].unique())
@@ -268,7 +277,7 @@ fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=400, # Reduced height to prevent scrolling
+    height=380, # Compact Height
     margin=dict(l=0, r=0, t=20, b=0),
     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     hovermode="x unified"
