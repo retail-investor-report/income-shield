@@ -9,39 +9,75 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. "EMPIRE" COLORS (SAFE MODE) ---
-# This CSS changes ONLY colors. It does not touch layout, headers, or buttons.
-# This ensures the sidebar and arrows work perfectly while giving you the Dark Look.
+# --- 2. THE "EMPIRE" STYLING (MARK XII: READABLE MENUS) ---
 st.markdown("""
     <style>
-    /* Main Background */
+    /* ------------------------------------------------------------------- */
+    /* A. MAIN THEME (Dark Navy & White)                                   */
+    /* ------------------------------------------------------------------- */
     .stApp {
         background-color: #0E1117;
         color: #FFFFFF;
     }
-    
-    /* Sidebar Background */
     [data-testid="stSidebar"] {
         background-color: #161B22;
         border-right: 1px solid #30363d;
     }
-    
-    /* Text Coloring */
+
+    /* ------------------------------------------------------------------- */
+    /* B. TEXT & METRICS                                                   */
+    /* ------------------------------------------------------------------- */
     h1, h2, h3, h4, h5, h6, p, li, span, div, label {
         color: #FFFFFF !important;
     }
-    
-    /* Mute the sidebar text slightly for contrast */
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
         color: #E6E6E6 !important;
     }
     
-    /* Metric Card Backgrounds */
+    /* Metric Cards */
     div[data-testid="stMetric"] {
         background-color: #1f2937;
         border: 1px solid #374151;
         border-radius: 10px;
         padding: 10px;
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* C. DROPDOWN MENU FIX (THE CRITICAL PART)                            */
+    /* ------------------------------------------------------------------- */
+    
+    /* 1. The Box you click on */
+    div[data-baseweb="select"] > div {
+        background-color: #1f2937 !important;
+        color: white !important;
+        border-color: #374151 !important;
+    }
+    
+    /* 2. The Popup Menu Background */
+    ul[data-baseweb="menu"] {
+        background-color: #161B22 !important;
+    }
+    
+    /* 3. The Options inside the menu */
+    li[role="option"] {
+        color: white !important;
+    }
+    
+    /* 4. The Hover Effect (Green) */
+    li[role="option"]:hover {
+        background-color: #00C805 !important;
+        color: black !important; /* Text turns black on green for contrast */
+    }
+    
+    /* 5. The Icons (Down Arrow) */
+    .stSelectbox svg {
+        fill: white !important;
+    }
+    
+    /* 6. Input Boxes (Number Input) */
+    input {
+        background-color: #1f2937 !important;
+        color: white !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -99,7 +135,7 @@ with st.sidebar:
         st.error("No data available for this date.")
         st.stop()
 
-# --- 5. LOGIC & CALCULATIONS ---
+# --- 5. LOGIC ---
 div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
 my_divs = div_df[div_df['Date of Pay'] >= buy_date].copy()
 my_divs['CumDiv'] = my_divs['Amount'].cumsum()
@@ -119,40 +155,31 @@ current_market_val = journey.iloc[-1]['Market_Value']
 cash_total = journey.iloc[-1]['Cash_Banked']
 current_total_val = journey.iloc[-1]['True_Value']
 
-# Deltas (The Profit/Loss Math)
+# Deltas
 market_pl = current_market_val - initial_cap
 total_pl = current_total_val - initial_cap
 total_return_pct = (total_pl / initial_cap) * 100
 
-# --- 6. DASHBOARD (WITH NEON DELTAS) ---
+# --- 6. DASHBOARD ---
 st.header(f"{selected_ticker} Performance Simulator")
 st.markdown(f"Analysis for **{shares:.2f} shares** purchased on **{buy_date.date()}**.")
 
 m1, m2, m3, m4 = st.columns(4)
 
-# 1. Initial Capital (Neutral)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
-
-# 2. Market Value (Red if price dropped, Green if price rose)
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
-
-# 3. Dividends (Always Green/Positive)
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
-
-# 4. True Total Value (Red if net loss, Green if net profit)
 m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
-# --- 7. CHART (DARK MODE) ---
+# --- 7. CHART ---
 fig = go.Figure()
 
-# Price Line (Red)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
     mode='lines', name='Price only (Brokerage View)',
     line=dict(color='#FF4B4B', width=2)
 ))
 
-# True Value Line (Green)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
     mode='lines', name='True Value (Price + Dividends)',
