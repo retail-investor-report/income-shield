@@ -9,127 +9,127 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "BRAND" STYLING (MARK XIII) ---
-# We are manually injecting your specific color palette.
-# Core: #0D1117 | Accent: #8AC7DE | Tertiary: #1E293B
+# --- 2. THE "EMPIRE" STYLING (MARK XIV: ULTIMATE FIX) ---
+# Brand Colors: Core #0D1117 | Accent #8AC7DE | Tertiary #1E293B
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
     /* A. CORE BACKGROUNDS                                                 */
     /* ------------------------------------------------------------------- */
-    
-    /* The Main App Background */
     .stApp {
-        background-color: #0D1117; /* Core */
-        color: #E6EDF3; /* Primary Text */
+        background-color: #0D1117; 
+        color: #E6EDF3;
     }
-    
-    /* The Sidebar Background */
     [data-testid="stSidebar"] {
-        background-color: #0D1117; /* Core (Match main for seamless look) */
+        background-color: #0D1117; 
         border-right: 1px solid #30363d;
-    }
-    
-    /* THE HEADER FIX: Force it to be Dark so the arrow is visible */
-    header[data-testid="stHeader"] {
-        background-color: #0D1117 !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. INPUTS & DROPDOWNS (The Visibility Fix)                          */
+    /* B. THE SIDEBAR ARROW FIX                                            */
     /* ------------------------------------------------------------------- */
     
-    /* 1. The Input Box Container (Dropdowns, Date Pickers, Number Inputs) */
+    /* 1. Hide the standard Toolbar (Deploy buttons, etc.) */
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
+    
+    /* 2. Hide Decoration Bar */
+    [data-testid="stDecoration"] {
+        display: none !important;
+    }
+
+    /* 3. Force the Sidebar Toggle Arrow to be Visible & Clickable */
+    [data-testid="stSidebarCollapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+        z-index: 1000000 !important; /* Sit on top of everything */
+        color: #8AC7DE !important;   /* Accent Blue Arrow */
+        background-color: #1E293B !important; /* Dark Box Background */
+        border-radius: 5px;
+        padding: 4px;
+        position: fixed; /* Pin it to the window */
+        top: 20px;
+        left: 20px;
+    }
+    
+    /* 4. The Close "X" Button inside the sidebar */
+    [data-testid="stSidebarCollapseBtn"] {
+        color: #8AC7DE !important;
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* C. DROPDOWNS & INPUTS (READABILITY FIX)                             */
+    /* ------------------------------------------------------------------- */
+    
+    /* Input Boxes (The box you see before clicking) */
     div[data-baseweb="select"] > div, 
     div[data-baseweb="input"] > div,
     div[data-testid="stDateInput"] > div {
-        background-color: #1E293B !important; /* Tertiary */
+        background-color: #1E293B !important; 
         color: #FFFFFF !important;
         border-color: #30363d !important;
     }
     
-    /* 2. The Text INSIDE the Input Box */
+    /* The Text inside the inputs */
     input {
         color: #FFFFFF !important;
     }
     
-    /* 3. The Popup Menu (The list that opens up) */
+    /* The Popup Menu Container (The fix for white background) */
+    div[data-baseweb="popover"] {
+        background-color: #1E293B !important;
+    }
+    
+    /* The Menu List */
     ul[data-baseweb="menu"] {
-        background-color: #1E293B !important; /* Tertiary */
+        background-color: #1E293B !important;
     }
     
-    /* 4. The Options inside the menu */
+    /* The Options */
     li[role="option"] {
-        color: #FFFFFF !important; /* Secondary */
+        color: #FFFFFF !important;
     }
     
-    /* 5. Hover Effect for Options */
+    /* Hover Effect */
     li[role="option"]:hover {
-        background-color: #8AC7DE !important; /* Accent Blue */
-        color: #0D1117 !important; /* Dark text on blue bg */
+        background-color: #8AC7DE !important;
+        color: #0D1117 !important;
     }
     
-    /* 6. The Down Arrow / Calendar Icons */
+    /* Icons (Calendar, Down Arrow) */
     .stSelectbox svg, .stDateInput svg {
-        fill: #8AC7DE !important; /* Accent Blue */
+        fill: #8AC7DE !important;
     }
     
+    /* Radio Buttons */
+    div[role="radiogroup"] label {
+        color: #E6EDF3 !important;
+    }
+
     /* ------------------------------------------------------------------- */
-    /* C. TEXT & METRICS                                                   */
+    /* D. METRICS & TEXT                                                   */
     /* ------------------------------------------------------------------- */
-    
-    /* Global Text Override */
     h1, h2, h3, h4, h5, h6, p, li, span, div, label {
-        color: #E6EDF3 !important; /* Primary Text */
+        color: #E6EDF3 !important;
     }
     
-    /* Metric Cards */
     div[data-testid="stMetric"] {
-        background-color: #1E293B; /* Tertiary */
+        background-color: #1E293B;
         border: 1px solid #30363d;
         border-radius: 10px;
         padding: 10px;
     }
-    
-    /* Metric Labels (Top small text) */
     div[data-testid="stMetricLabel"] p {
-        color: #8AC7DE !important; /* Accent Blue */
+        color: #8AC7DE !important; 
     }
-    
-    /* Metric Values (Big numbers) */
     div[data-testid="stMetricValue"] div {
-        color: #FFFFFF !important; /* Secondary White */
-    }
-
-    /* ------------------------------------------------------------------- */
-    /* D. NAVIGATION & ARROWS                                              */
-    /* ------------------------------------------------------------------- */
-    
-    /* The Sidebar Toggle Arrow (Top Left) */
-    [data-testid="stSidebarCollapsedControl"] {
-        color: #8AC7DE !important; /* Accent Blue */
-        background-color: transparent !important;
+        color: #FFFFFF !important; 
     }
     
-    /* The Sidebar Close Button (X) */
-    [data-testid="stSidebarCollapseBtn"] {
-        color: #8AC7DE !important;
-    }
-    
-    /* Hide unwanted Toolbar buttons */
-    [data-testid="stToolbar"] {
-        visibility: hidden !important;
-    }
-    
-    /* Hide Decoration Bar */
-    [data-testid="stDecoration"] {
-        display: none !important;
-    }
-    
-    /* Clean up top spacing */
+    /* Adjust spacing since we pinned the arrow */
     .block-container {
-        padding-top: 2rem !important; 
-        max-width: 100%;
+        padding-top: 4rem !important; 
     }
     </style>
     """, unsafe_allow_html=True)
@@ -156,23 +156,40 @@ if df_unified is None:
     st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
     st.stop()
 
-# --- 4. SIDEBAR ---
+# --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
     st.title("🛡️ Simulator")
     
+    # Ticker
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
     
-    default_date = pd.to_datetime("today") - pd.DateOffset(months=6)
-    buy_date = st.date_input("Purchase Date", default_date)
-    buy_date = pd.to_datetime(buy_date)
-
     st.markdown("---")
     
+    # 1. Start Date
+    default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
+    buy_date = st.date_input("Purchase Date", default_date)
+    buy_date = pd.to_datetime(buy_date)
+    
+    # 2. End Date Logic (New Feature)
+    date_mode = st.radio("Simulation Duration:", ["Hold to Present", "Sell on Specific Date"])
+    
+    if date_mode == "Sell on Specific Date":
+        end_date = st.date_input("Sell Date", pd.to_datetime("today"))
+        end_date = pd.to_datetime(end_date)
+    else:
+        end_date = pd.to_datetime("today")
+        
+    st.markdown("---")
+    
+    # 3. Position Size
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
     
+    # 4. Data Filtering Logic
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
-    journey = price_df[price_df['Date'] >= buy_date].copy()
+    
+    # Filter between Buy Date AND End Date
+    journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
     
     if not journey.empty:
         entry_price = journey.iloc[0]['Closing Price']
@@ -184,12 +201,13 @@ with st.sidebar:
         
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
-        st.error("No data available for this date.")
+        st.error("No data available for this date range.")
         st.stop()
 
-# --- 5. LOGIC & CALCULATIONS ---
+# --- 5. CALCULATIONS ---
 div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
-my_divs = div_df[div_df['Date of Pay'] >= buy_date].copy()
+# Filter dividends to only those paid within the hold period
+my_divs = div_df[(div_df['Date of Pay'] >= buy_date) & (div_df['Date of Pay'] <= end_date)].copy()
 my_divs['CumDiv'] = my_divs['Amount'].cumsum()
 
 def get_total_div(d):
@@ -212,15 +230,16 @@ market_pl = current_market_val - initial_cap
 total_pl = current_total_val - initial_cap
 total_return_pct = (total_pl / initial_cap) * 100
 
-# Chart Logic: Determine Price Line Color
+# Chart Color Logic
 start_price = journey.iloc[0]['Closing Price']
-end_price = journey.iloc[-1]['Closing Price']
+end_price_val = journey.iloc[-1]['Closing Price']
 # Blue (#8AC7DE) if up, Red (#FF4B4B) if down
-price_line_color = '#8AC7DE' if end_price >= start_price else '#FF4B4B'
+price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
 # --- 6. DASHBOARD ---
 st.header(f"{selected_ticker} Performance Simulator")
-st.markdown(f"Analysis for **{shares:.2f} shares** purchased on **{buy_date.date()}**.")
+date_range_str = f"{buy_date.date()} ➝ {end_date.date()}"
+st.markdown(f"**{shares:.2f} shares** | {date_range_str}")
 
 m1, m2, m3, m4 = st.columns(4)
 
@@ -232,14 +251,14 @@ m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 # --- 7. CHART ---
 fig = go.Figure()
 
-# Price Line (Dynamic Color: Blue/Red)
+# Price Line (Dynamic Color)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
     mode='lines', name='Price only (Brokerage View)',
     line=dict(color=price_line_color, width=2)
 ))
 
-# True Value Line (Always Neon Green for Income Shield)
+# True Value Line (Always Neon Green)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
     mode='lines', name='True Value (Price + Dividends)',
