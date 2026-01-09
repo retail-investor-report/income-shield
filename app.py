@@ -9,146 +9,122 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (MARK VI: STABLE CORE) ---
+# --- 2. THE "EMPIRE" STYLING (MARK VII: THE BATTERING RAM) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
     /* A. THE FOUNDATION (COLORS & LAYOUT)                                 */
     /* ------------------------------------------------------------------- */
     
-    /* Main Background - Dark Navy/Black */
+    /* Main Background */
     .stApp {
         background-color: #0E1117;
         color: #FFFFFF;
     }
     
-    /* Sidebar Background - Slightly lighter dark */
+    /* Sidebar Background */
     [data-testid="stSidebar"] {
         background-color: #161B22;
         border-right: 1px solid #30363d;
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. THE HEADER FIX (CLEAN & SAFE)                                    */
+    /* B. THE HEADER & ARROW FIX (THE NEW STRATEGY)                        */
     /* ------------------------------------------------------------------- */
     
-    /* We make the header background transparent so it blends in */
+    /* 1. Reset the Header to be visible but blend in perfectly */
     header {
-        background-color: transparent !important;
+        background-color: #0E1117 !important; /* Match the background */
+        height: 3rem !important; /* Shrink it slightly */
     }
     
-    /* We HIDE the colorful decoration bar at the very top */
+    /* 2. Hide the Decoration Bar (The colorful line at the top) */
     [data-testid="stDecoration"] {
         display: none !important;
     }
 
-    /* We HIDE the "Deploy", "Star", and "Three Dots" buttons */
+    /* 3. Hide the "Toolbar" (Deploy, Settings, Three Dots) */
+    /* This removes the buttons on the right side */
     [data-testid="stToolbar"] {
-        visibility: hidden !important;
-    }
-
-    /* We ENSURE the Sidebar Toggle Arrow is VISIBLE and GREEN */
-    [data-testid="stSidebarCollapsedControl"] {
-        visibility: visible !important;
-        color: #00C805 !important;
+        display: none !important;
     }
     
-    /* We color the "Close Sidebar" X button Green too */
+    /* 4. FORCE THE ARROW TO BE VISIBLE AND ON TOP */
+    /* The Open Arrow (When sidebar is closed) */
+    [data-testid="stSidebarCollapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+        color: #00C805 !important; /* Green for High Contrast */
+        z-index: 999999 !important; /* Force to top layer */
+    }
+    
+    /* The Close Arrow (When sidebar is open) */
     [data-testid="stSidebarCollapseBtn"] {
         color: #00C805 !important;
     }
-    
+
     /* ------------------------------------------------------------------- */
     /* C. TEXT VISIBILITY (HIGH CONTRAST)                                  */
     /* ------------------------------------------------------------------- */
     
-    /* Force ALL Headers and Text to be White */
     h1, h2, h3, h4, h5, h6, p, li, span, div, label {
         color: #FFFFFF !important;
     }
-    
-    /* Sidebar Text - slightly muted to distinguish from main content */
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
         color: #E6E6E6 !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* D. METRIC CARDS (THE DASHBOARD LOOK)                                */
+    /* D. METRIC CARDS                                                     */
     /* ------------------------------------------------------------------- */
     
     div[data-testid="stMetric"] {
-        background-color: #1f2937; /* Card Background */
+        background-color: #1f2937; 
         padding: 15px;
         border-radius: 12px;
-        border: 1px solid #374151; /* Subtle Border */
+        border: 1px solid #374151; 
         text-align: center;
     }
-    
-    /* The Label (Top of card) */
     div[data-testid="stMetricLabel"] p {
-        color: #9CA3AF !important; /* Light Gray */
+        color: #9CA3AF !important; 
     }
-    
-    /* The Value (Middle of card) */
     div[data-testid="stMetricValue"] div {
-        color: #00C805 !important; /* Bright Green */
+        color: #00C805 !important; 
     }
 
     /* ------------------------------------------------------------------- */
-    /* E. DROPDOWN MENU FIXES (NO MORE INVISIBLE TEXT)                     */
+    /* E. DROPDOWN MENU FIXES                                              */
     /* ------------------------------------------------------------------- */
     
-    /* The Selection Box Itself */
     div[data-baseweb="select"] > div {
         background-color: #1f2937 !important;
         color: white !important;
         border-color: #374151 !important;
     }
-    
-    /* The Popup Menu */
     ul[data-baseweb="menu"] {
         background-color: #161B22 !important;
     }
-    
-    /* The Options in the Menu */
     li[role="option"] {
         color: white !important;
     }
-    
-    /* Hover Effect (Green Highlight) */
     li[role="option"]:hover {
         background-color: #00C805 !important;
         color: black !important;
     }
-    
-    /* The Down Arrow Icon inside the box */
     .stSelectbox svg {
         fill: white !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* F. CLEAN UP (FOOTERS & SCROLLBARS)                                  */
+    /* F. CLEAN UP                                                         */
     /* ------------------------------------------------------------------- */
     
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     
-    /* Custom Scrollbar to match Dark Mode */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-        background: #0E1117; 
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #30363d; 
-        border-radius: 4px;
-    }
-    
-    /* Reset Top Padding to prevent overlap with the arrow */
+    /* Fix top padding so content doesn't get hidden behind the new header */
     .block-container {
-        padding-top: 3rem !important; /* Gives the arrow space to breathe */
+        padding-top: 3rem !important; 
         max-width: 100%;
     }
     
