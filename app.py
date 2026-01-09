@@ -9,92 +9,131 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (FINAL: ARROW RESCUE) ---
+# --- 2. THE "EMPIRE" STYLING (MARK VI: STABLE CORE) ---
 st.markdown("""
     <style>
-    /* 1. MAIN LAYOUT & BACKGROUND */
+    /* ------------------------------------------------------------------- */
+    /* A. THE FOUNDATION (COLORS & LAYOUT)                                 */
+    /* ------------------------------------------------------------------- */
+    
+    /* Main Background - Dark Navy/Black */
     .stApp {
         background-color: #0E1117;
         color: #FFFFFF;
     }
     
-   # --- 2. THE "EMPIRE" STYLING (FINAL: GHOST MODE HEADER) ---
-st.markdown("""
-    <style>
-    /* 1. MAIN LAYOUT & BACKGROUND */
-    .stApp {
-        background-color: #0E1117;
-        color: #FFFFFF;
-    }
-    
-    /* 2. REMOVE THE 'PHANTOM' SCROLLING & PADDING */
-    .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 0rem !important;
-        max-width: 100%;
-    }
-    
-    /* 3. GLOBAL TEXT OVERRIDES */
-    h1, h2, h3, h4, h5, h6, p, span, div {
-        color: #FFFFFF !important;
-    }
-
-    /* 4. SIDEBAR STYLING */
+    /* Sidebar Background - Slightly lighter dark */
     [data-testid="stSidebar"] {
         background-color: #161B22;
         border-right: 1px solid #30363d;
     }
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
-        color: #E6E6E6 !important;
-    }
 
-    /* 5. METRIC CARD STYLING */
-    div[data-testid="stMetric"] {
-        background-color: #1f2937;
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid #374151;
-        text-align: center;
-    }
-    div[data-testid="stMetricLabel"] p {
-        color: #9CA3AF !important; 
-    }
-    div[data-testid="stMetricValue"] div {
-        color: #00C805 !important; 
-    }
+    /* ------------------------------------------------------------------- */
+    /* B. THE HEADER FIX (CLEAN & SAFE)                                    */
+    /* ------------------------------------------------------------------- */
     
-    /* 6. "GHOST MODE" HEADER (The Fix) */
-    
-    /* We do NOT hide the header. We make it transparent. */
+    /* We make the header background transparent so it blends in */
     header {
-        background-color: transparent !important; 
+        background-color: transparent !important;
     }
     
-    /* We HIDE the specific Toolbar (Deploy, hamburger, etc.) */
-    [data-testid="stToolbar"] {
-        display: none !important; 
-    }
-    
-    /* We HIDE the colorful decoration bar at the top */
+    /* We HIDE the colorful decoration bar at the very top */
     [data-testid="stDecoration"] {
         display: none !important;
     }
-    
-    /* We HIDE the footer */
-    footer {
+
+    /* We HIDE the "Deploy", "Star", and "Three Dots" buttons */
+    [data-testid="stToolbar"] {
         visibility: hidden !important;
     }
-    
-    /* 7. ARROW STYLING (Now perfectly safe) */
+
+    /* We ENSURE the Sidebar Toggle Arrow is VISIBLE and GREEN */
     [data-testid="stSidebarCollapsedControl"] {
-        color: #00C805 !important; /* Green Arrow */
+        visibility: visible !important;
+        color: #00C805 !important;
     }
     
+    /* We color the "Close Sidebar" X button Green too */
     [data-testid="stSidebarCollapseBtn"] {
         color: #00C805 !important;
     }
+    
+    /* ------------------------------------------------------------------- */
+    /* C. TEXT VISIBILITY (HIGH CONTRAST)                                  */
+    /* ------------------------------------------------------------------- */
+    
+    /* Force ALL Headers and Text to be White */
+    h1, h2, h3, h4, h5, h6, p, li, span, div, label {
+        color: #FFFFFF !important;
+    }
+    
+    /* Sidebar Text - slightly muted to distinguish from main content */
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
+        color: #E6E6E6 !important;
+    }
 
-    /* 8. SCROLLBAR HIDING */
+    /* ------------------------------------------------------------------- */
+    /* D. METRIC CARDS (THE DASHBOARD LOOK)                                */
+    /* ------------------------------------------------------------------- */
+    
+    div[data-testid="stMetric"] {
+        background-color: #1f2937; /* Card Background */
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #374151; /* Subtle Border */
+        text-align: center;
+    }
+    
+    /* The Label (Top of card) */
+    div[data-testid="stMetricLabel"] p {
+        color: #9CA3AF !important; /* Light Gray */
+    }
+    
+    /* The Value (Middle of card) */
+    div[data-testid="stMetricValue"] div {
+        color: #00C805 !important; /* Bright Green */
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* E. DROPDOWN MENU FIXES (NO MORE INVISIBLE TEXT)                     */
+    /* ------------------------------------------------------------------- */
+    
+    /* The Selection Box Itself */
+    div[data-baseweb="select"] > div {
+        background-color: #1f2937 !important;
+        color: white !important;
+        border-color: #374151 !important;
+    }
+    
+    /* The Popup Menu */
+    ul[data-baseweb="menu"] {
+        background-color: #161B22 !important;
+    }
+    
+    /* The Options in the Menu */
+    li[role="option"] {
+        color: white !important;
+    }
+    
+    /* Hover Effect (Green Highlight) */
+    li[role="option"]:hover {
+        background-color: #00C805 !important;
+        color: black !important;
+    }
+    
+    /* The Down Arrow Icon inside the box */
+    .stSelectbox svg {
+        fill: white !important;
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* F. CLEAN UP (FOOTERS & SCROLLBARS)                                  */
+    /* ------------------------------------------------------------------- */
+    
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* Custom Scrollbar to match Dark Mode */
     ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
@@ -106,26 +145,13 @@ st.markdown("""
         background: #30363d; 
         border-radius: 4px;
     }
-
-    /* 9. FORM ELEMENT FIXES (Dropdowns) */
-    div[data-baseweb="select"] > div {
-        background-color: #1f2937 !important;
-        color: white !important;
-        border-color: #374151 !important;
+    
+    /* Reset Top Padding to prevent overlap with the arrow */
+    .block-container {
+        padding-top: 3rem !important; /* Gives the arrow space to breathe */
+        max-width: 100%;
     }
-    ul[data-baseweb="menu"] {
-        background-color: #161B22 !important; 
-    }
-    li[role="option"] {
-        color: white !important; 
-    }
-    li[role="option"]:hover {
-        background-color: #00C805 !important; 
-        color: black !important;
-    }
-    .stSelectbox svg {
-        fill: white !important;
-    }
+    
     </style>
     """, unsafe_allow_html=True)
 
@@ -261,8 +287,3 @@ st.plotly_chart(fig, use_container_width=True)
 # Data breakdown
 with st.expander("View Raw Data Table"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
-
-
-
-
-
