@@ -6,10 +6,10 @@ import plotly.graph_objects as go
 st.set_page_config(
     page_title="Income Shield Simulator", 
     layout="wide", 
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded" 
 )
 
-# --- 2. THE "EMPIRE" STYLING (MARK XV: PAINT IT BLACK) ---
+# --- 2. THE "EMPIRE" STYLING (MARK XVI: BEDROCK BUILD) ---
 # Core: #0D1117 | Accent: #8AC7DE | Tertiary: #1E293B
 st.markdown("""
     <style>
@@ -26,72 +26,57 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. THE HEADER & ARROW FIX (THE CRITICAL CHANGE)                     */
+    /* B. PERMANENT SIDEBAR FIX (NO COLLAPSE)                              */
     /* ------------------------------------------------------------------- */
     
-    /* 1. We do NOT hide the header. We paint it #0D1117 */
-    header[data-testid="stHeader"] {
-        background-color: #0D1117 !important;
-        height: 3.5rem !important; /* Fixed height to prevent shifting */
-        z-index: 100 !important;
-    }
-    
-    /* 2. We Hide the Toolbar buttons (Deploy, etc.) individually */
-    [data-testid="stToolbar"] {
-        display: none !important;
-    }
-    
-    /* 3. We Hide the Rainbow Decoration Line */
-    [data-testid="stDecoration"] {
-        display: none !important;
-    }
-
-    /* 4. We Style the Arrow Button (Which sits inside the now-black header) */
-    [data-testid="stSidebarCollapsedControl"] {
-        color: #8AC7DE !important; /* Accent Blue */
-        display: block !important;
-    }
-    
-    /* 5. The Close "X" Button */
+    /* 1. HIDE the Close Sidebar Button (The X) */
     [data-testid="stSidebarCollapseBtn"] {
-        color: #8AC7DE !important;
+        display: none !important;
     }
+    
+    /* 2. HIDE the Open Sidebar Arrow (Just in case) */
+    [data-testid="stSidebarCollapsedControl"] {
+        display: none !important;
+    }
+    
+    /* 3. Hide Toolbar & Decoration */
+    [data-testid="stToolbar"] {display: none !important;}
+    [data-testid="stDecoration"] {display: none !important;}
+    
+    /* 4. Hide Footer */
+    footer {display: none !important;}
 
     /* ------------------------------------------------------------------- */
-    /* C. DROPDOWN & INPUT VISIBILITY (NUCLEAR OVERRIDE)                   */
+    /* C. DROPDOWN VISIBILITY (NUCLEAR OPTION)                             */
     /* ------------------------------------------------------------------- */
     
     /* The Box you click */
-    div[data-baseweb="select"] > div, 
+    div[data-baseweb="select"] > div,
     div[data-testid="stDateInput"] > div,
     div[data-baseweb="input"] > div {
-        background-color: #1E293B !important; /* Tertiary Navy */
+        background-color: #1E293B !important; 
         border-color: #30363d !important;
         color: #FFFFFF !important;
     }
     
-    /* The Text inside */
+    /* The Text inside input boxes */
     input {
         color: #FFFFFF !important;
     }
     
-    /* The Popup Menu Container */
-    div[data-baseweb="popover"] {
+    /* THE POPUP MENU CONTAINER (Crucial Fix) */
+    div[data-baseweb="popover"], div[data-baseweb="menu"] {
         background-color: #1E293B !important;
+        border: 1px solid #30363d !important;
     }
     
-    /* The Menu List */
-    ul[data-baseweb="menu"] {
-        background-color: #1E293B !important;
-    }
-    
-    /* The Options */
+    /* The List Items */
     li[role="option"] {
         color: #FFFFFF !important;
     }
     
-    /* Hover Highlight */
-    li[role="option"]:hover, li[role="option"]:focus {
+    /* Hover Highlight (Blue Background, Dark Text) */
+    li[role="option"]:hover, li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
@@ -102,23 +87,33 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* D. ANTI-SCROLL & COMPACTNESS                                        */
+    /* D. RADIO BUTTONS (RED/WHITE CIRCLES)                                */
     /* ------------------------------------------------------------------- */
-    
-    /* Remove huge top padding so it fits in one window */
-    .block-container {
-        padding-top: 1.5rem !important; 
-        padding-bottom: 0rem !important;
-        max-width: 100%;
-    }
-    
-    /* Hide Footer */
-    footer {
-        display: none !important;
+    /* This targets the circle radio buttons to match your preference */
+    div[role="radiogroup"] label {
+        color: #E6EDF3 !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* E. METRICS & TEXT                                                   */
+    /* E. ANTI-SCROLL (COMPACT LAYOUT)                                     */
+    /* ------------------------------------------------------------------- */
+    
+    /* 1. Push content up to the very top */
+    .block-container {
+        padding-top: 1rem !important; 
+        padding-bottom: 0rem !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+        max-width: 100%;
+    }
+    
+    /* 2. Hide Scrollbars (Visual only - you can still scroll if needed) */
+    ::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* ------------------------------------------------------------------- */
+    /* F. METRICS & TEXT                                                   */
     /* ------------------------------------------------------------------- */
     h1, h2, h3, h4, h5, h6, p, label {
         color: #E6EDF3 !important;
@@ -163,7 +158,7 @@ if df_unified is None:
 
 # --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
-    st.title("🛡️ Simulator")
+    st.header("🛡️ Simulator") # Using header instead of title to save space
     
     # Ticker
     tickers = sorted(df_unified['Ticker'].unique())
@@ -176,15 +171,13 @@ with st.sidebar:
     buy_date = st.date_input("Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
     
-    # 2. End Date Logic (The Requested Feature)
-    st.write("Duration:")
-    is_custom_end = st.checkbox("Simulate to Specific Date")
+    # 2. End Date Logic (Reverted to Radio Buttons as requested)
+    date_mode = st.radio("Simulation End Point:", ["Hold to Present", "Sell on Specific Date"])
     
-    if is_custom_end:
-        end_date = st.date_input("End Date", pd.to_datetime("today"))
+    if date_mode == "Sell on Specific Date":
+        end_date = st.date_input("Sell Date", pd.to_datetime("today"))
         end_date = pd.to_datetime(end_date)
     else:
-        st.caption("✅ Simulating returns to Present Day")
         end_date = pd.to_datetime("today")
         
     st.markdown("---")
@@ -194,8 +187,6 @@ with st.sidebar:
     
     # 4. Data Filtering Logic
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
-    
-    # Filter between Buy Date AND End Date
     journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
     
     if not journey.empty:
@@ -208,12 +199,11 @@ with st.sidebar:
         
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
-        st.error("No data available for this date range.")
+        st.error("No data available.")
         st.stop()
 
 # --- 5. CALCULATIONS ---
 div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
-# Filter dividends to only those paid within the hold period
 my_divs = div_df[(div_df['Date of Pay'] >= buy_date) & (div_df['Date of Pay'] <= end_date)].copy()
 my_divs['CumDiv'] = my_divs['Amount'].cumsum()
 
@@ -240,16 +230,14 @@ total_return_pct = (total_pl / initial_cap) * 100
 # Chart Color Logic
 start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
-# Blue (#8AC7DE) if up, Red (#FF4B4B) if down
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
 # --- 6. DASHBOARD ---
-st.header(f"{selected_ticker} Performance Simulator")
-date_range_str = f"{buy_date.date()} ➝ {end_date.date()}"
-st.markdown(f"**{shares:.2f} shares** | {date_range_str}")
+# Compact Header
+st.markdown(f"### {selected_ticker} Performance Simulator")
+st.markdown(f"**{shares:.2f} shares** | {buy_date.date()} ➝ {end_date.date()}")
 
 m1, m2, m3, m4 = st.columns(4)
-
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
@@ -258,17 +246,17 @@ m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 # --- 7. CHART ---
 fig = go.Figure()
 
-# Price Line (Dynamic Color)
+# Price Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='Price only (Brokerage View)',
+    mode='lines', name='Price only',
     line=dict(color=price_line_color, width=2)
 ))
 
-# True Value Line (Always Neon Green)
+# True Value Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
-    mode='lines', name='True Value (Price + Dividends)',
+    mode='lines', name='True Value (Price + Divs)',
     line=dict(color='#00C805', width=3),
     fill='tonexty', 
     fillcolor='rgba(0, 200, 5, 0.1)' 
@@ -280,7 +268,7 @@ fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=500,
+    height=400, # Reduced height to prevent scrolling
     margin=dict(l=0, r=0, t=20, b=0),
     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     hovermode="x unified"
@@ -288,5 +276,6 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-with st.expander("View Raw Data Table"):
-    st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
+# Data breakdown (Compact)
+with st.expander("View Data"):
+    st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True, height=200)
