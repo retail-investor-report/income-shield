@@ -1,167 +1,105 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import os
 
-# --- PAGE CONFIGURATION ---
-st.set_page_config(
-    page_title="RDI Terminal",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# --- PAGE SETTINGS ---
+st.set_page_config(layout="wide", page_title="RDI Terminal", initial_sidebar_state="expanded")
 
-# --- CSS HACKS FOR "FIXED SIDEBAR" & HIGH CONTRAST ---
+# --- VISUAL FIXES (CSS) ---
+# This forces the sidebar to stay OPEN and hides the collapse arrow
 st.markdown("""
 <style>
-    /* 1. HIDE SIDEBAR COLLAPSE ARROW (Locks sidebar open on Desktop) */
+    /* 1. HIDE THE SIDEBAR COLLAPSE ARROW */
     [data-testid="stSidebarCollapsedControl"] {
-        display: none;
-    }
-
-    /* 2. FORCE TEXT COLORS (High Contrast) */
-    h1, h2, h3, p, div, span, label {
-        color: #FFFFFF !important;
+        display: none; 
     }
     
-    /* Muted text for secondary info */
-    .small-text {
-        color: #b0b0b0 !important;
+    /* 2. FORCE DARK MODE & HIGH CONTRAST TEXT */
+    .stApp {
+        background-color: #0e1117;
+        color: #ffffff;
     }
-
+    h1, h2, h3, p, div, span {
+        color: #ffffff !important;
+    }
+    
     /* 3. TABLE STYLING */
     [data-testid="stDataFrame"] {
-        border: 1px solid #444;
+        border: 1px solid #333;
+    }
+    
+    /* 4. SIDEBAR BACKGROUND */
+    [data-testid="stSidebar"] {
+        background-color: #161b22;
+        border-right: 1px solid #333;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- FILE MAPPING (Your CSV Inventory) ---
-# Update these filenames if they change slightly on your disk
+# --- FILE CONFIGURATION ---
+# These must match the filenames you upload to GitHub
 FILES = {
-    "📊 Master Dashboard": "The Retail Dividend Investor Spreadsheet - Master List.csv",
-    "🏆 Winner of The Week": "The Retail Dividend Investor Spreadsheet - Winner of The Week.csv",
-    "🚀 YieldMax (All)": "The Retail Dividend Investor Spreadsheet - YieldMax (All).csv",
+    "📊 Dashboard": "The Retail Dividend Investor Spreadsheet - Master List.csv",
+    "🏆 Winner of Week": "The Retail Dividend Investor Spreadsheet - Winner of The Week.csv",
+    "🚀 YieldMax": "The Retail Dividend Investor Spreadsheet - YieldMax (All).csv",
     "🛡️ Defiance": "The Retail Dividend Investor Spreadsheet - Defiance (All).csv",
     "🎯 Roundhill": "The Retail Dividend Investor Spreadsheet - Roundhill (All).csv",
-    "🦖 Rex Shares": "The Retail Dividend Investor Spreadsheet - Rex Shares (All).csv",
-    "🌑 NEOS": "The Retail Dividend Investor Spreadsheet - NEOS.csv",
-    "🏦 Goldman Sachs": "The Retail Dividend Investor Spreadsheet - Goldman-Sachs.csv",
-    "📈 ProShares": "The Retail Dividend Investor Spreadsheet - ProShares.csv",
-    "🌐 Global X": "The Retail Dividend Investor Spreadsheet - Global-X-ETF's.csv",
-    "⛏️ Granite Shares": "The Retail Dividend Investor Spreadsheet - Granite-Shares-Yieldboost.csv",
-    "⚡ Kurv": "The Retail Dividend Investor Spreadsheet - Kurv-Investment-Management-LLC.csv",
     "🆕 Newest Funds": "The Retail Dividend Investor Spreadsheet - Newest Funds.csv"
 }
 
-# --- SMART DATA LOADER ---
-def load_data(filepath):
+# --- DATA LOADING ENGINE ---
+def load_data(filename):
     """
-    Smartly reads CSVs even if they have junk rows at the top.
-    Finds the row containing 'Inception' or 'Ticker' and uses that as header.
+    Loads CSVs safely. If the file isn't found (e.g., hasn't been uploaded yet),
+    it handles the error gracefully so the app doesn't crash.
     """
-    if not os.path.exists(filepath):
+    if not os.path.exists(filename):
         return None
-
-    # First, try to find the header row
+    
     try:
-        # Read first 10 rows to inspect
-        preview = pd.read_csv(filepath, header=None, nrows=10)
-        header_row_index = 0
-        
-        for idx, row in preview.iterrows():
-            row_str = row.astype(str).str.lower().tolist()
-            # Look for keywords that indicate the header line
-            if any(x in row_str for x in ['inception', 'underlying asset', 'current price', 'dividend']):
-                header_row_index = idx
+        # Smart load: looks for the header row automatically
+        preview = pd.read_csv(filename, header=None, nrows=10)
+        header_row = 0
+        for i, row in preview.iterrows():
+            # If we find "Ticker" or "Yield" in the row, that's our header
+            if row.astype(str).str.contains('Ticker|Yield|Price', case=False).any():
+                header_row = i
                 break
         
-        # Load the actual data with the correct header
-        df = pd.read_csv(filepath, header=header_row_index)
+        df = pd.read_csv(filename, header=header_row)
         
-        # CLEANUP: Rename the weird empty first column if it exists
-        if df.columns[0] == '`' or 'Unnamed' in str(df.columns[0]):
-             df.rename(columns={df.columns[0]: 'Ticker'}, inplace=True)
-        
-        # CLEANUP: Convert Yield % Strings to Numbers for Sorting
-        # Finds columns with "Dividend" or "Yield" in name
-        for col in df.columns:
-            if 'Dividend' in col or 'Yield' in col:
-                # Remove % sign and convert to float
-                df[col] = df[col].astype(str).str.replace('%', '', regex=False)
-                df[col] = pd.to_numeric(df[col], errors='coerce')
-        
+        # Basic cleanup: Remove empty columns
+        df = df.dropna(axis=1, how='all')
         return df
-        
-    except Exception as e:
-        st.error(f"Error reading file: {e}")
+    except:
         return None
 
 # --- SIDEBAR NAVIGATION ---
-st.sidebar.title("RDI Terminal")
-st.sidebar.caption("The Retail Dividend Investor")
+st.sidebar.header("RDI TERMINAL")
 st.sidebar.markdown("---")
 
-selected_view = st.sidebar.radio(
-    "Select Data Set",
-    list(FILES.keys()),
-    index=0
-)
+# The menu
+menu_options = list(FILES.keys())
+selection = st.sidebar.radio("Select Data View", menu_options)
 
 st.sidebar.markdown("---")
-st.sidebar.info("Sidebar is locked for desktop view.")
+st.sidebar.info("✅ Sidebar Locked\n✅ High Contrast")
 
-# --- MAIN CONTENT ---
-st.title(selected_view)
+# --- MAIN CONTENT AREA ---
+st.title(selection)
 
-filename = FILES[selected_view]
-df = load_data(filename)
+selected_file = FILES[selection]
+df = load_data(selected_file)
 
 if df is not None:
-    # Top KPI Metrics (if data allows)
-    col1, col2, col3 = st.columns(3)
-    
-    # Calculate some quick stats if columns exist
-    if 'Dividend' in df.columns:
-        avg_yield = df['Dividend'].mean()
-        max_yield = df['Dividend'].max()
-        top_payer = df.loc[df['Dividend'].idxmax(), 'Ticker'] if 'Ticker' in df.columns else "N/A"
-        
-        col1.metric("Average Yield", f"{avg_yield:.2f}%")
-        col2.metric("Highest Yield", f"{max_yield:.2f}%")
-        col3.metric("Top Payer", top_payer)
-
-    st.markdown("---")
-
-    # Data Display
-    # We use data_editor to allow sorting and column resizing, but disabled editing
-    st.data_editor(
-        df,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "Dividend": st.column_config.ProgressColumn(
-                "Annual Yield (%)",
-                format="%.2f%%",
-                min_value=0,
-                max_value=200, # Cap progress bar at 200% for visual sanity
-            ),
-            "Current Price": st.column_config.NumberColumn(
-                "Price ($)",
-                format="$%.2f"
-            ),
-            "Latest Distribution ": st.column_config.NumberColumn(
-                "Payout ($)",
-                format="$%.4f"
-            ),
-            "Inception": st.column_config.DateColumn(
-                "Inception Date",
-                format="MM/DD/YYYY"
-            )
-        },
-        height=800
+    # Display the data in a sortable, clean table
+    st.dataframe(
+        df, 
+        use_container_width=True, 
+        height=800,
+        hide_index=True
     )
-    
 else:
-    st.warning(f"File not found: {filename}. Please ensure the CSV is in the directory.")
-    st.markdown("### Debug Info")
-    st.write(f"Looking for: {os.getcwd()}/{filename}")
+    # Friendly error if file is missing
+    st.error(f"⚠️ Data file not found: {selected_file}")
+    st.caption("Make sure you uploaded the CSV files to your GitHub repository.")
