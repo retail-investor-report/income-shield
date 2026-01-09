@@ -18,6 +18,15 @@ st.markdown("""
         color: #FFFFFF;
     }
     
+   # --- 2. THE "EMPIRE" STYLING (FINAL: GHOST MODE HEADER) ---
+st.markdown("""
+    <style>
+    /* 1. MAIN LAYOUT & BACKGROUND */
+    .stApp {
+        background-color: #0E1117;
+        color: #FFFFFF;
+    }
+    
     /* 2. REMOVE THE 'PHANTOM' SCROLLING & PADDING */
     .block-container {
         padding-top: 1rem !important;
@@ -54,35 +63,34 @@ st.markdown("""
         color: #00C805 !important; 
     }
     
-    /* 6. SECURITY & UI CLEANUP */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
+    /* 6. "GHOST MODE" HEADER (The Fix) */
     
-    /* HIDE the header container (this hides the Deploy button) */
+    /* We do NOT hide the header. We make it transparent. */
     header {
-        visibility: hidden !important;
+        background-color: transparent !important; 
     }
+    
+    /* We HIDE the specific Toolbar (Deploy, hamburger, etc.) */
     [data-testid="stToolbar"] {
-        visibility: hidden !important;
+        display: none !important; 
     }
-    .stApp > header {
+    
+    /* We HIDE the colorful decoration bar at the top */
+    [data-testid="stDecoration"] {
+        display: none !important;
+    }
+    
+    /* We HIDE the footer */
+    footer {
         visibility: hidden !important;
     }
     
-    /* 7. THE ARROW RESCUE MISSION */
-    /* This forces the "Open Sidebar" arrow (>) to stay visible even if the header is hidden */
+    /* 7. ARROW STYLING (Now perfectly safe) */
     [data-testid="stSidebarCollapsedControl"] {
-        visibility: visible !important;
-        color: #00C805 !important;
-        display: block !important;
-        z-index: 999999 !important; /* Force it to the top layer */
-        left: 20px !important;      /* Ensure it's not stuck off-screen */
-        top: 20px !important;
+        color: #00C805 !important; /* Green Arrow */
     }
     
-    /* This forces the "Close Sidebar" arrow (X) to be visible */
     [data-testid="stSidebarCollapseBtn"] {
-        visibility: visible !important;
         color: #00C805 !important;
     }
 
@@ -253,6 +261,7 @@ st.plotly_chart(fig, use_container_width=True)
 # Data breakdown
 with st.expander("View Raw Data Table"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
+
 
 
 
