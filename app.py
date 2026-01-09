@@ -9,70 +9,71 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (MARK VIII: SURGICAL PRECISION) ---
+# --- 2. THE "EMPIRE" STYLING (MARK IX: THE NUCLEAR OPTION) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. MAIN THEME COLORS                                                */
+    /* A. MAIN THEME                                                       */
     /* ------------------------------------------------------------------- */
-    
-    /* Global App Background */
     .stApp {
         background-color: #0E1117;
         color: #FFFFFF;
     }
-    
-    /* Sidebar Background */
     [data-testid="stSidebar"] {
         background-color: #161B22;
         border-right: 1px solid #30363d;
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. THE HEADER FIX (The Surgical Approach)                           */
+    /* B. THE NUCLEAR HEADER FIX                                           */
     /* ------------------------------------------------------------------- */
     
-    /* 1. We keep the header container but make it transparent */
+    /* 1. Hide the Standard Header Container completely */
     header[data-testid="stHeader"] {
         background-color: transparent !important;
+        border-bottom: none !important;
     }
-
-    /* 2. We HIDE the Decoration Bar (Rainbow line at top) */
-    [data-testid="stDecoration"] {
-        display: none !important;
-    }
-
-    /* 3. We HIDE the Toolbar (The Buttons on the Right: Deploy, Menu, etc.) */
+    
+    /* 2. KILL the Toolbar (Deploy, Menu, etc) */
     [data-testid="stToolbar"] {
         display: none !important;
     }
     
-    /* 4. We STYLE the Sidebar Arrow (Left side) */
-    /* We do NOT hide this. We just color it Green. */
-    [data-testid="stSidebarCollapsedControl"] {
-        color: #00C805 !important;
+    /* 3. KILL the Decoration Bar */
+    [data-testid="stDecoration"] {
+        display: none !important;
     }
     
-    /* 5. We STYLE the Close Button (Inside the sidebar) */
+    /* 4. THE FIX: Detach the Arrow and pin it to the screen manually */
+    [data-testid="stSidebarCollapsedControl"] {
+        position: fixed !important;  /* Detaches from header flow */
+        top: 20px !important;        /* Forces it to top */
+        left: 20px !important;       /* Forces it to left */
+        z-index: 1000001 !important; /* Forces it above EVERYTHING */
+        display: block !important;
+        visibility: visible !important;
+        color: #00C805 !important;   /* Bright Green */
+        background-color: #161B22 !important; /* Small dark background box */
+        padding: 5px !important;
+        border-radius: 5px !important;
+    }
+
+    /* 5. Style the Close Button (Inside sidebar) */
     [data-testid="stSidebarCollapseBtn"] {
         color: #00C805 !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. TEXT & METRICS (High Contrast)                                   */
+    /* C. TEXT & METRICS                                                   */
     /* ------------------------------------------------------------------- */
-    
-    /* Force all main text to White */
     h1, h2, h3, h4, h5, h6, p, li, span, div, label {
         color: #FFFFFF !important;
     }
-    
-    /* Mute the sidebar text slightly */
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
         color: #E6E6E6 !important;
     }
-
-    /* Metric Cards */
+    
+    /* Metrics */
     div[data-testid="stMetric"] {
         background-color: #1f2937; 
         padding: 15px;
@@ -88,56 +89,38 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* D. FORM ELEMENTS (Dropdowns & Inputs)                               */
+    /* D. DROPDOWNS                                                        */
     /* ------------------------------------------------------------------- */
-    
-    /* Input Boxes (Number Input, Date Input) */
-    input {
-        background-color: #1f2937 !important;
-        color: white !important;
-    }
-    
-    /* Dropdown Selection Box */
     div[data-baseweb="select"] > div {
         background-color: #1f2937 !important;
         color: white !important;
         border-color: #374151 !important;
     }
-    
-    /* Dropdown Popup Menu */
     ul[data-baseweb="menu"] {
         background-color: #161B22 !important;
     }
-    
-    /* Dropdown Options */
     li[role="option"] {
         color: white !important;
     }
-    
-    /* Hover Effect */
     li[role="option"]:hover {
         background-color: #00C805 !important;
         color: black !important;
     }
-    
-    /* Icons (Calendar, Arrows) */
-    .stSelectbox svg, .stDateInput svg {
+    .stSelectbox svg {
         fill: white !important;
     }
 
     /* ------------------------------------------------------------------- */
     /* E. CLEAN UP                                                         */
     /* ------------------------------------------------------------------- */
-    
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     
-    /* Remove top padding so the app feels like a dashboard */
+    /* Push content down so it doesn't overlap the fixed arrow */
     .block-container {
-        padding-top: 2rem !important; 
+        padding-top: 4rem !important; 
         max-width: 100%;
     }
-    
     </style>
     """, unsafe_allow_html=True)
 
