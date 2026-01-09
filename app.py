@@ -29,13 +29,28 @@ st.markdown("""
         width: 300px !important; /* Fixed width */
         min-width: 300px !important; /* Enforce minimum to prevent collapse */
         visibility: visible !important; /* Force visibility */
+        transform: translateX(0px) !important; /* Force expanded position */
+    }
+    /* Force expanded on all screen sizes, including mobile/narrow */
+    @media (max-width: 768px) {
+        [data-testid="stSidebar"] {
+            transform: translateX(0px) !important;
+            width: 300px !important;
+        }
     }
     /* 1. HIDE the Close Sidebar Button (The X) - USER CANNOT CLOSE IT */
     [data-testid="stSidebarCollapseBtn"] {
         display: none !important;
     }
    
-    /* NOTE: Removed hiding of the open arrow - if sidebar ever collapses (e.g., on mobile), the arrow will show to expand it back */
+    /* Style the Open Sidebar Arrow (make visible with accent color if it appears) */
+    [data-testid="stSidebarCollapsedControl"] {
+        background-color: #0D1117 !important;
+        color: #E6EDF3 !important;
+    }
+    [data-testid="stSidebarCollapsedControl"] svg {
+        fill: #8AC7DE !important; /* Accent color for visibility */
+    }
    
     /* ------------------------------------------------------------------- */
     /* C. HEADER FIX (NO WHITE BANNER) */
@@ -69,10 +84,16 @@ st.markdown("""
         color: #FFFFFF !important;
     }
    
-    /* THE POPUP MENU (Dark Background, White Text) */
+    /* THE POPUP MENU (Dark Background, White Text) - More targeted selectors */
     div[data-baseweb="popover"], div[data-baseweb="menu"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
+    }
+    ul[role="listbox"] {
+        background-color: #1E293B !important; /* Force dark bg on list */
+    }
+    .stSelectbox ul {
+        background-color: #1E293B !important; /* Streamlit-specific */
     }
    
     /* The List Items */
@@ -80,6 +101,7 @@ st.markdown("""
         color: #FFFFFF !important;
         font-size: 16px !important; /* Larger font for tickers */
         padding: 10px !important; /* More padding for easier reading/clicking */
+        background-color: transparent !important; /* No white bg on items */
     }
    
     /* Hover Highlight (Blue Background, Dark Text) */
