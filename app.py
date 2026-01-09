@@ -1,186 +1,167 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
+import plotly.express as px
+import os
 
-# --- 1. PAGE CONFIGURATION ---
+# --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Income Shield Simulator", 
-    layout="wide", 
+    page_title="RDI Terminal",
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (PERFECT DARK MODE) ---
+# --- CSS HACKS FOR "FIXED SIDEBAR" & HIGH CONTRAST ---
 st.markdown("""
-    <style>
-    /* Main Background */
-    .stApp {
-        background-color: #0E1117;
-        color: #FFFFFF;
-    }
-    
-    /* Sidebar Styling */
-    [data-testid="stSidebar"] {
-        background-color: #161B22;
-        border-right: 1px solid #30363d;
+<style>
+    /* 1. HIDE SIDEBAR COLLAPSE ARROW (Locks sidebar open on Desktop) */
+    [data-testid="stSidebarCollapsedControl"] {
+        display: none;
     }
 
-    /* Metric Card Styling */
-    div[data-testid="stMetric"] {
-        background-color: #1f2937;
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid #374151;
-        text-align: center;
+    /* 2. FORCE TEXT COLORS (High Contrast) */
+    h1, h2, h3, p, div, span, label {
+        color: #FFFFFF !important;
     }
     
-    /* Ensure Sidebar Open/Close button is ALWAYS visible and Green */
-    [data-testid="stSidebarCollapseBtn"] {
-        color: #00C805 !important;
+    /* Muted text for secondary info */
+    .small-text {
+        color: #b0b0b0 !important;
     }
 
-    /* Hide Branding but keep Header Navigation */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    .viewerBadge_container__1QSob {display: none !important;}
-    [data-testid="stStatusWidget"] {display: none !important;}
-    
-    /* Adjusting the Header to be invisible but functional */
-    header {
-        background-color: rgba(0,0,0,0) !important;
-        color: white !important;
+    /* 3. TABLE STYLING */
+    [data-testid="stDataFrame"] {
+        border: 1px solid #444;
     }
-    </style>
-    """, unsafe_allow_html=True)
+</style>
+""", unsafe_allow_html=True)
 
-# --- 3. THE LIVE WIRE: DATA LOADING ---
-@st.cache_data(ttl=300)
-def load_data():
+# --- FILE MAPPING (Your CSV Inventory) ---
+# Update these filenames if they change slightly on your disk
+FILES = {
+    "📊 Master Dashboard": "The Retail Dividend Investor Spreadsheet - Master List.csv",
+    "🏆 Winner of The Week": "The Retail Dividend Investor Spreadsheet - Winner of The Week.csv",
+    "🚀 YieldMax (All)": "The Retail Dividend Investor Spreadsheet - YieldMax (All).csv",
+    "🛡️ Defiance": "The Retail Dividend Investor Spreadsheet - Defiance (All).csv",
+    "🎯 Roundhill": "The Retail Dividend Investor Spreadsheet - Roundhill (All).csv",
+    "🦖 Rex Shares": "The Retail Dividend Investor Spreadsheet - Rex Shares (All).csv",
+    "🌑 NEOS": "The Retail Dividend Investor Spreadsheet - NEOS.csv",
+    "🏦 Goldman Sachs": "The Retail Dividend Investor Spreadsheet - Goldman-Sachs.csv",
+    "📈 ProShares": "The Retail Dividend Investor Spreadsheet - ProShares.csv",
+    "🌐 Global X": "The Retail Dividend Investor Spreadsheet - Global-X-ETF's.csv",
+    "⛏️ Granite Shares": "The Retail Dividend Investor Spreadsheet - Granite-Shares-Yieldboost.csv",
+    "⚡ Kurv": "The Retail Dividend Investor Spreadsheet - Kurv-Investment-Management-LLC.csv",
+    "🆕 Newest Funds": "The Retail Dividend Investor Spreadsheet - Newest Funds.csv"
+}
+
+# --- SMART DATA LOADER ---
+def load_data(filepath):
+    """
+    Smartly reads CSVs even if they have junk rows at the top.
+    Finds the row containing 'Inception' or 'Ticker' and uses that as header.
+    """
+    if not os.path.exists(filepath):
+        return None
+
+    # First, try to find the header row
     try:
-        # ---------------------------------------------------------
-        # PASTE YOUR GOOGLE SHEET LINKS BETWEEN THE QUOTES BELOW
-        # ---------------------------------------------------------
-        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
-        h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
+        # Read first 10 rows to inspect
+        preview = pd.read_csv(filepath, header=None, nrows=10)
+        header_row_index = 0
         
-        df_u = pd.read_csv(u_url)
-        df_h = pd.read_csv(h_url)
+        for idx, row in preview.iterrows():
+            row_str = row.astype(str).str.lower().tolist()
+            # Look for keywords that indicate the header line
+            if any(x in row_str for x in ['inception', 'underlying asset', 'current price', 'dividend']):
+                header_row_index = idx
+                break
         
-        # Convert Dates
-        df_u['Date'] = pd.to_datetime(df_u['Date'])
-        df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
-        return df_u, df_h
+        # Load the actual data with the correct header
+        df = pd.read_csv(filepath, header=header_row_index)
+        
+        # CLEANUP: Rename the weird empty first column if it exists
+        if df.columns[0] == '`' or 'Unnamed' in str(df.columns[0]):
+             df.rename(columns={df.columns[0]: 'Ticker'}, inplace=True)
+        
+        # CLEANUP: Convert Yield % Strings to Numbers for Sorting
+        # Finds columns with "Dividend" or "Yield" in name
+        for col in df.columns:
+            if 'Dividend' in col or 'Yield' in col:
+                # Remove % sign and convert to float
+                df[col] = df[col].astype(str).str.replace('%', '', regex=False)
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        
+        return df
+        
     except Exception as e:
-        return None, None
+        st.error(f"Error reading file: {e}")
+        return None
 
-df_unified, df_history = load_data()
+# --- SIDEBAR NAVIGATION ---
+st.sidebar.title("RDI Terminal")
+st.sidebar.caption("The Retail Dividend Investor")
+st.sidebar.markdown("---")
 
-if df_unified is None:
-    st.error("🚨 Link Connection Error: Check your Google Sheet CSV links in the code.")
-    st.stop()
-
-# --- 4. SIDEBAR CONTROLS ---
-with st.sidebar:
-    st.title("🛡️ Simulator Controls")
-    st.write("Adjust your entry and position size.")
-    
-    # Ticker Selection
-    tickers = sorted(df_unified['Ticker'].unique())
-    selected_ticker = st.selectbox("Select Asset", tickers)
-    
-    # Buy Date (Default to 6 months ago)
-    default_date = pd.to_datetime("today") - pd.DateOffset(months=6)
-    buy_date = st.date_input("Your Purchase Date", default_date)
-    buy_date = pd.to_datetime(buy_date)
-
-    st.markdown("---")
-    
-    # Mode Selection
-    mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
-    
-    # Filter data for calculations
-    price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
-    journey = price_df[price_df['Date'] >= buy_date].copy()
-    
-    if not journey.empty:
-        entry_price = journey.iloc[0]['Closing Price']
-        if mode == "Share Count":
-            shares = st.number_input("Shares Owned", min_value=1, value=10)
-        else:
-            dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
-            shares = float(dollars) / entry_price
-        
-        st.info(f"Entry Price: ${entry_price:.2f}")
-    else:
-        st.error("No data available for this date.")
-        st.stop()
-
-# --- 5. CALCULATIONS ---
-# Dividend processing
-div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
-my_divs = div_df[div_df['Date of Pay'] >= buy_date].copy()
-my_divs['CumDiv'] = my_divs['Amount'].cumsum()
-
-def get_total_div(d):
-    rows = my_divs[my_divs['Date of Pay'] <= d]
-    return rows['CumDiv'].iloc[-1] if not rows.empty else 0.0
-
-# Build the timeline
-journey['Div_Per_Share'] = journey['Date'].apply(get_total_div)
-journey['Market_Value'] = journey['Closing Price'] * shares
-journey['Cash_Banked'] = journey['Div_Per_Share'] * shares
-journey['True_Value'] = journey['Market_Value'] + journey['Cash_Banked']
-
-# Final Stats
-initial_cap = entry_price * shares
-current_total = journey.iloc[-1]['True_Value']
-cash_total = journey.iloc[-1]['Cash_Banked']
-total_return_pct = ((current_total - initial_cap) / initial_cap) * 100
-
-# --- 6. MAIN DASHBOARD ---
-st.header(f" {selected_ticker} Performance Simulator")
-st.markdown(f"Analysis for **{shares:.2f} shares** purchased on **{buy_date.date()}**.")
-
-# Metric Row
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("Initial Capital", f"${initial_cap:,.2f}")
-m2.metric("Market Value", f"${journey.iloc[-1]['Market_Value']:,.2f}")
-m3.metric("Dividends Collected", f"${cash_total:,.2f}")
-m4.metric("True Total Value", f"${current_total:,.2f}", f"{total_return_pct:.2f}%")
-
-# --- 7. THE CHART ---
-fig = go.Figure()
-
-# Market Price (Red Line)
-fig.add_trace(go.Scatter(
-    x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='Price only (Brokerage View)',
-    line=dict(color='#FF4B4B', width=1.5)
-))
-
-# Total Return (Green Line + Shading)
-fig.add_trace(go.Scatter(
-    x=journey['Date'], y=journey['True_Value'],
-    mode='lines', name='True Value (Price + Dividends)',
-    line=dict(color='#00C805', width=3),
-    fill='tonexty', 
-    fillcolor='rgba(0, 200, 5, 0.15)' 
-))
-
-# Break-even Reference
-fig.add_hline(y=initial_cap, line_dash="dash", line_color="#888888", opacity=0.5)
-
-fig.update_layout(
-    template="plotly_dark",
-    paper_bgcolor='rgba(0,0,0,0)',
-    plot_bgcolor='rgba(0,0,0,0)',
-    height=500,
-    margin=dict(l=0, r=0, t=20, b=0),
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-    hovermode="x unified"
+selected_view = st.sidebar.radio(
+    "Select Data Set",
+    list(FILES.keys()),
+    index=0
 )
 
-st.plotly_chart(fig, use_container_width=True)
+st.sidebar.markdown("---")
+st.sidebar.info("Sidebar is locked for desktop view.")
 
-# Data breakdown
-with st.expander("View Raw Data Table"):
-    st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
+# --- MAIN CONTENT ---
+st.title(selected_view)
+
+filename = FILES[selected_view]
+df = load_data(filename)
+
+if df is not None:
+    # Top KPI Metrics (if data allows)
+    col1, col2, col3 = st.columns(3)
+    
+    # Calculate some quick stats if columns exist
+    if 'Dividend' in df.columns:
+        avg_yield = df['Dividend'].mean()
+        max_yield = df['Dividend'].max()
+        top_payer = df.loc[df['Dividend'].idxmax(), 'Ticker'] if 'Ticker' in df.columns else "N/A"
+        
+        col1.metric("Average Yield", f"{avg_yield:.2f}%")
+        col2.metric("Highest Yield", f"{max_yield:.2f}%")
+        col3.metric("Top Payer", top_payer)
+
+    st.markdown("---")
+
+    # Data Display
+    # We use data_editor to allow sorting and column resizing, but disabled editing
+    st.data_editor(
+        df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Dividend": st.column_config.ProgressColumn(
+                "Annual Yield (%)",
+                format="%.2f%%",
+                min_value=0,
+                max_value=200, # Cap progress bar at 200% for visual sanity
+            ),
+            "Current Price": st.column_config.NumberColumn(
+                "Price ($)",
+                format="$%.2f"
+            ),
+            "Latest Distribution ": st.column_config.NumberColumn(
+                "Payout ($)",
+                format="$%.4f"
+            ),
+            "Inception": st.column_config.DateColumn(
+                "Inception Date",
+                format="MM/DD/YYYY"
+            )
+        },
+        height=800
+    )
+    
+else:
+    st.warning(f"File not found: {filename}. Please ensure the CSV is in the directory.")
+    st.markdown("### Debug Info")
+    st.write(f"Looking for: {os.getcwd()}/{filename}")
