@@ -3,137 +3,25 @@ import pandas as pd
 import plotly.graph_objects as go
 
 # --- 1. PAGE CONFIGURATION ---
+# We keep the layout wide and the sidebar open by default.
 st.set_page_config(
     page_title="Income Shield Simulator", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (MARK IX: THE NUCLEAR OPTION) ---
-st.markdown("""
-    <style>
-    /* ------------------------------------------------------------------- */
-    /* A. MAIN THEME                                                       */
-    /* ------------------------------------------------------------------- */
-    .stApp {
-        background-color: #0E1117;
-        color: #FFFFFF;
-    }
-    [data-testid="stSidebar"] {
-        background-color: #161B22;
-        border-right: 1px solid #30363d;
-    }
-
-    /* ------------------------------------------------------------------- */
-    /* B. THE NUCLEAR HEADER FIX                                           */
-    /* ------------------------------------------------------------------- */
-    
-    /* 1. Hide the Standard Header Container completely */
-    header[data-testid="stHeader"] {
-        background-color: transparent !important;
-        border-bottom: none !important;
-    }
-    
-    /* 2. KILL the Toolbar (Deploy, Menu, etc) */
-    [data-testid="stToolbar"] {
-        display: none !important;
-    }
-    
-    /* 3. KILL the Decoration Bar */
-    [data-testid="stDecoration"] {
-        display: none !important;
-    }
-    
-    /* 4. THE FIX: Detach the Arrow and pin it to the screen manually */
-    [data-testid="stSidebarCollapsedControl"] {
-        position: fixed !important;  /* Detaches from header flow */
-        top: 20px !important;        /* Forces it to top */
-        left: 20px !important;       /* Forces it to left */
-        z-index: 1000001 !important; /* Forces it above EVERYTHING */
-        display: block !important;
-        visibility: visible !important;
-        color: #00C805 !important;   /* Bright Green */
-        background-color: #161B22 !important; /* Small dark background box */
-        padding: 5px !important;
-        border-radius: 5px !important;
-    }
-
-    /* 5. Style the Close Button (Inside sidebar) */
-    [data-testid="stSidebarCollapseBtn"] {
-        color: #00C805 !important;
-    }
-
-    /* ------------------------------------------------------------------- */
-    /* C. TEXT & METRICS                                                   */
-    /* ------------------------------------------------------------------- */
-    h1, h2, h3, h4, h5, h6, p, li, span, div, label {
-        color: #FFFFFF !important;
-    }
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
-        color: #E6E6E6 !important;
-    }
-    
-    /* Metrics */
-    div[data-testid="stMetric"] {
-        background-color: #1f2937; 
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid #374151; 
-        text-align: center;
-    }
-    div[data-testid="stMetricLabel"] p {
-        color: #9CA3AF !important; 
-    }
-    div[data-testid="stMetricValue"] div {
-        color: #00C805 !important; 
-    }
-
-    /* ------------------------------------------------------------------- */
-    /* D. DROPDOWNS                                                        */
-    /* ------------------------------------------------------------------- */
-    div[data-baseweb="select"] > div {
-        background-color: #1f2937 !important;
-        color: white !important;
-        border-color: #374151 !important;
-    }
-    ul[data-baseweb="menu"] {
-        background-color: #161B22 !important;
-    }
-    li[role="option"] {
-        color: white !important;
-    }
-    li[role="option"]:hover {
-        background-color: #00C805 !important;
-        color: black !important;
-    }
-    .stSelectbox svg {
-        fill: white !important;
-    }
-
-    /* ------------------------------------------------------------------- */
-    /* E. CLEAN UP                                                         */
-    /* ------------------------------------------------------------------- */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    
-    /* Push content down so it doesn't overlap the fixed arrow */
-    .block-container {
-        padding-top: 4rem !important; 
-        max-width: 100%;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- 3. DATA LOADING ---
+# --- 2. DATA LOADING ---
 @st.cache_data(ttl=300)
 def load_data():
     try:
+        # Using the exact URLs from your previous code
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
         
+        # Convert Dates to ensure math works
         df_u['Date'] = pd.to_datetime(df_u['Date'])
         df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
         return df_u, df_h
@@ -146,22 +34,27 @@ if df_unified is None:
     st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
     st.stop()
 
-# --- 4. SIDEBAR ---
+# --- 3. SIDEBAR CONTROLS ---
+# Standard Streamlit Sidebar - No custom CSS pinning
 with st.sidebar:
-    st.title("🛡️ Simulator Controls")
+    st.title("Simulator Controls")
     st.write("Adjust your entry and position size.")
     
+    # Ticker Selection
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
     
+    # Buy Date
     default_date = pd.to_datetime("today") - pd.DateOffset(months=6)
     buy_date = st.date_input("Your Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
 
     st.markdown("---")
     
+    # Investment Mode
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
     
+    # Filter data for calculations
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
     journey = price_df[price_df['Date'] >= buy_date].copy()
     
@@ -178,7 +71,8 @@ with st.sidebar:
         st.error("No data available for this date.")
         st.stop()
 
-# --- 5. LOGIC ---
+# --- 4. CALCULATIONS ---
+# Dividend processing
 div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
 my_divs = div_df[div_df['Date of Pay'] >= buy_date].copy()
 my_divs['CumDiv'] = my_divs['Amount'].cumsum()
@@ -187,35 +81,40 @@ def get_total_div(d):
     rows = my_divs[my_divs['Date of Pay'] <= d]
     return rows['CumDiv'].iloc[-1] if not rows.empty else 0.0
 
+# Build the timeline
 journey['Div_Per_Share'] = journey['Date'].apply(get_total_div)
 journey['Market_Value'] = journey['Closing Price'] * shares
 journey['Cash_Banked'] = journey['Div_Per_Share'] * shares
 journey['True_Value'] = journey['Market_Value'] + journey['Cash_Banked']
 
+# Final Stats
 initial_cap = entry_price * shares
 current_total = journey.iloc[-1]['True_Value']
 cash_total = journey.iloc[-1]['Cash_Banked']
 total_return_pct = ((current_total - initial_cap) / initial_cap) * 100
 
-# --- 6. DASHBOARD ---
-st.header(f" {selected_ticker} Performance Simulator")
+# --- 5. MAIN DASHBOARD ---
+st.header(f"{selected_ticker} Performance Simulator")
 st.markdown(f"Analysis for **{shares:.2f} shares** purchased on **{buy_date.date()}**.")
 
+# Metric Row
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${journey.iloc[-1]['Market_Value']:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}")
 m4.metric("True Total Value", f"${current_total:,.2f}", f"{total_return_pct:.2f}%")
 
-# --- 7. CHART ---
+# --- 6. THE CHART ---
 fig = go.Figure()
 
+# Market Price
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
     mode='lines', name='Price only (Brokerage View)',
     line=dict(color='#FF4B4B', width=1.5)
 ))
 
+# Total Return
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
     mode='lines', name='True Value (Price + Dividends)',
@@ -224,12 +123,12 @@ fig.add_trace(go.Scatter(
     fillcolor='rgba(0, 200, 5, 0.15)' 
 ))
 
+# Break-even Reference
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="#888888", opacity=0.5)
 
+# Standard Plotly Dark Template (Native, no CSS)
 fig.update_layout(
     template="plotly_dark",
-    paper_bgcolor='rgba(0,0,0,0)',
-    plot_bgcolor='rgba(0,0,0,0)',
     height=500,
     margin=dict(l=0, r=0, t=20, b=0),
     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
@@ -238,5 +137,6 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
+# Data breakdown
 with st.expander("View Raw Data Table"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
