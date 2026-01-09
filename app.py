@@ -9,12 +9,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (MARK XIV: ULTIMATE FIX) ---
-# Brand Colors: Core #0D1117 | Accent #8AC7DE | Tertiary #1E293B
+# --- 2. THE "EMPIRE" STYLING (MARK XV: PAINT IT BLACK) ---
+# Core: #0D1117 | Accent: #8AC7DE | Tertiary: #1E293B
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. CORE BACKGROUNDS                                                 */
+    /* A. GLOBAL LAYOUT & COLORS                                           */
     /* ------------------------------------------------------------------- */
     .stApp {
         background-color: #0D1117; 
@@ -26,57 +26,56 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. THE SIDEBAR ARROW FIX                                            */
+    /* B. THE HEADER & ARROW FIX (THE CRITICAL CHANGE)                     */
     /* ------------------------------------------------------------------- */
     
-    /* 1. Hide the standard Toolbar (Deploy buttons, etc.) */
+    /* 1. We do NOT hide the header. We paint it #0D1117 */
+    header[data-testid="stHeader"] {
+        background-color: #0D1117 !important;
+        height: 3.5rem !important; /* Fixed height to prevent shifting */
+        z-index: 100 !important;
+    }
+    
+    /* 2. We Hide the Toolbar buttons (Deploy, etc.) individually */
     [data-testid="stToolbar"] {
         display: none !important;
     }
     
-    /* 2. Hide Decoration Bar */
+    /* 3. We Hide the Rainbow Decoration Line */
     [data-testid="stDecoration"] {
         display: none !important;
     }
 
-    /* 3. Force the Sidebar Toggle Arrow to be Visible & Clickable */
+    /* 4. We Style the Arrow Button (Which sits inside the now-black header) */
     [data-testid="stSidebarCollapsedControl"] {
+        color: #8AC7DE !important; /* Accent Blue */
         display: block !important;
-        visibility: visible !important;
-        z-index: 1000000 !important; /* Sit on top of everything */
-        color: #8AC7DE !important;   /* Accent Blue Arrow */
-        background-color: #1E293B !important; /* Dark Box Background */
-        border-radius: 5px;
-        padding: 4px;
-        position: fixed; /* Pin it to the window */
-        top: 20px;
-        left: 20px;
     }
     
-    /* 4. The Close "X" Button inside the sidebar */
+    /* 5. The Close "X" Button */
     [data-testid="stSidebarCollapseBtn"] {
         color: #8AC7DE !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. DROPDOWNS & INPUTS (READABILITY FIX)                             */
+    /* C. DROPDOWN & INPUT VISIBILITY (NUCLEAR OVERRIDE)                   */
     /* ------------------------------------------------------------------- */
     
-    /* Input Boxes (The box you see before clicking) */
+    /* The Box you click */
     div[data-baseweb="select"] > div, 
-    div[data-baseweb="input"] > div,
-    div[data-testid="stDateInput"] > div {
-        background-color: #1E293B !important; 
-        color: #FFFFFF !important;
+    div[data-testid="stDateInput"] > div,
+    div[data-baseweb="input"] > div {
+        background-color: #1E293B !important; /* Tertiary Navy */
         border-color: #30363d !important;
+        color: #FFFFFF !important;
     }
     
-    /* The Text inside the inputs */
+    /* The Text inside */
     input {
         color: #FFFFFF !important;
     }
     
-    /* The Popup Menu Container (The fix for white background) */
+    /* The Popup Menu Container */
     div[data-baseweb="popover"] {
         background-color: #1E293B !important;
     }
@@ -91,33 +90,44 @@ st.markdown("""
         color: #FFFFFF !important;
     }
     
-    /* Hover Effect */
-    li[role="option"]:hover {
+    /* Hover Highlight */
+    li[role="option"]:hover, li[role="option"]:focus {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
     
-    /* Icons (Calendar, Down Arrow) */
+    /* Icons */
     .stSelectbox svg, .stDateInput svg {
         fill: #8AC7DE !important;
     }
+
+    /* ------------------------------------------------------------------- */
+    /* D. ANTI-SCROLL & COMPACTNESS                                        */
+    /* ------------------------------------------------------------------- */
     
-    /* Radio Buttons */
-    div[role="radiogroup"] label {
-        color: #E6EDF3 !important;
+    /* Remove huge top padding so it fits in one window */
+    .block-container {
+        padding-top: 1.5rem !important; 
+        padding-bottom: 0rem !important;
+        max-width: 100%;
+    }
+    
+    /* Hide Footer */
+    footer {
+        display: none !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* D. METRICS & TEXT                                                   */
+    /* E. METRICS & TEXT                                                   */
     /* ------------------------------------------------------------------- */
-    h1, h2, h3, h4, h5, h6, p, li, span, div, label {
+    h1, h2, h3, h4, h5, h6, p, label {
         color: #E6EDF3 !important;
     }
     
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
-        border-radius: 10px;
+        border-radius: 8px;
         padding: 10px;
     }
     div[data-testid="stMetricLabel"] p {
@@ -125,11 +135,6 @@ st.markdown("""
     }
     div[data-testid="stMetricValue"] div {
         color: #FFFFFF !important; 
-    }
-    
-    /* Adjust spacing since we pinned the arrow */
-    .block-container {
-        padding-top: 4rem !important; 
     }
     </style>
     """, unsafe_allow_html=True)
@@ -171,13 +176,15 @@ with st.sidebar:
     buy_date = st.date_input("Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
     
-    # 2. End Date Logic (New Feature)
-    date_mode = st.radio("Simulation Duration:", ["Hold to Present", "Sell on Specific Date"])
+    # 2. End Date Logic (The Requested Feature)
+    st.write("Duration:")
+    is_custom_end = st.checkbox("Simulate to Specific Date")
     
-    if date_mode == "Sell on Specific Date":
-        end_date = st.date_input("Sell Date", pd.to_datetime("today"))
+    if is_custom_end:
+        end_date = st.date_input("End Date", pd.to_datetime("today"))
         end_date = pd.to_datetime(end_date)
     else:
+        st.caption("✅ Simulating returns to Present Day")
         end_date = pd.to_datetime("today")
         
     st.markdown("---")
