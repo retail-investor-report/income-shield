@@ -1,105 +1,206 @@
 import streamlit as st
 import pandas as pd
-import os
+import plotly.graph_objects as go
 
-# --- PAGE SETTINGS ---
-st.set_page_config(layout="wide", page_title="RDI Terminal", initial_sidebar_state="expanded")
+# --- 1. PAGE CONFIGURATION ---
+st.set_page_config(
+    page_title="Income Shield Simulator", 
+    layout="wide", 
+    initial_sidebar_state="expanded"
+)
 
-# --- VISUAL FIXES (CSS) ---
-# This forces the sidebar to stay OPEN and hides the collapse arrow
+# --- 2. THE "EMPIRE" STYLING (UPDATED FOR HIGH CONTRAST) ---
 st.markdown("""
-<style>
-    /* 1. HIDE THE SIDEBAR COLLAPSE ARROW */
-    [data-testid="stSidebarCollapsedControl"] {
-        display: none; 
-    }
-    
-    /* 2. FORCE DARK MODE & HIGH CONTRAST TEXT */
+    <style>
+    /* Main Background */
     .stApp {
-        background-color: #0e1117;
-        color: #ffffff;
-    }
-    h1, h2, h3, p, div, span {
-        color: #ffffff !important;
+        background-color: #0E1117;
+        color: #FFFFFF;
     }
     
-    /* 3. TABLE STYLING */
-    [data-testid="stDataFrame"] {
-        border: 1px solid #333;
+    /* GLOBAL TEXT OVERRIDES - This fixes the dark font issue */
+    h1, h2, h3, h4, h5, h6, p, li, span, div {
+        color: #FFFFFF !important;
     }
-    
-    /* 4. SIDEBAR BACKGROUND */
+
+    /* Sidebar Styling */
     [data-testid="stSidebar"] {
-        background-color: #161b22;
-        border-right: 1px solid #333;
+        background-color: #161B22;
+        border-right: 1px solid #30363d;
     }
-</style>
-""", unsafe_allow_html=True)
-
-# --- FILE CONFIGURATION ---
-# These must match the filenames you upload to GitHub
-FILES = {
-    "📊 Dashboard": "The Retail Dividend Investor Spreadsheet - Master List.csv",
-    "🏆 Winner of Week": "The Retail Dividend Investor Spreadsheet - Winner of The Week.csv",
-    "🚀 YieldMax": "The Retail Dividend Investor Spreadsheet - YieldMax (All).csv",
-    "🛡️ Defiance": "The Retail Dividend Investor Spreadsheet - Defiance (All).csv",
-    "🎯 Roundhill": "The Retail Dividend Investor Spreadsheet - Roundhill (All).csv",
-    "🆕 Newest Funds": "The Retail Dividend Investor Spreadsheet - Newest Funds.csv"
-}
-
-# --- DATA LOADING ENGINE ---
-def load_data(filename):
-    """
-    Loads CSVs safely. If the file isn't found (e.g., hasn't been uploaded yet),
-    it handles the error gracefully so the app doesn't crash.
-    """
-    if not os.path.exists(filename):
-        return None
     
+    /* Sidebar Text Specifics */
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
+        color: #E6E6E6 !important;
+    }
+
+    /* Metric Card Styling */
+    div[data-testid="stMetric"] {
+        background-color: #1f2937;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #374151;
+        text-align: center;
+    }
+    
+    /* Metric Label Styling */
+    div[data-testid="stMetricLabel"] p {
+        color: #9CA3AF !important; /* Lighter Gray for labels */
+    }
+    
+    /* Metric Value Styling */
+    div[data-testid="stMetricValue"] div {
+        color: #00C805 !important; /* Green for numbers */
+    }
+    
+    /* Ensure Sidebar Open/Close button is ALWAYS visible and Green */
+    [data-testid="stSidebarCollapseBtn"] {
+        color: #00C805 !important;
+    }
+
+    /* Hide Branding but keep Header Navigation */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    .viewerBadge_container__1QSob {display: none !important;}
+    [data-testid="stStatusWidget"] {display: none !important;}
+    
+    /* Adjusting the Header to be invisible but functional */
+    header {
+        background-color: rgba(0,0,0,0) !important;
+        color: white !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- 3. THE LIVE WIRE: DATA LOADING ---
+@st.cache_data(ttl=300)
+def load_data():
     try:
-        # Smart load: looks for the header row automatically
-        preview = pd.read_csv(filename, header=None, nrows=10)
-        header_row = 0
-        for i, row in preview.iterrows():
-            # If we find "Ticker" or "Yield" in the row, that's our header
-            if row.astype(str).str.contains('Ticker|Yield|Price', case=False).any():
-                header_row = i
-                break
+        # ---------------------------------------------------------
+        # PASTE YOUR GOOGLE SHEET LINKS BETWEEN THE QUOTES BELOW
+        # ---------------------------------------------------------
+        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
+        h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         
-        df = pd.read_csv(filename, header=header_row)
+        df_u = pd.read_csv(u_url)
+        df_h = pd.read_csv(h_url)
         
-        # Basic cleanup: Remove empty columns
-        df = df.dropna(axis=1, how='all')
-        return df
-    except:
-        return None
+        # Convert Dates
+        df_u['Date'] = pd.to_datetime(df_u['Date'])
+        df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
+        return df_u, df_h
+    except Exception as e:
+        return None, None
 
-# --- SIDEBAR NAVIGATION ---
-st.sidebar.header("RDI TERMINAL")
-st.sidebar.markdown("---")
+df_unified, df_history = load_data()
 
-# The menu
-menu_options = list(FILES.keys())
-selection = st.sidebar.radio("Select Data View", menu_options)
+if df_unified is None:
+    st.error("🚨 Link Connection Error: Check your Google Sheet CSV links in the code.")
+    st.stop()
 
-st.sidebar.markdown("---")
-st.sidebar.info("✅ Sidebar Locked\n✅ High Contrast")
+# --- 4. SIDEBAR CONTROLS ---
+with st.sidebar:
+    st.title("🛡️ Simulator Controls")
+    st.write("Adjust your entry and position size.")
+    
+    # Ticker Selection
+    tickers = sorted(df_unified['Ticker'].unique())
+    selected_ticker = st.selectbox("Select Asset", tickers)
+    
+    # Buy Date (Default to 6 months ago)
+    default_date = pd.to_datetime("today") - pd.DateOffset(months=6)
+    buy_date = st.date_input("Your Purchase Date", default_date)
+    buy_date = pd.to_datetime(buy_date)
 
-# --- MAIN CONTENT AREA ---
-st.title(selection)
+    st.markdown("---")
+    
+    # Mode Selection
+    mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
+    
+    # Filter data for calculations
+    price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
+    journey = price_df[price_df['Date'] >= buy_date].copy()
+    
+    if not journey.empty:
+        entry_price = journey.iloc[0]['Closing Price']
+        if mode == "Share Count":
+            shares = st.number_input("Shares Owned", min_value=1, value=10)
+        else:
+            dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
+            shares = float(dollars) / entry_price
+        
+        st.info(f"Entry Price: ${entry_price:.2f}")
+    else:
+        st.error("No data available for this date.")
+        st.stop()
 
-selected_file = FILES[selection]
-df = load_data(selected_file)
+# --- 5. CALCULATIONS ---
+# Dividend processing
+div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
+my_divs = div_df[div_df['Date of Pay'] >= buy_date].copy()
+my_divs['CumDiv'] = my_divs['Amount'].cumsum()
 
-if df is not None:
-    # Display the data in a sortable, clean table
-    st.dataframe(
-        df, 
-        use_container_width=True, 
-        height=800,
-        hide_index=True
-    )
-else:
-    # Friendly error if file is missing
-    st.error(f"⚠️ Data file not found: {selected_file}")
-    st.caption("Make sure you uploaded the CSV files to your GitHub repository.")
+def get_total_div(d):
+    rows = my_divs[my_divs['Date of Pay'] <= d]
+    return rows['CumDiv'].iloc[-1] if not rows.empty else 0.0
+
+# Build the timeline
+journey['Div_Per_Share'] = journey['Date'].apply(get_total_div)
+journey['Market_Value'] = journey['Closing Price'] * shares
+journey['Cash_Banked'] = journey['Div_Per_Share'] * shares
+journey['True_Value'] = journey['Market_Value'] + journey['Cash_Banked']
+
+# Final Stats
+initial_cap = entry_price * shares
+current_total = journey.iloc[-1]['True_Value']
+cash_total = journey.iloc[-1]['Cash_Banked']
+total_return_pct = ((current_total - initial_cap) / initial_cap) * 100
+
+# --- 6. MAIN DASHBOARD ---
+st.header(f" {selected_ticker} Performance Simulator")
+st.markdown(f"Analysis for **{shares:.2f} shares** purchased on **{buy_date.date()}**.")
+
+# Metric Row
+m1, m2, m3, m4 = st.columns(4)
+m1.metric("Initial Capital", f"${initial_cap:,.2f}")
+m2.metric("Market Value", f"${journey.iloc[-1]['Market_Value']:,.2f}")
+m3.metric("Dividends Collected", f"${cash_total:,.2f}")
+m4.metric("True Total Value", f"${current_total:,.2f}", f"{total_return_pct:.2f}%")
+
+# --- 7. THE CHART ---
+fig = go.Figure()
+
+# Market Price (Red Line)
+fig.add_trace(go.Scatter(
+    x=journey['Date'], y=journey['Market_Value'],
+    mode='lines', name='Price only (Brokerage View)',
+    line=dict(color='#FF4B4B', width=1.5)
+))
+
+# Total Return (Green Line + Shading)
+fig.add_trace(go.Scatter(
+    x=journey['Date'], y=journey['True_Value'],
+    mode='lines', name='True Value (Price + Dividends)',
+    line=dict(color='#00C805', width=3),
+    fill='tonexty', 
+    fillcolor='rgba(0, 200, 5, 0.15)' 
+))
+
+# Break-even Reference
+fig.add_hline(y=initial_cap, line_dash="dash", line_color="#888888", opacity=0.5)
+
+fig.update_layout(
+    template="plotly_dark",
+    paper_bgcolor='rgba(0,0,0,0)',
+    plot_bgcolor='rgba(0,0,0,0)',
+    height=500,
+    margin=dict(l=0, r=0, t=20, b=0),
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    hovermode="x unified"
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# Data breakdown
+with st.expander("View Raw Data Table"):
+    st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
