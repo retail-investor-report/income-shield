@@ -9,14 +9,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (MARK VII: THE BATTERING RAM) ---
+# --- 2. THE "EMPIRE" STYLING (MARK VIII: SURGICAL PRECISION) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. THE FOUNDATION (COLORS & LAYOUT)                                 */
+    /* A. MAIN THEME COLORS                                                */
     /* ------------------------------------------------------------------- */
     
-    /* Main Background */
+    /* Global App Background */
     .stApp {
         background-color: #0E1117;
         color: #FFFFFF;
@@ -29,55 +29,50 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. THE HEADER & ARROW FIX (THE NEW STRATEGY)                        */
+    /* B. THE HEADER FIX (The Surgical Approach)                           */
     /* ------------------------------------------------------------------- */
     
-    /* 1. Reset the Header to be visible but blend in perfectly */
-    header {
-        background-color: #0E1117 !important; /* Match the background */
-        height: 3rem !important; /* Shrink it slightly */
+    /* 1. We keep the header container but make it transparent */
+    header[data-testid="stHeader"] {
+        background-color: transparent !important;
     }
-    
-    /* 2. Hide the Decoration Bar (The colorful line at the top) */
+
+    /* 2. We HIDE the Decoration Bar (Rainbow line at top) */
     [data-testid="stDecoration"] {
         display: none !important;
     }
 
-    /* 3. Hide the "Toolbar" (Deploy, Settings, Three Dots) */
-    /* This removes the buttons on the right side */
+    /* 3. We HIDE the Toolbar (The Buttons on the Right: Deploy, Menu, etc.) */
     [data-testid="stToolbar"] {
         display: none !important;
     }
     
-    /* 4. FORCE THE ARROW TO BE VISIBLE AND ON TOP */
-    /* The Open Arrow (When sidebar is closed) */
+    /* 4. We STYLE the Sidebar Arrow (Left side) */
+    /* We do NOT hide this. We just color it Green. */
     [data-testid="stSidebarCollapsedControl"] {
-        display: block !important;
-        visibility: visible !important;
-        color: #00C805 !important; /* Green for High Contrast */
-        z-index: 999999 !important; /* Force to top layer */
+        color: #00C805 !important;
     }
     
-    /* The Close Arrow (When sidebar is open) */
+    /* 5. We STYLE the Close Button (Inside the sidebar) */
     [data-testid="stSidebarCollapseBtn"] {
         color: #00C805 !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. TEXT VISIBILITY (HIGH CONTRAST)                                  */
+    /* C. TEXT & METRICS (High Contrast)                                   */
     /* ------------------------------------------------------------------- */
     
+    /* Force all main text to White */
     h1, h2, h3, h4, h5, h6, p, li, span, div, label {
         color: #FFFFFF !important;
     }
+    
+    /* Mute the sidebar text slightly */
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
         color: #E6E6E6 !important;
     }
 
-    /* ------------------------------------------------------------------- */
-    /* D. METRIC CARDS                                                     */
-    /* ------------------------------------------------------------------- */
-    
+    /* Metric Cards */
     div[data-testid="stMetric"] {
         background-color: #1f2937; 
         padding: 15px;
@@ -93,58 +88,69 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* E. DROPDOWN MENU FIXES                                              */
+    /* D. FORM ELEMENTS (Dropdowns & Inputs)                               */
     /* ------------------------------------------------------------------- */
     
+    /* Input Boxes (Number Input, Date Input) */
+    input {
+        background-color: #1f2937 !important;
+        color: white !important;
+    }
+    
+    /* Dropdown Selection Box */
     div[data-baseweb="select"] > div {
         background-color: #1f2937 !important;
         color: white !important;
         border-color: #374151 !important;
     }
+    
+    /* Dropdown Popup Menu */
     ul[data-baseweb="menu"] {
         background-color: #161B22 !important;
     }
+    
+    /* Dropdown Options */
     li[role="option"] {
         color: white !important;
     }
+    
+    /* Hover Effect */
     li[role="option"]:hover {
         background-color: #00C805 !important;
         color: black !important;
     }
-    .stSelectbox svg {
+    
+    /* Icons (Calendar, Arrows) */
+    .stSelectbox svg, .stDateInput svg {
         fill: white !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* F. CLEAN UP                                                         */
+    /* E. CLEAN UP                                                         */
     /* ------------------------------------------------------------------- */
     
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     
-    /* Fix top padding so content doesn't get hidden behind the new header */
+    /* Remove top padding so the app feels like a dashboard */
     .block-container {
-        padding-top: 3rem !important; 
+        padding-top: 2rem !important; 
         max-width: 100%;
     }
     
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. THE LIVE WIRE: DATA LOADING ---
+# --- 3. DATA LOADING ---
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        # ---------------------------------------------------------
-        # PASTE YOUR GOOGLE SHEET LINKS BETWEEN THE QUOTES BELOW
-        # ---------------------------------------------------------
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
         
-        # Convert Dates
         df_u['Date'] = pd.to_datetime(df_u['Date'])
         df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
         return df_u, df_h
@@ -154,29 +160,25 @@ def load_data():
 df_unified, df_history = load_data()
 
 if df_unified is None:
-    st.error("🚨 Link Connection Error: Check your Google Sheet CSV links in the code.")
+    st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
     st.stop()
 
-# --- 4. SIDEBAR CONTROLS ---
+# --- 4. SIDEBAR ---
 with st.sidebar:
     st.title("🛡️ Simulator Controls")
     st.write("Adjust your entry and position size.")
     
-    # Ticker Selection
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
     
-    # Buy Date (Default to 6 months ago)
     default_date = pd.to_datetime("today") - pd.DateOffset(months=6)
     buy_date = st.date_input("Your Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
 
     st.markdown("---")
     
-    # Mode Selection
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
     
-    # Filter data for calculations
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
     journey = price_df[price_df['Date'] >= buy_date].copy()
     
@@ -193,8 +195,7 @@ with st.sidebar:
         st.error("No data available for this date.")
         st.stop()
 
-# --- 5. CALCULATIONS ---
-# Dividend processing
+# --- 5. LOGIC ---
 div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
 my_divs = div_df[div_df['Date of Pay'] >= buy_date].copy()
 my_divs['CumDiv'] = my_divs['Amount'].cumsum()
@@ -203,40 +204,35 @@ def get_total_div(d):
     rows = my_divs[my_divs['Date of Pay'] <= d]
     return rows['CumDiv'].iloc[-1] if not rows.empty else 0.0
 
-# Build the timeline
 journey['Div_Per_Share'] = journey['Date'].apply(get_total_div)
 journey['Market_Value'] = journey['Closing Price'] * shares
 journey['Cash_Banked'] = journey['Div_Per_Share'] * shares
 journey['True_Value'] = journey['Market_Value'] + journey['Cash_Banked']
 
-# Final Stats
 initial_cap = entry_price * shares
 current_total = journey.iloc[-1]['True_Value']
 cash_total = journey.iloc[-1]['Cash_Banked']
 total_return_pct = ((current_total - initial_cap) / initial_cap) * 100
 
-# --- 6. MAIN DASHBOARD ---
+# --- 6. DASHBOARD ---
 st.header(f" {selected_ticker} Performance Simulator")
 st.markdown(f"Analysis for **{shares:.2f} shares** purchased on **{buy_date.date()}**.")
 
-# Metric Row
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${journey.iloc[-1]['Market_Value']:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}")
 m4.metric("True Total Value", f"${current_total:,.2f}", f"{total_return_pct:.2f}%")
 
-# --- 7. THE CHART ---
+# --- 7. CHART ---
 fig = go.Figure()
 
-# Market Price (Red Line)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
     mode='lines', name='Price only (Brokerage View)',
     line=dict(color='#FF4B4B', width=1.5)
 ))
 
-# Total Return (Green Line + Shading)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
     mode='lines', name='True Value (Price + Dividends)',
@@ -245,7 +241,6 @@ fig.add_trace(go.Scatter(
     fillcolor='rgba(0, 200, 5, 0.15)' 
 ))
 
-# Break-even Reference
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="#888888", opacity=0.5)
 
 fig.update_layout(
@@ -260,6 +255,5 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# Data breakdown
 with st.expander("View Raw Data Table"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
