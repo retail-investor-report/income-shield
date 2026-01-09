@@ -9,32 +9,38 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (SECURITY UPGRADE) ---
+# --- 2. THE "EMPIRE" STYLING (LOCKED & LOADED) ---
 st.markdown("""
     <style>
-    /* Main Background */
+    /* 1. MAIN LAYOUT & BACKGROUND */
     .stApp {
         background-color: #0E1117;
         color: #FFFFFF;
     }
     
-    /* GLOBAL TEXT OVERRIDES */
+    /* 2. REMOVE THE 'PHANTOM' SCROLLING & PADDING */
+    /* This removes the massive white space at the top and bottom */
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 0rem !important;
+        max-width: 100%;
+    }
+    
+    /* 3. GLOBAL TEXT OVERRIDES (High Contrast) */
     h1, h2, h3, h4, h5, h6, p, li, span, div {
         color: #FFFFFF !important;
     }
 
-    /* Sidebar Styling */
+    /* 4. SIDEBAR STYLING */
     [data-testid="stSidebar"] {
         background-color: #161B22;
         border-right: 1px solid #30363d;
     }
-    
-    /* Sidebar Text Specifics */
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
         color: #E6E6E6 !important;
     }
 
-    /* Metric Card Styling */
+    /* 5. METRIC CARD STYLING */
     div[data-testid="stMetric"] {
         background-color: #1f2937;
         padding: 15px;
@@ -42,34 +48,35 @@ st.markdown("""
         border: 1px solid #374151;
         text-align: center;
     }
-    
-    /* Metric Label Styling */
     div[data-testid="stMetricLabel"] p {
         color: #9CA3AF !important; 
     }
-    
-    /* Metric Value Styling */
     div[data-testid="stMetricValue"] div {
         color: #00C805 !important; 
     }
     
-    /* --- SECURITY & CLEAN UP CSS --- */
-    
-    /* Hides the Streamlit Hamburger Menu (Top Right) */
+    /* 6. SECURITY & UI CLEANUP (The "Invisibility Cloak") */
     #MainMenu {visibility: hidden;}
-    
-    /* Hides the Streamlit Footer (Made with Streamlit) */
     footer {visibility: hidden;}
-    
-    /* Hides the Header Bar completely (contains the Deploy button) */
     header {visibility: hidden;}
-    
-    /* Hides the "View Source" button if it somehow appears */
     [data-testid="stToolbar"] {visibility: hidden !important;}
-    
-    /* Hides the colored bar at the very top */
     .stApp > header {visibility: hidden;}
     
+    /* 7. SCROLLBAR HIDING (Optional: Makes it look more like an app) */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #0E1117; 
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #30363d; 
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555; 
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -205,4 +212,5 @@ st.plotly_chart(fig, use_container_width=True)
 # Data breakdown
 with st.expander("View Raw Data Table"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
+
 
