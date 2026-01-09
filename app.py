@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (LOCKED & LOADED) ---
+# --- 2. THE "EMPIRE" STYLING (FINAL: DROPDOWN FIX) ---
 st.markdown("""
     <style>
     /* 1. MAIN LAYOUT & BACKGROUND */
@@ -19,15 +19,14 @@ st.markdown("""
     }
     
     /* 2. REMOVE THE 'PHANTOM' SCROLLING & PADDING */
-    /* This removes the massive white space at the top and bottom */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 0rem !important;
         max-width: 100%;
     }
     
-    /* 3. GLOBAL TEXT OVERRIDES (High Contrast) */
-    h1, h2, h3, h4, h5, h6, p, li, span, div {
+    /* 3. GLOBAL TEXT OVERRIDES */
+    h1, h2, h3, h4, h5, h6, p, span, div {
         color: #FFFFFF !important;
     }
 
@@ -55,14 +54,14 @@ st.markdown("""
         color: #00C805 !important; 
     }
     
-    /* 6. SECURITY & UI CLEANUP (The "Invisibility Cloak") */
+    /* 6. SECURITY & UI CLEANUP */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     [data-testid="stToolbar"] {visibility: hidden !important;}
     .stApp > header {visibility: hidden;}
     
-    /* 7. SCROLLBAR HIDING (Optional: Makes it look more like an app) */
+    /* 7. SCROLLBAR HIDING */
     ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
@@ -74,8 +73,35 @@ st.markdown("""
         background: #30363d; 
         border-radius: 4px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-        background: #555; 
+
+    /* 8. FORM ELEMENT FIXES (The Dropdown Patch) */
+    
+    /* The Input Box itself */
+    div[data-baseweb="select"] > div {
+        background-color: #1f2937 !important;
+        color: white !important;
+        border-color: #374151 !important;
+    }
+    
+    /* The Dropdown Menu (The Popup) */
+    ul[data-baseweb="menu"] {
+        background-color: #161B22 !important; /* Dark background for list */
+    }
+    
+    /* The Options inside the menu */
+    li[role="option"] {
+        color: white !important; /* Force text white */
+    }
+    
+    /* Hover effect for options (so you can see what you select) */
+    li[role="option"]:hover {
+        background-color: #00C805 !important; /* Green highlight on hover */
+        color: black !important;
+    }
+    
+    /* The small "x" or arrow icons */
+    .stSelectbox svg {
+        fill: white !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -212,5 +238,6 @@ st.plotly_chart(fig, use_container_width=True)
 # Data breakdown
 with st.expander("View Raw Data Table"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
+
 
 
