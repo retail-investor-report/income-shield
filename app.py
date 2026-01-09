@@ -4,9 +4,9 @@ import plotly.graph_objects as go
 
 # --- 1. PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Income Shield Simulator", 
-    layout="wide", 
-    initial_sidebar_state="expanded" 
+    page_title="Income Shield Simulator",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # --- 2. THE "EMPIRE" STYLING (MARK XVII: THE MONOLITH) ---
@@ -14,120 +14,133 @@ st.set_page_config(
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. GLOBAL LAYOUT & COLORS                                           */
+    /* A. GLOBAL LAYOUT & COLORS */
     /* ------------------------------------------------------------------- */
     .stApp {
-        background-color: #0D1117; 
+        background-color: #0D1117;
         color: #E6EDF3;
     }
-    
+   
     /* ------------------------------------------------------------------- */
-    /* B. PERMANENT SIDEBAR (LOCKED OPEN)                                  */
+    /* B. PERMANENT SIDEBAR (LOCKED OPEN) */
     /* ------------------------------------------------------------------- */
-    
+   
     [data-testid="stSidebar"] {
-        background-color: #0D1117; 
+        background-color: #0D1117;
         border-right: 1px solid #30363d;
         width: 300px !important; /* Fixed width */
+        min-width: 300px !important; /* Prevent collapse */
+        max-width: 300px !important;
     }
-
     /* 1. HIDE the Close Sidebar Button (The X) - USER CANNOT CLOSE IT */
-    [data-testid="stSidebarCollapseBtn"] {
+    [data-testid="collapsedControl"] {
         display: none !important;
     }
-    
-    /* 2. HIDE the Open Sidebar Arrow (It is not needed anymore) */
-    [data-testid="stSidebarCollapsedControl"] {
-        display: none !important;
+   
+    /* 2. ENSURE SIDEBAR STAYS EXPANDED */
+    section[data-testid="stSidebar"] {
+        display: block !important;
+        visibility: visible !important;
     }
-    
+   
+    /* Prevent any collapse behavior */
+    [data-testid="stSidebarNav"] {
+        pointer-events: none !important;
+    }
+   
     /* ------------------------------------------------------------------- */
-    /* C. HEADER FIX (NO WHITE BANNER)                                     */
+    /* C. HEADER FIX (NO WHITE BANNER) */
     /* ------------------------------------------------------------------- */
-    
-    /* Force Header to match Background exactly */
+   
+    /* Completely hide the header bar */
     header[data-testid="stHeader"] {
-        background-color: #0D1117 !important;
-        height: 3rem !important;
+        display: none !important;
     }
-    
+   
     /* Hide Toolbar & Decoration */
     [data-testid="stToolbar"] {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
     footer {display: none !important;}
-
+   
+    /* Adjust main content to start from top */
+    .main {
+        padding-top: 0 !important;
+    }
+   
     /* ------------------------------------------------------------------- */
-    /* D. DROPDOWN VISIBILITY (HIGH CONTRAST)                              */
+    /* D. DROPDOWN VISIBILITY (HIGH CONTRAST) */
     /* ------------------------------------------------------------------- */
-    
+   
     /* The Box you click */
     div[data-baseweb="select"] > div,
     div[data-testid="stDateInput"] > div,
     div[data-baseweb="input"] > div {
-        background-color: #1E293B !important; 
+        background-color: #1E293B !important;
         border-color: #30363d !important;
         color: #FFFFFF !important;
+        font-weight: bold !important; /* Bolder text for better visibility */
     }
-    
+   
     /* The Text inside input boxes */
     input {
         color: #FFFFFF !important;
+        font-weight: bold !important;
     }
-    
+   
     /* THE POPUP MENU (Dark Background, White Text) */
     div[data-baseweb="popover"], div[data-baseweb="menu"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
     }
-    
+   
     /* The List Items */
     li[role="option"] {
         color: #FFFFFF !important;
+        font-weight: bold !important; /* Bolder text */
+        padding: 10px !important; /* More padding for readability */
     }
-    
+   
     /* Hover Highlight (Blue Background, Dark Text) */
     li[role="option"]:hover, li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
-    
+   
     /* Icons */
     .stSelectbox svg, .stDateInput svg {
         fill: #8AC7DE !important;
     }
-
     /* ------------------------------------------------------------------- */
-    /* E. RADIO BUTTONS (REVERTED TO CIRCLES)                              */
+    /* E. RADIO BUTTONS (REVERTED TO CIRCLES) */
     /* ------------------------------------------------------------------- */
     div[role="radiogroup"] label {
         color: #E6EDF3 !important;
     }
-
     /* ------------------------------------------------------------------- */
-    /* F. ANTI-SCROLL (COMPACT LAYOUT)                                     */
+    /* F. ANTI-SCROLL (COMPACT LAYOUT) */
     /* ------------------------------------------------------------------- */
-    
+   
     /* Push content up to the very top */
     .block-container {
-        padding-top: 1rem !important; 
+        padding-top: 1rem !important;
         padding-bottom: 0rem !important;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
         max-width: 100%;
     }
-    
+   
     /* Hide Scrollbars */
     ::-webkit-scrollbar {
         display: none;
     }
-    
+   
     /* ------------------------------------------------------------------- */
-    /* G. METRICS & TEXT                                                   */
+    /* G. METRICS & TEXT */
     /* ------------------------------------------------------------------- */
     h1, h2, h3, h4, h5, h6, p, label {
         color: #E6EDF3 !important;
     }
-    
+   
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
@@ -135,10 +148,10 @@ st.markdown("""
         padding: 10px;
     }
     div[data-testid="stMetricLabel"] p {
-        color: #8AC7DE !important; 
+        color: #8AC7DE !important;
     }
     div[data-testid="stMetricValue"] div {
-        color: #FFFFFF !important; 
+        color: #FFFFFF !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -149,10 +162,10 @@ def load_data():
     try:
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
-        
+       
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
-        
+       
         df_u['Date'] = pd.to_datetime(df_u['Date'])
         df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
         return df_u, df_h
@@ -160,44 +173,43 @@ def load_data():
         return None, None
 
 df_unified, df_history = load_data()
-
 if df_unified is None:
     st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
     st.stop()
 
 # --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
-    st.header("🛡️ Simulator") 
-    
+    st.header("🛡️ Simulator")
+   
     # Ticker
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
-    
+   
     st.markdown("---")
-    
+   
     # 1. Start Date
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
-    
+   
     # 2. End Date Logic (Reverted to Radio Buttons as requested)
     date_mode = st.radio("Simulation End Point:", ["Hold to Present", "Sell on Specific Date"])
-    
+   
     if date_mode == "Sell on Specific Date":
         end_date = st.date_input("Sell Date", pd.to_datetime("today"))
         end_date = pd.to_datetime(end_date)
     else:
         end_date = pd.to_datetime("today")
-        
+       
     st.markdown("---")
-    
+   
     # 3. Position Size
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
-    
+   
     # 4. Data Filtering Logic
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
     journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
-    
+   
     if not journey.empty:
         entry_price = journey.iloc[0]['Closing Price']
         if mode == "Share Count":
@@ -205,7 +217,7 @@ with st.sidebar:
         else:
             dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
             shares = float(dollars) / entry_price
-        
+       
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
         st.error("No data available.")
@@ -254,25 +266,21 @@ m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 
 # --- 7. CHART ---
 fig = go.Figure()
-
 # Price Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
     mode='lines', name='Price only',
     line=dict(color=price_line_color, width=2)
 ))
-
 # True Value Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
     mode='lines', name='True Value (Price + Divs)',
     line=dict(color='#00C805', width=3),
-    fill='tonexty', 
-    fillcolor='rgba(0, 200, 5, 0.1)' 
+    fill='tonexty',
+    fillcolor='rgba(0, 200, 5, 0.1)'
 ))
-
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
-
 fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
@@ -282,7 +290,6 @@ fig.update_layout(
     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     hovermode="x unified"
 )
-
 st.plotly_chart(fig, use_container_width=True)
 
 # Data breakdown (Compact)
