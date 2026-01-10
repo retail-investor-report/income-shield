@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (bulletproof desktop lock) ---
+# --- 2. THE "EMPIRE" STYLING (final bulletproof desktop lock) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -68,40 +68,56 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP ONLY - Completely non-collapsible sidebar, no arrows/scroll */
+    /* B. DESKTOP ONLY - Completely disable collapse, no arrow ever */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
-        /* Lock sidebar permanently visible, fixed, no scroll */
+        /* Lock sidebar fixed, no movement, no scroll */
         [data-testid="stSidebar"] {
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
             width: 300px !important;
             min-width: 300px !important;
-            max-width: 300px !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
             height: 100vh !important;
             z-index: 1000 !important;
-            overflow: hidden !important;  /* No scrollbars ever */
+            overflow: hidden !important;
             transform: translateX(0) !important;
         }
 
-        /* Hide EVERY possible collapse/open button, arrow, or control */
+        /* Hide ALL possible collapse/expand elements - very broad coverage */
         [data-testid*="SidebarCollapse"],
         [data-testid*="collapsedControl"],
         [data-testid*="stSidebarCollapseBtn"],
         [data-testid*="stSidebarUserContent"] button,
+        [data-testid*="stSidebarCollapseButton"],
         button[aria-label*="Collapse sidebar"],
         button[aria-label*="Open sidebar"],
+        button[aria-label*="sidebar"],
         button[title*="Collapse"],
         button[title*="Expand"],
+        button[kind="primary"],
+        button[role="button"],
         section[data-testid="stSidebar"] button,
         .stSidebarUserContent button,
-        svg[aria-label*="chevron"] {
+        svg[aria-label*="chevron"],
+        svg[aria-label*="arrow"],
+        svg[aria-label*="caret"],
+        [role="button"][aria-label*="Collapse"],
+        [role="button"][aria-label*="Expand"],
+        [data-testid="stSidebar"] > div:first-child button,
+        [data-testid="stSidebar"] header button {
             display: none !important;
-            pointer-events: none !important;
             visibility: hidden !important;
+            pointer-events: none !important;
+            opacity: 0 !important;
+        }
+
+        /* Disable clicks on sidebar top area */
+        [data-testid="stSidebar"] > div:first-child,
+        [data-testid="stSidebar"] header {
+            pointer-events: none !important;
         }
 
         header[data-testid="stHeader"],
@@ -110,7 +126,7 @@ st.markdown("""
             display: none !important;
         }
 
-        /* Main content offset */
+        /* Main content alignment */
         .main .block-container {
             margin-left: 320px !important;
             max-width: calc(100% - 340px) !important;
@@ -123,7 +139,7 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE ONLY - untouched & perfect */
+    /* C. MOBILE ONLY - untouched */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
         header[data-testid="stHeader"] {
