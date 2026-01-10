@@ -79,49 +79,62 @@ st.markdown("""
     }
 
     /* =========================================
-       POPOVER STYLES
+       THE CALENDAR "WHITE ON WHITE" FIX 
        ========================================= */
 
-    div[data-baseweb="popover"] > div {
+    /* 1. Target the Calendar Container */
+    div[data-baseweb="calendar"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
 
-    /* Override for tooltips */
-    div[data-baseweb="popover"] > div[role="tooltip"] {
-        background-color: #FFFFFF !important;
-        color: #000000 !important;
-    }
-
-    /* CALENDAR STYLES */
-    div[data-baseweb="calendar"] * {
-        color: #FFFFFF !important; 
-    }
-    div[data-baseweb="calendar"] button, div[data-baseweb="calendar"] div {
+    /* 2. FORCE THE HEADER (Month/Year) TO BE DARK */
+    /* This fixes the "Light Gray Bar" issue in your screenshot */
+    div[data-baseweb="calendar"] > div {
+        background-color: #1E293B !important;
         color: #FFFFFF !important;
     }
-    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
-        background-color: #8AC7DE !important;
-        color: #0D1117 !important;
+    
+    /* 3. Navigation Arrows (< >) */
+    div[data-baseweb="calendar"] button svg {
+        fill: #8AC7DE !important; /* Make arrows Blue so they pop */
     }
+    div[data-baseweb="calendar"] button {
+        background-color: transparent !important;
+    }
+
+    /* 4. Day Names (Su, Mo, Tu...) */
+    div[data-baseweb="calendar"] div[role="grid"] div {
+        color: #E6EDF3 !important;
+    }
+
+    /* 5. The Days Numbers */
+    div[data-baseweb="calendar"] button[aria-label] {
+        color: #FFFFFF !important;
+    }
+
+    /* 6. Fix "White Blocks" for Empty Days */
+    div[data-baseweb="calendar"] div[aria-label=""] {
+        background-color: transparent !important;
+    }
+
+    /* 7. Selected Day (Red/Blue Circle) */
     div[data-baseweb="calendar"] [aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
+        font-weight: bold !important;
+    }
+    
+    /* 8. Hover Day */
+    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
+        background-color: #30363d !important;
+        color: #FFFFFF !important;
     }
 
-    /* DROPDOWN STYLES */
-    ul[role="listbox"] li {
-        color: #FFFFFF !important; /* White Text Default */
-    }
-    /* Dropdown Hover State */
-    ul[role="listbox"] li:hover, ul[role="listbox"] li[aria-selected="true"] {
-        background-color: #8AC7DE !important;
-        color: #0D1117 !important; /* Black Text on Hover */
-    }
-    /* Force inner text divs to inherit color */
-    ul[role="listbox"] li * {
-        color: inherit !important;
+    /* 9. Month Dropdown specific fix */
+    div[data-baseweb="popover"] ul[role="listbox"] {
+        background-color: #1E293B !important;
     }
 
     /* ========================================= */
@@ -311,16 +324,16 @@ m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 # --- 7. CHART ---
 fig = go.Figure()
 
-# REAL TRACES (Hidden from legend)
+# REAL TRACES (Renamed for correct Tooltip display)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='Asset Value (Price)', showlegend=False,
+    mode='lines', name='Asset Price', showlegend=False,
     line=dict(color=price_line_color, width=2)
 ))
 
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
-    mode='lines', name='True Value (Price + Divs)', showlegend=False,
+    mode='lines', name='True Value', showlegend=False,
     line=dict(color='#00C805', width=3),
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
@@ -379,7 +392,7 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
-# --- COMPACT NAV DECODER BAR (UPDATED TEXT) ---
+# --- COMPACT NAV DECODER BAR ---
 st.markdown("""
     <div style="
         background-color: #161b22; 
