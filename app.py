@@ -349,10 +349,17 @@ fig.update_layout(
     plot_bgcolor='rgba(0,0,0,0)',
     height=380, # Compact Height
     margin=dict(l=0, r=0, t=20, b=0),
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="right",
+        x=1,
+        font=dict(color="#E6EDF3")  # Force light text for visibility
+    ),
     hovermode="x unified"
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 # Data breakdown (Compact)
 with st.expander("View Data"):
