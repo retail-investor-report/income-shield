@@ -36,11 +36,13 @@ st.markdown("""
         display: flex !important; /* Ensure layout */
         visibility: visible !important;
         transition: none !important; /* Disable slide animation */
-        overflow-y: hidden !important; /* Prevent scrolling */
+        overflow-y: hidden !important; /* Prevent vertical scrolling */
+        overflow-x: hidden !important; /* Prevent horizontal scrolling */
     }
     /* Target inner div for overflow */
     section[data-testid="stSidebar"] > div {
         overflow-y: hidden !important;
+        overflow-x: hidden !important;
     }
     /* Hide collapse button (expanded state) */
     button[data-testid="stSidebarCollapseButton"],
@@ -63,8 +65,8 @@ st.markdown("""
     section[data-testid="stSidebar"] > div > div > div > div.block-container {
         padding-top: 0.2rem !important;
         padding-bottom: 0.2rem !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+        padding-left: 0.8rem !important; /* Slightly reduced for horizontal fit */
+        padding-right: 0.8rem !important; /* Slightly reduced for horizontal fit */
     }
    
     /* Reduce margins between elements in sidebar */
