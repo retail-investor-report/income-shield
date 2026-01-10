@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE STYLING (Landscape Safe) ---
+# --- 2. THE STYLING (High-Res Mobile Fix + Visible Tooltips) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -42,6 +42,7 @@ st.markdown("""
         border: 1px solid #F59E0B !important;
     }
     
+    /* METRIC LABELS & TOOLTIP ICON FIX */
     div[data-testid="stMetricLabel"] p { 
         color: #8AC7DE !important; 
         font-size: 0.85rem !important;
@@ -51,6 +52,17 @@ st.markdown("""
         color: #FFFFFF !important; 
         font-size: 1.5rem !important;
         font-weight: 700 !important;
+    }
+    
+    /* FORCE THE QUESTION MARK TO BE VISIBLE */
+    /* This targets the SVG icon inside the label */
+    div[data-testid="stMetricLabel"] svg {
+        fill: #E6EDF3 !important;
+        opacity: 0.7;
+    }
+    div[data-testid="stMetricLabel"] svg:hover {
+        opacity: 1.0;
+        fill: #F59E0B !important; /* turns gold on hover */
     }
 
     /* GENERAL TEXT OVERRIDES */
@@ -92,10 +104,10 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. DESKTOP LAYOUT LOCK (UPDATED: Min-width 1024px) */
-    /* Only triggers on Laptops/Large Screens */
+    /* C. DESKTOP LAYOUT LOCK (UPDATED: Min-width 1200px) */
+    /* We raised this to 1200px so high-res phones stay in Mobile Mode */
     /* ------------------------------------------------------------------- */
-    @media (min-width: 1024px) {
+    @media (min-width: 1200px) {
         
         /* Fixed Sidebar */
         section[data-testid="stSidebar"] {
@@ -142,17 +154,17 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* D. MOBILE & TABLET LAYOUT (UPDATED: Max-width 1023px) */
+    /* D. MOBILE & TABLET LAYOUT (UPDATED: Max-width 1199px) */
     /* Covers Phones (Portrait/Landscape) and Tablets */
     /* ------------------------------------------------------------------- */
-    @media (max-width: 1023px) {
+    @media (max-width: 1199px) {
         /* Reset Main Content to Normal */
         section[data-testid="stMain"] { 
             margin-left: 0 !important; 
             width: 100% !important; 
         }
         
-        /* Force container to use full width (Fixes "Little Rectangle" issue) */
+        /* Force container to use full width */
         .block-container { 
             padding-top: 4rem !important; 
             padding-left: 1rem !important; 
