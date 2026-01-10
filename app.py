@@ -92,16 +92,29 @@ st.markdown("""
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
 
-    /* DROPDOWNS */
+    /* --- DROPDOWNS (THE FIX) --- */
+    /* Container styling */
     div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"], li[role="option"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
+    /* Force inner text to be white by default */
+    li[role="option"] div, li[role="option"] span {
+        color: #FFFFFF !important;
+    }
+    
+    /* Hover/Selected State styling */
     li[role="option"]:hover, li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
+    /* Force inner text to be black on hover */
+    li[role="option"]:hover div, li[role="option"]:hover span,
+    li[role="option"][aria-selected="true"] div, li[role="option"][aria-selected="true"] span {
+        color: #0D1117 !important;
+    }
+    
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
     /* SIDEBAR COMPACTING */
@@ -289,21 +302,18 @@ fig.add_trace(go.Scatter(
 ))
 
 # FAKE TRACES (For Custom Legend)
-# 1. Green Trace
 fig.add_trace(go.Scatter(
     x=[None], y=[None], mode='lines', 
     name='True Value (Price + Divs)',
     line=dict(color='#00C805', width=3), showlegend=True
 ))
 
-# 2. Blue Trace (Asset Value)
 fig.add_trace(go.Scatter(
     x=[None], y=[None], mode='lines', 
     name='Asset Value (Price)',
     line=dict(color='#8AC7DE', width=2), showlegend=True
 ))
 
-# 3. Red Trace (Asset Value - REPEATED to show it's the same thing)
 fig.add_trace(go.Scatter(
     x=[None], y=[None], mode='lines', 
     name='Asset Value (Price)',
