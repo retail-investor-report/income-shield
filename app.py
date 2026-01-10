@@ -36,6 +36,7 @@ st.markdown("""
         display: flex !important; /* Ensure layout */
         visibility: visible !important;
         transition: none !important; /* Disable slide animation */
+        overflow-y: hidden !important; /* Prevent scrolling */
     }
     /* Hide collapse button (expanded state) */
     button[data-testid="stSidebarCollapseButton"],
@@ -52,6 +53,32 @@ st.markdown("""
     /* Prevent any collapse behavior */
     [data-testid="stSidebarNav"] {
         pointer-events: none !important;
+    }
+   
+    /* Compact sidebar content */
+    section[data-testid="stSidebar"] > div > div > div > div.block-container {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+   
+    /* Reduce margins between elements in sidebar */
+    .stSidebar .element-container,
+    .stSidebar .stSelectbox,
+    .stSidebar .stDateInput,
+    .stSidebar .stRadio,
+    .stSidebar .stNumberInput,
+    .stSidebar .stMarkdown,
+    .stSidebar .stInfo {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+   
+    /* Make horizontal rules thinner */
+    .stSidebar hr {
+        margin: 0.5rem 0 !important;
+        border-top: 1px solid #30363d !important;
     }
    
     /* ------------------------------------------------------------------- */
