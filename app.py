@@ -9,7 +9,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (deep dive fix - no overlapping, stable layout) ---
+# --- 2. THE "LOCKDOWN" STYLING ---
+# (Fixed Sidebar on Desktop + Mobile Overlay)
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -18,7 +19,6 @@ st.markdown("""
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
-        overflow: hidden !important;  /* Prevent any app-wide overflow */
     }
 
     ::-webkit-scrollbar { display: none; }
@@ -67,85 +67,80 @@ st.markdown("""
         margin-top: 0.2rem !important;
         margin-bottom: 0.2rem !important;
     }
-/* ------------------------------------------------------------------- */
-    /* B. DESKTOP ONLY - Fixed Sidebar + Shifting Main Content Right       */
+
+    /* ------------------------------------------------------------------- */
+    /* B. DESKTOP ONLY (Min-width: 768px) */
+    /* Sidebar is PERMANENT. Main content is PUSHED right. */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         
-        /* 1. Sidebar: Fixed to the glass, scrollbars hidden */
-        [data-testid="stSidebar"] {
+        /* 1. The Sidebar: Fixed Geometry */
+        section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
             height: 100vh !important;
-            position: fixed !important; 
+            position: fixed !important;
             top: 0 !important;
             left: 0 !important;
-            z-index: 10000 !important; /* High z-index to stay on top */
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
-            box-shadow: none !important;
+            z-index: 100;
+            transform: none !important; /* Prevents Streamlit from hiding it */
+            visibility: visible !important;
         }
 
-        /* Hide the annoying sidebar scrollbar but keep scroll functionality */
-        div[data-testid="stSidebarUserContent"] {
-            padding-bottom: 2rem !important;
-        }
-        div[data-testid="stSidebarUserContent"]::-webkit-scrollbar {
-            display: none !important;
-        }
-        
-        /* 2. Main Content: Push the WHOLE container right to clear the sidebar */
-        .main {
-            margin-left: 300px !important; /* This matches sidebar width */
-            width: calc(100% - 300px) !important;
-            overflow-x: hidden !important;
-        }
-
-        /* 3. Adjust the inner block to fill the new available space */
+        /* 2. The Main Window: Shoved 300px to the right */
         .main .block-container {
+            margin-left: 300px !important;        /* The Safety Gap */
+            width: calc(100% - 300px) !important; /* Fill remaining space */
             max-width: 100% !important;
-            padding-left: 2rem !important;
-            padding-right: 2rem !important;
+            padding-left: 3rem !important;
+            padding-right: 3rem !important;
         }
 
-        /* 4. Kill the collapse buttons so user can't break the layout */
-        [data-testid="stSidebarCollapseBtn"],
-        [data-testid="stSidebarNavItems"],
-        div[data-testid="collapsedControl"] {
-            display: none !important;
-            visibility: hidden !important;
-        }
-        
-        /* Hide Header decoration bar */
-        header[data-testid="stHeader"] {
+        /* 3. Kill Switch: Hide all Collapse Buttons & Headers on Desktop */
+        header[data-testid="stHeader"],           /* Top header bar */
+        button[data-testid="stSidebarCollapseBtn"], /* Collapse arrow */
+        div[data-testid="collapsedControl"]       /* The little > arrow when closed */
+        {
             display: none !important;
         }
     }
+
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE ONLY - untouched, perfect */
+    /* C. MOBILE ONLY (Max-width: 767px) */
+    /* Reverts to standard Streamlit behavior for phones. */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
+        
+        /* 1. Bring back the header (contains the hamburger menu) */
         header[data-testid="stHeader"] {
             display: block !important;
             background-color: #0D1117 !important;
-            z-index: 999 !important;
+            z-index: 99999 !important;
         }
 
+        /* 2. Reset Main Window (Remove the 300px gap) */
+        .main .block-container {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            padding-top: 4rem !important;
+        }
+        
+        /* 3. Let Sidebar be a normal overlay */
+        section[data-testid="stSidebar"] {
+            position: relative !important;
+            width: 100% !important;
+            /* No fixed position, let Streamlit handle the slide */
+        }
+        
+        /* 4. Ensure controls are visible */
         button[data-testid*="SidebarCollapseButton"],
         [data-testid*="collapsedControl"] {
             display: block !important;
             color: #E6EDF3 !important;
-        }
-
-        [data-testid="stSidebar"] {
-            background-color: #0D1117 !important;
-            border-right: 1px solid #30363d !important;
-        }
-
-        .block-container {
-            padding-top: 4rem !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
         }
     }
     </style>
@@ -192,14 +187,14 @@ with st.sidebar:
         end_date = pd.to_datetime(end_date)
     else:
         end_date = pd.to_datetime("today")
-       
+        
     st.markdown("---")
     
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
     
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
     journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
-   
+    
     if not journey.empty:
         entry_price = journey.iloc[0]['Closing Price']
         if mode == "Share Count":
@@ -207,7 +202,7 @@ with st.sidebar:
         else:
             dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
             shares = float(dollars) / entry_price
-       
+        
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
         st.error("No data available for selected date range.")
@@ -325,4 +320,3 @@ with st.expander("View Data"):
         use_container_width=True,
         height=200
     )
-
