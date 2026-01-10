@@ -20,11 +20,11 @@ st.markdown("""
         background-color: #0D1117;
         color: #E6EDF3;
     }
-   
+    
     /* ------------------------------------------------------------------- */
     /* B. PERMANENT SIDEBAR (LOCKED OPEN) */
     /* ------------------------------------------------------------------- */
-   
+    
     [data-testid="stSidebar"] {
         background-color: #0D1117;
         border-right: 1px solid #30363d;
@@ -49,18 +49,18 @@ st.markdown("""
     button[kind="collapseSidebar"] {
         display: none !important;
     }
-   
+    
     /* Hide expand arrow (collapsed state) */
     div[data-testid="collapsedControl"],
     [data-testid="collapsedControl"] {
         display: none !important;
     }
-   
+    
     /* Prevent any collapse behavior */
     [data-testid="stSidebarNav"] {
         pointer-events: none !important;
     }
-   
+    
     /* Compact sidebar content */
     section[data-testid="stSidebar"] > div > div > div > div.block-container {
         padding-top: 0.2rem !important;
@@ -68,7 +68,7 @@ st.markdown("""
         padding-left: 0.8rem !important; /* Slightly reduced for horizontal fit */
         padding-right: 0.8rem !important; /* Slightly reduced for horizontal fit */
     }
-   
+    
     /* Reduce margins between elements in sidebar */
     .stSidebar .element-container,
     .stSidebar .stSelectbox,
@@ -80,7 +80,7 @@ st.markdown("""
         margin-top: 0.2rem !important;
         margin-bottom: 0.2rem !important;
     }
-   
+    
     /* Compact headers and labels */
     .stSidebar h2 {
         margin-top: 0.2rem !important;
@@ -91,36 +91,36 @@ st.markdown("""
         margin-bottom: 0.1rem !important;
         font-size: 0.9rem !important; /* Slightly smaller for fit */
     }
-   
+    
     /* Make horizontal rules thinner */
     .stSidebar hr {
         margin: 0.2rem 0 !important;
         border-top: 1px solid #30363d !important;
     }
-   
+    
     /* ------------------------------------------------------------------- */
     /* C. HEADER FIX (NO WHITE BANNER) */
     /* ------------------------------------------------------------------- */
-   
+    
     /* Completely hide the header bar */
     header[data-testid="stHeader"] {
         display: none !important;
     }
-   
+    
     /* Hide Toolbar & Decoration */
     [data-testid="stToolbar"] {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
     footer {display: none !important;}
-   
+    
     /* Adjust main content to start from top */
     .main {
         padding-top: 0 !important;
     }
-   
+    
     /* ------------------------------------------------------------------- */
     /* D. DROPDOWN VISIBILITY (HIGH CONTRAST) */
     /* ------------------------------------------------------------------- */
-   
+    
     /* The Box you click */
     div[data-baseweb="select"] > div,
     div[data-testid="stDateInput"] > div,
@@ -130,31 +130,31 @@ st.markdown("""
         color: #FFFFFF !important;
         font-weight: bold !important; /* Bolder text for better visibility */
     }
-   
+    
     /* The Text inside input boxes */
     input {
         color: #FFFFFF !important;
         font-weight: bold !important;
     }
-   
+    
     /* THE POPUP MENU (Dark Background, White Text) - Higher specificity */
     div[data-baseweb="popover"],
     div[data-baseweb="menu"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
     }
-   
+    
     /* Nested menu structure for override */
     div[data-baseweb="popover"] > div[data-baseweb="menu"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
     }
-   
+    
     div[data-baseweb="menu"] > ul[role="listbox"] {
         background-color: #1E293B !important;
         border: none !important;
     }
-   
+    
     /* The List Items */
     ul[role="listbox"] > li[role="option"] {
         background-color: #1E293B !important;
@@ -162,14 +162,14 @@ st.markdown("""
         font-weight: bold !important; /* Bolder text */
         padding: 12px !important; /* More padding for readability */
     }
-   
+    
     /* Hover Highlight (Blue Background, Dark Text) */
     ul[role="listbox"] > li[role="option"]:hover,
     ul[role="listbox"] > li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
-   
+    
     /* Icons */
     .stSelectbox svg, .stDateInput svg {
         fill: #8AC7DE !important;
@@ -183,7 +183,7 @@ st.markdown("""
     /* ------------------------------------------------------------------- */
     /* F. ANTI-SCROLL (COMPACT LAYOUT) */
     /* ------------------------------------------------------------------- */
-   
+    
     /* Push content up to the very top */
     .block-container {
         padding-top: 1rem !important;
@@ -192,19 +192,19 @@ st.markdown("""
         padding-right: 2rem !important;
         max-width: 100%;
     }
-   
+    
     /* Hide Scrollbars */
     ::-webkit-scrollbar {
         display: none;
     }
-   
+    
     /* ------------------------------------------------------------------- */
     /* G. METRICS & TEXT */
     /* ------------------------------------------------------------------- */
     h1, h2, h3, h4, h5, h6, p, label {
         color: #E6EDF3 !important;
     }
-   
+    
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
@@ -226,10 +226,10 @@ def load_data():
     try:
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
-       
+        
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
-       
+        
         df_u['Date'] = pd.to_datetime(df_u['Date'])
         df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
         return df_u, df_h
@@ -244,36 +244,36 @@ if df_unified is None:
 # --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
     st.header("🛡️ Simulator")
-   
+    
     # Ticker
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
-   
+    
     st.markdown("---")
-   
+    
     # 1. Start Date
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
-   
+    
     # 2. End Date Logic (Reverted to Radio Buttons as requested)
     date_mode = st.radio("Simulation End Point:", ["Hold to Present", "Sell on Specific Date"])
-   
+    
     if date_mode == "Sell on Specific Date":
         end_date = st.date_input("Sell Date", pd.to_datetime("today"))
         end_date = pd.to_datetime(end_date)
     else:
         end_date = pd.to_datetime("today")
-       
+        
     st.markdown("---")
-   
+    
     # 3. Position Size
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
-   
+    
     # 4. Data Filtering Logic
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
     journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
-   
+    
     if not journey.empty:
         entry_price = journey.iloc[0]['Closing Price']
         if mode == "Share Count":
@@ -281,7 +281,7 @@ with st.sidebar:
         else:
             dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
             shares = float(dollars) / entry_price
-       
+        
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
         st.error("No data available.")
@@ -317,25 +317,42 @@ start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
-# Get metadata for selected ticker from df_unified (columns 'Underlying' and 'Company')
-underlying_col = 'Underlying'
-issuer_col = 'Company'
-
-if underlying_col in price_df.columns and not price_df[underlying_col].isnull().all():
-    underlying = price_df[underlying_col].dropna().iloc[0] if not price_df[underlying_col].dropna().empty else "Unknown"
-else:
-    underlying = "Unknown"
-
-if issuer_col in price_df.columns and not price_df[issuer_col].isnull().all():
-    issuer = price_df[issuer_col].dropna().iloc[0] if not price_df[issuer_col].dropna().empty else "Unknown"
-else:
-    issuer = "Unknown"
-
 # --- 6. DASHBOARD ---
-# Compact Header with added info
-st.markdown(f"### {selected_ticker} Performance Simulator | Underlying: {underlying} | ETF Issuer: {issuer}")
-st.markdown(f"**{shares:.2f} shares** | {buy_date.date()} ➝ {end_date.date()}")
+# Metadata Extraction logic
+try:
+    # Get the first row of data for this ticker to extract static metadata
+    meta_row = price_df.iloc[0]
+    # Use .get() to avoid crashing if columns are missing
+    asset_underlying = meta_row.get('Underlying', '-')
+    asset_company = meta_row.get('Company', '-')
+except Exception:
+    asset_underlying = "-"
+    asset_company = "-"
 
+# Header Layout with Metadata Side-by-Side
+col_head, col_meta = st.columns([3, 1])
+
+with col_head:
+    st.markdown(f"### {selected_ticker} Performance Simulator")
+    st.markdown(f"**{shares:.2f} shares** | {buy_date.date()} ➝ {end_date.date()}")
+
+with col_meta:
+    st.markdown(f"""
+        <div style="
+            text-align: left; 
+            padding: 5px; 
+            border-left: 2px solid #30363d; 
+            margin-top: 5px;
+            padding-left: 15px;">
+            <span style="color: #8AC7DE; font-size: 0.8rem;">Underlying</span><br>
+            <span style="color: #E6EDF3; font-weight: bold; font-size: 1rem;">{asset_underlying}</span><br>
+            <div style="height: 5px;"></div>
+            <span style="color: #8AC7DE; font-size: 0.8rem;">Company</span><br>
+            <span style="color: #E6EDF3; font-weight: bold; font-size: 1rem;">{asset_company}</span>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Metrics Row
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
