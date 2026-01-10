@@ -79,19 +79,20 @@ st.markdown("""
     }
 
     /* =========================================
-       THE CALENDAR FIX (Desktop Hover & White Blocks)
+       THE CALENDAR STYLING (Main Body)
        ========================================= */
 
-    /* 1. Force the Main Calendar Container Dark */
+    /* 1. Target the Calendar Container */
     div[data-baseweb="calendar"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
-    
-    /* 2. Force the Header (Month/Year) Dark */
+
+    /* 2. FORCE THE HEADER (Month/Year) TO BE DARK */
     div[data-baseweb="calendar"] > div {
         background-color: #1E293B !important;
+        color: #FFFFFF !important;
     }
     
     /* 3. Navigation Arrows (< >) */
@@ -102,59 +103,60 @@ st.markdown("""
         background-color: transparent !important;
     }
 
-    /* 4. THE WHITE SQUARES FIX */
-    /* Target any div in the grid that does NOT have a day label (the filler squares) */
-    div[data-baseweb="calendar"] div[role="grid"] > div:not([aria-label]) {
-        background-color: transparent !important;
-        border: none !important;
-    }
-    /* Backup: Target empty divs specifically */
-    div[data-baseweb="calendar"] div[role="grid"] > div:empty {
-        background-color: transparent !important;
+    /* 4. Day Names (Su, Mo, Tu...) */
+    div[data-baseweb="calendar"] div[role="grid"] div {
+        color: #E6EDF3 !important;
     }
 
-    /* 5. THE DAY CELLS (Normal State) */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-label] {
+    /* 5. The Days Numbers */
+    div[data-baseweb="calendar"] button[aria-label] {
         color: #FFFFFF !important;
+    }
+
+    /* 6. Fix "White Blocks" for Empty Days */
+    div[data-baseweb="calendar"] div[aria-label=""] {
         background-color: transparent !important;
-        border-radius: 50%; /* Optional: Makes hover circle nicer */
     }
 
-    /* 6. THE HOVER FIX (Crucial for Desktop) */
-    /* This overrides the default "White on White" hover */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-label]:hover {
-        background-color: #30363d !important; /* Dark Grey Background */
-        color: #FFFFFF !important; /* White Text */
-        font-weight: bold !important;
-        cursor: pointer !important;
-    }
-
-    /* 7. SELECTED DATE STATE (Overrides Hover) */
-    /* Keeps the selected date Blue even when you hover over it */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-selected="true"],
-    div[data-baseweb="calendar"] div[role="grid"] [aria-selected="true"]:hover {
+    /* 7. Selected Day (Red/Blue Circle) */
+    div[data-baseweb="calendar"] [aria-selected="true"] {
         background-color: #8AC7DE !important;
-        color: #0D1117 !important; /* Dark Text */
-        font-weight: 800 !important;
+        color: #0D1117 !important;
+        font-weight: bold !important;
+    }
+    
+    /* 8. Hover Day */
+    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
+        background-color: #30363d !important;
+        color: #FFFFFF !important;
     }
 
     /* =========================================
-       THE DROPDOWN FIX (Year/Month Picker)
+       THE DROPDOWN MENU FIX (Year/Month Picker)
+       This fixes the "White on White" inside the list
        ========================================= */
        
+    /* 1. The Container (The List Itself) */
     ul[role="listbox"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
     }
+
+    /* 2. The Options (Years/Months) - Default State */
     li[role="option"] {
-        color: #FFFFFF !important;
-        background-color: #1E293B !important;
+        color: #FFFFFF !important; /* White Text */
+        background-color: #1E293B !important; /* Dark Blue Background */
     }
+
+    /* 3. The "Selected" or "Highlighted" Option */
+    /* This overrides the white box seen in your screenshot */
     li[role="option"][aria-selected="true"], 
     li[role="option"]:hover {
-        background-color: #8AC7DE !important;
-        color: #0D1117 !important;
+        background-color: #8AC7DE !important; /* Bright Blue Background */
+        color: #0D1117 !important; /* Dark Text */
     }
+    
+    /* 4. Force text inside options to inherit color */
     li[role="option"] * {
         color: inherit !important;
     }
