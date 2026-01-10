@@ -9,24 +9,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE STYLING (High-Res Mobile Fix + Visible Tooltips) ---
+# --- 2. THE STYLING ---
 st.markdown("""
     <style>
-    /* ------------------------------------------------------------------- */
     /* A. GLOBAL STYLES */
-    /* ------------------------------------------------------------------- */
-    .stApp {
-        background-color: #0D1117;
-        color: #E6EDF3;
-    }
-
+    .stApp { background-color: #0D1117; color: #E6EDF3; }
     ::-webkit-scrollbar { display: none !important; }
     
-    /* ------------------------------------------------------------------- */
     /* B. COMPONENT STYLING */
-    /* ------------------------------------------------------------------- */
-    
-    /* STANDARD METRICS */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
@@ -36,42 +26,24 @@ st.markdown("""
         min-height: 100px;
     }
     
-    /* SPECIAL HIGHLIGHT: The 5th Metric (Annualized Yield) */
+    /* SPECIAL HIGHLIGHT: 5th Metric (Annualized Yield) */
     div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetric"] {
         background-color: #1a2e35 !important;
         border: 1px solid #F59E0B !important;
     }
     
-    /* METRIC LABELS & TOOLTIP ICON FIX */
-    div[data-testid="stMetricLabel"] p { 
-        color: #8AC7DE !important; 
-        font-size: 0.85rem !important;
-        font-weight: 600 !important;
-    }
-    div[data-testid="stMetricValue"] div { 
-        color: #FFFFFF !important; 
-        font-size: 1.5rem !important;
-        font-weight: 700 !important;
-    }
+    div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; font-size: 0.85rem !important; font-weight: 600 !important; }
+    div[data-testid="stMetricValue"] div { color: #FFFFFF !important; font-size: 1.5rem !important; font-weight: 700 !important; }
     
-    /* FORCE THE QUESTION MARK TO BE VISIBLE */
-    /* This targets the SVG icon inside the label */
-    div[data-testid="stMetricLabel"] svg {
-        fill: #E6EDF3 !important;
-        opacity: 0.7;
-    }
-    div[data-testid="stMetricLabel"] svg:hover {
-        opacity: 1.0;
-        fill: #F59E0B !important; /* turns gold on hover */
-    }
+    /* TOOLTIP FIX */
+    div[data-testid="stMetricLabel"] svg { fill: #E6EDF3 !important; opacity: 0.7; }
+    div[data-testid="stMetricLabel"] svg:hover { opacity: 1.0; fill: #F59E0B !important; }
 
-    /* GENERAL TEXT OVERRIDES */
+    /* TEXT OVERRIDES */
     h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
 
-    /* INPUTS & DROPDOWNS */
-    div[data-baseweb="select"] > div,
-    div[data-testid="stDateInput"] > div,
-    div[data-baseweb="input"] > div {
+    /* INPUTS */
+    div[data-baseweb="select"] > div, div[data-testid="stDateInput"] > div, div[data-baseweb="input"] > div {
         background-color: #1E293B !important;
         border-color: #30363d !important;
         color: #FFFFFF !important;
@@ -81,7 +53,7 @@ st.markdown("""
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
 
-    /* DROPDOWN MENUS */
+    /* DROPDOWNS */
     div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"], li[role="option"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
@@ -94,97 +66,29 @@ st.markdown("""
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
     /* SIDEBAR COMPACTING */
-    .stSidebar .element-container {
-        margin-top: 0rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-    .stSidebar .stSelectbox, .stSidebar .stDateInput, .stSidebar .stRadio, .stSidebar .stNumberInput {
-        padding-top: 0rem !important;
-        padding-bottom: 0rem !important;
-    }
+    .stSidebar .element-container { margin-top: 0rem !important; margin-bottom: 0.5rem !important; }
+    .stSidebar .stSelectbox, .stSidebar .stDateInput, .stSidebar .stRadio, .stSidebar .stNumberInput { padding-top: 0rem !important; padding-bottom: 0rem !important; }
 
-    /* ------------------------------------------------------------------- */
-    /* C. DESKTOP LAYOUT LOCK (UPDATED: Min-width 1200px) */
-    /* We raised this to 1200px so high-res phones stay in Mobile Mode */
-    /* ------------------------------------------------------------------- */
+    /* C. DESKTOP LAYOUT LOCK (Min-width 1200px) */
     @media (min-width: 1200px) {
-        
-        /* Fixed Sidebar */
         section[data-testid="stSidebar"] {
-            width: 300px !important;
-            min-width: 300px !important;
-            height: 100vh !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            background-color: #0D1117 !important;
-            border-right: 1px solid #30363d !important;
-            z-index: 9999 !important;
-            transform: none !important;
-            padding-top: 1rem !important;
+            width: 300px !important; min-width: 300px !important; height: 100vh !important;
+            position: fixed !important; top: 0 !important; left: 0 !important;
+            background-color: #0D1117 !important; border-right: 1px solid #30363d !important;
+            z-index: 9999 !important; transform: none !important; padding-top: 1rem !important;
         }
-        
-        section[data-testid="stSidebar"] h2 {
-            padding-top: 0rem !important;
-            margin-top: 0rem !important;
-            margin-bottom: 1rem !important;
-        }
-
-        /* Shift Main Content */
-        section[data-testid="stMain"] {
-            margin-left: 300px !important;
-            width: calc(100% - 300px) !important;
-            position: relative !important;
-            display: block !important;
-        }
-
-        .block-container {
-            padding-left: 3rem !important; 
-            padding-right: 3rem !important;
-            padding-top: 2rem !important;
-            padding-bottom: 1rem !important;
-            max-width: 100% !important;
-        }
-
-        header[data-testid="stHeader"],
-        button[data-testid="stSidebarCollapseBtn"],
-        div[data-testid="collapsedControl"] {
-            display: none !important;
-        }
+        section[data-testid="stSidebar"] h2 { padding-top: 0rem !important; margin-top: 0rem !important; margin-bottom: 1rem !important; }
+        section[data-testid="stMain"] { margin-left: 300px !important; width: calc(100% - 300px) !important; position: relative !important; display: block !important; }
+        .block-container { padding-left: 3rem !important; padding-right: 3rem !important; padding-top: 2rem !important; padding-bottom: 1rem !important; max-width: 100% !important; }
+        header[data-testid="stHeader"], button[data-testid="stSidebarCollapseBtn"], div[data-testid="collapsedControl"] { display: none !important; }
     }
 
-    /* ------------------------------------------------------------------- */
-    /* D. MOBILE & TABLET LAYOUT (UPDATED: Max-width 1199px) */
-    /* Covers Phones (Portrait/Landscape) and Tablets */
-    /* ------------------------------------------------------------------- */
+    /* D. MOBILE LAYOUT (Max-width 1199px) */
     @media (max-width: 1199px) {
-        /* Reset Main Content to Normal */
-        section[data-testid="stMain"] { 
-            margin-left: 0 !important; 
-            width: 100% !important; 
-        }
-        
-        /* Force container to use full width */
-        .block-container { 
-            padding-top: 4rem !important; 
-            padding-left: 1rem !important; 
-            padding-right: 1rem !important; 
-            max-width: 100vw !important;
-            min-width: 100vw !important;
-        }
-        
-        /* Bring back the Header & Hamburger */
-        header[data-testid="stHeader"] { 
-            display: block !important; 
-            background-color: #0D1117 !important; 
-            z-index: 99999 !important; 
-        }
-        
-        button[data-testid*="SidebarCollapseButton"], 
-        [data-testid*="collapsedControl"] { 
-            display: block !important; 
-            color: #E6EDF3 !important; 
-        }
+        section[data-testid="stMain"] { margin-left: 0 !important; width: 100% !important; }
+        .block-container { padding-top: 4rem !important; padding-left: 1rem !important; padding-right: 1rem !important; max-width: 100vw !important; min-width: 100vw !important; }
+        header[data-testid="stHeader"] { display: block !important; background-color: #0D1117 !important; z-index: 99999 !important; }
+        button[data-testid*="SidebarCollapseButton"], [data-testid*="collapsedControl"] { display: block !important; color: #E6EDF3 !important; }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -274,13 +178,19 @@ start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
-# --- ANNUALIZED YIELD ---
+# Metric: Annualized Yield
 days_held = (end_date - buy_date).days
 if days_held > 0:
     raw_yield = cash_total / initial_cap
     annual_yield = raw_yield * (365.25 / days_held) * 100
 else:
     annual_yield = 0.0
+
+# Metric: Break Even Price
+# (Total Cost - Dividends) / Shares
+breakeven = (initial_cap - cash_total) / shares
+if breakeven < 0:
+    breakeven = 0 # You are free rolling!
 
 # --- 6. DASHBOARD ---
 try:
@@ -291,7 +201,6 @@ except Exception:
     asset_underlying = "-"
     asset_company = "-"
 
-# --- HEADER SECTION ---
 col_head, col_meta = st.columns([2.5, 1])
 
 with col_head:
@@ -307,7 +216,6 @@ with col_head:
     """, unsafe_allow_html=True)
 
 with col_meta:
-    # BADGE CSS
     st.markdown(f"""
         <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
             <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -321,15 +229,15 @@ with col_meta:
         </div>
     """, unsafe_allow_html=True)
 
-# --- 5 COLUMNS ---
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
-m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
+# SWAPPED Market Value for Break Even
+m2.metric("Break-Even Price", f"${breakeven:,.2f}", help="The price the asset can drop to before you lose money.")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
 m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 m5.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
 
-# --- 7. CHART ---
+# --- 7. CHART WITH COMIC OVERLAY ---
 fig = go.Figure()
 
 fig.add_trace(go.Scatter(
@@ -348,6 +256,27 @@ fig.add_trace(go.Scatter(
 
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
 
+# COMIC BOOK STYLE OVERLAY (ANNOTATION)
+profit_color = "#00C805" if total_pl >= 0 else "#FF4B4B"
+profit_text = f"PROFIT: +${total_pl:,.2f}" if total_pl >= 0 else f"LOSS: -${abs(total_pl):,.2f}"
+
+fig.add_annotation(
+    x=0.02, y=0.98, # Top Left
+    xref="paper", yref="paper",
+    text=profit_text,
+    showarrow=False,
+    font=dict(
+        family="Arial Black, sans-serif",
+        size=18,
+        color=profit_color
+    ),
+    bgcolor="rgba(13, 17, 23, 0.8)", # Semi-transparent dark bg
+    bordercolor=profit_color,
+    borderwidth=2,
+    borderpad=10,
+    align="left"
+)
+
 fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
@@ -363,20 +292,12 @@ fig.update_layout(
         font=dict(color="#E6EDF3")
     ),
     hovermode="x unified",
-    xaxis = dict(
-        fixedrange = True
-    ),
-    yaxis = dict(
-        fixedrange = True
-    )
+    xaxis = dict(fixedrange = True),
+    yaxis = dict(fixedrange = True)
 )
 
-st.plotly_chart(fig, use_container_width=True, config={
-    'displayModeBar': False,
-    'staticPlot': False
-})
+st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
-# Data breakdown
 with st.expander("View Data"):
     st.dataframe(
         journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']]
