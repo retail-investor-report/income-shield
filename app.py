@@ -12,18 +12,31 @@ st.set_page_config(
 # --- 2. THE STYLING ---
 st.markdown("""
     <style>
-    /* A. GLOBAL STYLES */
+    /* A. GLOBAL STYLES & LAYOUT FIXES (THE VACUUM SEAL) */
     .stApp { background-color: #0D1117; color: #E6EDF3; }
     ::-webkit-scrollbar { display: none !important; }
     
+    /* REMOVE DEFAULT STREAMLIT PADDING */
+    .block-container {
+        padding-top: 1rem !important; /* Pulls everything UP */
+        padding-bottom: 1rem !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+    
+    /* REDUCE GAP BETWEEN WIDGETS */
+    .element-container {
+        margin-bottom: 0.2rem !important; /* Tightens vertical gaps */
+    }
+
     /* B. COMPONENT STYLING */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
         border-radius: 10px;
-        padding: 10px 15px;
+        padding: 8px 15px; /* Reduced padding inside metrics */
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        min-height: 80px; /* SQUEEZED: Was 100px */
+        min-height: 80px; 
         transition: transform 0.2s;
     }
     
@@ -141,7 +154,8 @@ st.markdown("""
         }
         section[data-testid="stSidebar"] h2 { padding-top: 0rem !important; margin-top: 0rem !important; margin-bottom: 1rem !important; }
         section[data-testid="stMain"] { margin-left: 300px !important; width: calc(100% - 300px) !important; position: relative !important; display: block !important; }
-        .block-container { padding-left: 3rem !important; padding-right: 3rem !important; padding-top: 2rem !important; padding-bottom: 1rem !important; max-width: 100% !important; }
+        /* FORCING THE PADDING OVERRIDE ON MAIN CONTAINER */
+        .block-container { padding-left: 3rem !important; padding-right: 3rem !important; padding-top: 1rem !important; padding-bottom: 1rem !important; max-width: 100% !important; }
         header[data-testid="stHeader"], button[data-testid="stSidebarCollapseBtn"], div[data-testid="collapsedControl"] { display: none !important; }
     }
 
@@ -355,8 +369,8 @@ fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=350, # SQUEEZED HEIGHT
-    margin=dict(l=0, r=0, t=20, b=0), # SQUEEZED TOP MARGIN
+    height=340, # SQUEEZED MORE
+    margin=dict(l=0, r=0, t=10, b=0), # SQUEEZED MORE
     showlegend=False,
     hovermode="x unified",
     xaxis = dict(fixedrange = True),
@@ -371,27 +385,27 @@ st.markdown("""
         background-color: #161b22; 
         border: 1px solid #30363d; 
         border-radius: 8px; 
-        padding: 8px 10px;
-        margin-top: 5px; 
-        margin-bottom: 5px; 
+        padding: 5px 8px; /* TIGHT PADDING */
+        margin-top: 2px; /* TIGHT MARGIN */
+        margin-bottom: 2px; 
         text-align: center;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
     ">
-        <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px;">
-            <span style="color: #8b949e; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+        <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
+            <span style="color: #8b949e; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
                 Line Color Meaning *
             </span>
-            <span style="color: #00C805; font-weight: 800; font-size: 0.9rem;">
+            <span style="color: #00C805; font-weight: 800; font-size: 0.85rem;">
                 💚 True Value - No DRIP (Divs + Price)
             </span>
-            <span style="color: #8AC7DE; font-weight: 800; font-size: 0.9rem;">
+            <span style="color: #8AC7DE; font-weight: 800; font-size: 0.85rem;">
                 🔵 Asset Value - Appreciation
             </span>
-            <span style="color: #FF4B4B; font-weight: 800; font-size: 0.9rem;">
+            <span style="color: #FF4B4B; font-weight: 800; font-size: 0.85rem;">
                 🔴 Asset Value - Erosion
             </span>
         </div>
-        <div style="margin-top: 4px; font-size: 0.7rem; color: #555; font-style: italic; line-height: 1;">
+        <div style="margin-top: 2px; font-size: 0.65rem; color: #555; font-style: italic; line-height: 1;">
             * Status determined strictly by the purchase and sell dates selected above.
         </div>
     </div>
