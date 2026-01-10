@@ -12,13 +12,13 @@ st.set_page_config(
 # --- 2. THE STYLING ---
 st.markdown("""
     <style>
-    /* A. GLOBAL STYLES & LAYOUT FIXES (THE VACUUM SEAL) */
+    /* A. GLOBAL STYLES & LAYOUT FIXES */
     .stApp { background-color: #0D1117; color: #E6EDF3; }
     ::-webkit-scrollbar { display: none !important; }
     
     /* REMOVE DEFAULT STREAMLIT PADDING */
     .block-container {
-        padding-top: 1rem !important; /* Pulls everything UP */
+        padding-top: 1rem !important;
         padding-bottom: 1rem !important;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
@@ -26,7 +26,7 @@ st.markdown("""
     
     /* REDUCE GAP BETWEEN WIDGETS */
     .element-container {
-        margin-bottom: 0.2rem !important; /* Tightens vertical gaps */
+        margin-bottom: 0.2rem !important;
     }
 
     /* B. COMPONENT STYLING */
@@ -34,7 +34,7 @@ st.markdown("""
         background-color: #1E293B;
         border: 1px solid #30363d;
         border-radius: 10px;
-        padding: 8px 15px; /* Reduced padding inside metrics */
+        padding: 8px 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         min-height: 80px; 
         transition: transform 0.2s;
@@ -82,13 +82,38 @@ st.markdown("""
         opacity: 1.0 !important;
     }
 
-    /* --- TOOLTIP POPUP CONTENT --- */
+    /* --- TOOLTIP POPOVER (DEFAULT) --- */
+    /* This handles the Tooltips (White BG / Black Text) */
     div[data-baseweb="popover"] {
         background-color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
     div[data-baseweb="popover"] * {
         color: #000000 !important;
+    }
+
+    /* --- CALENDAR POPOVER (SMART OVERRIDE) --- */
+    /* If the popover contains a calendar, FORCE it to be Dark Blue */
+    div[data-baseweb="popover"]:has(div[data-baseweb="calendar"]) {
+        background-color: #1E293B !important;
+    }
+    
+    /* Force text inside the calendar to be White */
+    div[data-baseweb="popover"]:has(div[data-baseweb="calendar"]) * {
+        color: #FFFFFF !important;
+    }
+
+    /* Specific Calendar Elements */
+    div[data-baseweb="calendar"] button {
+        color: #FFFFFF !important; /* Arrows */
+    }
+    div[data-baseweb="calendar"] div {
+        color: #FFFFFF !important; /* Days/Months */
+    }
+    /* Calendar Hover State */
+    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
+        background-color: #30363d !important;
+        color: #8AC7DE !important;
     }
 
     /* TEXT OVERRIDES */
@@ -106,39 +131,25 @@ st.markdown("""
     input { color: #FFFFFF !important; font-weight: bold !important; }
 
     /* --- DROPDOWNS --- */
-    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"], li[role="option"] {
+    /* Dropdowns are also popovers, so we need to style them explicitly to match the dark theme */
+    ul[role="listbox"], li[role="option"] {
         background-color: #1E293B !important;
-        color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
+    /* Force dropdown text to be white (override the tooltip rule) */
     li[role="option"] div, li[role="option"] span {
         color: #FFFFFF !important;
     }
+    /* Hover/Selected State */
     li[role="option"]:hover, li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
-        color: #0D1117 !important;
     }
     li[role="option"]:hover div, li[role="option"]:hover span,
     li[role="option"][aria-selected="true"] div, li[role="option"][aria-selected="true"] span {
         color: #0D1117 !important;
     }
+    
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
-
-    /* --- CALENDAR OVERRIDE --- */
-    div[data-baseweb="calendar"] {
-        background-color: #1E293B !important;
-        color: #FFFFFF !important;
-    }
-    div[data-baseweb="calendar"] button {
-        color: #FFFFFF !important;
-    }
-    div[data-baseweb="calendar"] div {
-        color: #FFFFFF !important;
-    }
-    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
-        background-color: #30363d !important;
-        color: #8AC7DE !important;
-    }
 
     /* SIDEBAR COMPACTING */
     .stSidebar .element-container { margin-top: 0rem !important; margin-bottom: 0.5rem !important; }
@@ -369,8 +380,8 @@ fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=340, # SQUEEZED MORE
-    margin=dict(l=0, r=0, t=10, b=0), # SQUEEZED MORE
+    height=340, # SQUEEZED HEIGHT
+    margin=dict(l=0, r=0, t=20, b=0), # SQUEEZED MARGIN
     showlegend=False,
     hovermode="x unified",
     xaxis = dict(fixedrange = True),
@@ -385,8 +396,8 @@ st.markdown("""
         background-color: #161b22; 
         border: 1px solid #30363d; 
         border-radius: 8px; 
-        padding: 5px 8px; /* TIGHT PADDING */
-        margin-top: 2px; /* TIGHT MARGIN */
+        padding: 5px 8px; 
+        margin-top: 2px; 
         margin-bottom: 2px; 
         text-align: center;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
