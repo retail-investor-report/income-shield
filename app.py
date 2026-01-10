@@ -57,8 +57,8 @@ st.markdown("""
         filter: brightness(1.2);
     }
     
-    /* --- TOOLTIP ICON VISIBILITY FIX --- */
-    /* Forces the small question mark to be White and Visible */
+    /* --- TOOLTIP ICON (The Question Mark) --- */
+    /* Forces the icon to be White and Visible */
     [data-testid="stMetricLabel"] svg {
         fill: #E6EDF3 !important;
         opacity: 0.9 !important;
@@ -68,6 +68,15 @@ st.markdown("""
     [data-testid="stMetricLabel"]:hover svg {
         fill: #F59E0B !important; /* Turns Gold on Hover */
         opacity: 1.0 !important;
+    }
+
+    /* --- TOOLTIP POPUP TEXT (The actual popup bubble) --- */
+    /* Forces the text INSIDE the bubble to be Black */
+    div[role="tooltip"] > div {
+        background-color: #FFFFFF !important; /* White Background */
+        color: #000000 !important; /* BLACK TEXT */
+        border: 1px solid #30363d;
+        font-weight: bold;
     }
 
     /* TEXT OVERRIDES */
