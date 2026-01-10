@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "PERFECT FIT" STYLING ---
+# --- 2. THE "PADDING STRATEGY" STYLING ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -20,13 +20,13 @@ st.markdown("""
         color: #E6EDF3;
     }
 
-    /* Hide scrollbars globally (for cleaner UI) */
+    /* Hide scrollbars globally */
     ::-webkit-scrollbar {
         display: none !important;
         width: 0px !important;
         background: transparent !important;
     }
-    
+
     /* Metrics & Text */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
@@ -61,9 +61,9 @@ st.markdown("""
     }
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
-    /* Sidebar Spacing Optimization */
+    /* Sidebar Compact Spacing */
     .stSidebar .element-container, .stSidebar .stSelectbox, .stSidebar .stDateInput {
-        margin-top: 0.1rem !important; /* Tighter spacing */
+        margin-top: 0.1rem !important;
         margin-bottom: 0.1rem !important;
     }
 
@@ -72,7 +72,7 @@ st.markdown("""
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         
-        /* 1. SIDEBAR: Fixed, 300px, No Dividers, No visible scroll */
+        /* 1. SIDEBAR: Fixed, 300px, Hidden Scrollbar */
         section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
@@ -84,23 +84,19 @@ st.markdown("""
             border-right: 1px solid #30363d !important;
             z-index: 100;
             transform: none !important;
+            padding-top: 2rem !important; /* Space at top */
         }
 
-        /* 2. MAIN CONTENT: The "Space to the Left" Strategy */
-        .main {
-            margin-left: 300px !important;          /* 1. Push content right */
-            width: calc(100% - 300px) !important;   /* 2. Shrink width to fit */
-            padding-left: 0 !important;             /* 3. Reset internal padding */
-        }
-        
-        /* 3. CENTER THE CONTENT IN THE NEW VIEW */
+        /* 2. MAIN CONTENT - THE PADDING FIX */
+        /* Instead of moving the container, we just pad the inside massively */
         .main .block-container {
-            max-width: 100% !important;
-            padding-left: 3rem !important;
-            padding-right: 3rem !important;
+            padding-left: 330px !important; /* 300px sidebar + 30px buffer */
+            padding-right: 2rem !important;
+            max-width: 100vw !important;    /* Force full width */
+            width: 100vw !important;
         }
 
-        /* 4. Hide Header & Collapse Controls */
+        /* 3. Hide Controls */
         header[data-testid="stHeader"],
         button[data-testid="stSidebarCollapseBtn"],
         div[data-testid="collapsedControl"] {
@@ -112,18 +108,16 @@ st.markdown("""
     /* C. MOBILE LAYOUT (Max-width: 767px) */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        .main {
-            margin-left: 0 !important;
-            width: 100% !important;
-        }
         .main .block-container {
-            padding-top: 4rem !important;
             padding-left: 1rem !important;
             padding-right: 1rem !important;
+            padding-top: 4rem !important;
+            max-width: 100% !important;
         }
         section[data-testid="stSidebar"] {
             position: relative !important;
             width: 100% !important;
+            transform: none;
         }
         header[data-testid="stHeader"] {
             display: block !important;
@@ -167,7 +161,7 @@ with st.sidebar:
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
     
-    # REMOVED DIVIDER HERE TO SAVE SPACE
+    st.markdown("---")
     
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
@@ -181,7 +175,8 @@ with st.sidebar:
     else:
         end_date = pd.to_datetime("today")
         
-    # REMOVED DIVIDER HERE TO SAVE SPACE
+    # --- HERE IS YOUR DIVIDER ---
+    st.markdown("---")
     
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
     
