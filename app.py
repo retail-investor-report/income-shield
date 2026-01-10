@@ -9,21 +9,30 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "LOCKDOWN" STYLING ---
-# (Fixed Sidebar on Desktop + Mobile Overlay)
+# --- 2. THE "CLEAN & FIXED" STYLING ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. GLOBAL STYLES */
+    /* A. GLOBAL STYLES & SCROLLBAR HIDING */
     /* ------------------------------------------------------------------- */
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
     }
 
-    ::-webkit-scrollbar { display: none; }
+    /* GLOBAL: Hide scrollbars everywhere (Main window + Sidebar) */
+    ::-webkit-scrollbar {
+        display: none !important;
+        width: 0px !important;
+        background: transparent !important;
+    }
+    
+    /* For Firefox */
+    * {
+        scrollbar-width: none !important;
+    }
 
-    /* Metrics & Text */
+    /* Metrics & Text Styling */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
@@ -45,36 +54,30 @@ st.markdown("""
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
 
-    div[data-baseweb="popover"],
-    div[data-baseweb="menu"],
-    ul[role="listbox"],
-    li[role="option"] {
+    /* Dropdown Menus */
+    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"], li[role="option"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
-    li[role="option"]:hover,
-    li[role="option"][aria-selected="true"] {
+    li[role="option"]:hover, li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
     /* Sidebar compact spacing */
-    .stSidebar .element-container,
-    .stSidebar .stSelectbox,
-    .stSidebar .stDateInput {
+    .stSidebar .element-container, .stSidebar .stSelectbox, .stSidebar .stDateInput {
         margin-top: 0.2rem !important;
         margin-bottom: 0.2rem !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP ONLY (Min-width: 768px) */
-    /* Sidebar is PERMANENT. Main content is PUSHED right. */
+    /* B. DESKTOP LOCKDOWN (Min-width: 768px) */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         
-        /* 1. The Sidebar: Fixed Geometry */
+        /* 1. SIDEBAR: Fixed, 300px width, Hidden Scrollbar */
         section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
@@ -84,59 +87,66 @@ st.markdown("""
             left: 0 !important;
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
-            z-index: 100;
-            transform: none !important; /* Prevents Streamlit from hiding it */
-            visibility: visible !important;
+            z-index: 1000 !important;
+            transform: none !important;
+            overflow-y: auto !important; /* Allow scroll */
+            overflow-x: hidden !important;
         }
 
-        /* 2. The Main Window: Shoved 300px to the right */
+        /* 2. MAIN CONTENT: Force shift 300px right */
+        .main {
+            margin-left: 300px !important;
+            width: calc(100vw - 300px) !important; /* Subtract sidebar from viewport width */
+            position: absolute !important;
+            right: 0 !important;
+        }
+
+        /* 3. INNER CONTAINER: Manage padding inside the shifted main */
         .main .block-container {
-            margin-left: 300px !important;        /* The Safety Gap */
-            width: calc(100% - 300px) !important; /* Fill remaining space */
             max-width: 100% !important;
-            padding-left: 3rem !important;
-            padding-right: 3rem !important;
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
         }
 
-        /* 3. Kill Switch: Hide all Collapse Buttons & Headers on Desktop */
-        header[data-testid="stHeader"],           /* Top header bar */
-        button[data-testid="stSidebarCollapseBtn"], /* Collapse arrow */
-        div[data-testid="collapsedControl"]       /* The little > arrow when closed */
-        {
+        /* 4. REMOVE HEADER & COLLAPSE BUTTONS */
+        header[data-testid="stHeader"],
+        button[data-testid="stSidebarCollapseBtn"],
+        div[data-testid="collapsedControl"] {
             display: none !important;
         }
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE ONLY (Max-width: 767px) */
-    /* Reverts to standard Streamlit behavior for phones. */
+    /* C. MOBILE RESET (Max-width: 767px) */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
+        /* Reset Main to full width */
+        .main {
+            margin-left: 0 !important;
+            width: 100% !important;
+            position: relative !important;
+        }
         
-        /* 1. Bring back the header (contains the hamburger menu) */
+        .main .block-container {
+            padding-top: 4rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        /* Sidebar behaves normally (overlay) */
+        section[data-testid="stSidebar"] {
+            position: relative !important;
+            width: 100% !important;
+            min-width: 100% !important;
+        }
+        
+        /* Show Header */
         header[data-testid="stHeader"] {
             display: block !important;
             background-color: #0D1117 !important;
             z-index: 99999 !important;
         }
-
-        /* 2. Reset Main Window (Remove the 300px gap) */
-        .main .block-container {
-            margin-left: 0 !important;
-            width: 100% !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-            padding-top: 4rem !important;
-        }
         
-        /* 3. Let Sidebar be a normal overlay */
-        section[data-testid="stSidebar"] {
-            position: relative !important;
-            width: 100% !important;
-            /* No fixed position, let Streamlit handle the slide */
-        }
-        
-        /* 4. Ensure controls are visible */
         button[data-testid*="SidebarCollapseButton"],
         [data-testid*="collapsedControl"] {
             display: block !important;
@@ -300,16 +310,16 @@ fig.update_layout(
     ),
     hovermode="x unified",
     xaxis = dict(
-        fixedrange = True  # Disable zoom on x-axis
+        fixedrange = True
     ),
     yaxis = dict(
-        fixedrange = True  # Disable zoom on y-axis
+        fixedrange = True
     )
 )
 
 st.plotly_chart(fig, use_container_width=True, config={
-    'displayModeBar': False,  # Completely hide modebar to prevent zoom buttons
-    'staticPlot': False  # Keep interactive for hover, but no zoom
+    'displayModeBar': False,
+    'staticPlot': False
 })
 
 # Data breakdown
