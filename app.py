@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE STYLING (Auto-Sizing Badges + Highlighted Yield) ---
+# --- 2. THE STYLING (Mobile Fixed + Smart Badges) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -26,7 +26,7 @@ st.markdown("""
     /* B. COMPONENT STYLING */
     /* ------------------------------------------------------------------- */
     
-    /* STANDARD METRICS (Slots 1-4) */
+    /* STANDARD METRICS */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
@@ -37,13 +37,11 @@ st.markdown("""
     }
     
     /* SPECIAL HIGHLIGHT: The 5th Metric (Annualized Yield) */
-    /* This targets the last metric card in the row */
     div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetric"] {
-        background-color: #1a2e35 !important; /* Subtle Green/Blue tint */
-        border: 1px solid #F59E0B !important; /* Gold/Amber Border */
+        background-color: #1a2e35 !important;
+        border: 1px solid #F59E0B !important;
     }
     
-    /* Metric Labels */
     div[data-testid="stMetricLabel"] p { 
         color: #8AC7DE !important; 
         font-size: 0.85rem !important;
@@ -98,6 +96,7 @@ st.markdown("""
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         
+        /* Fixed Sidebar */
         section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
@@ -118,6 +117,7 @@ st.markdown("""
             margin-bottom: 1rem !important;
         }
 
+        /* Shift Main Content */
         section[data-testid="stMain"] {
             margin-left: 300px !important;
             width: calc(100% - 300px) !important;
@@ -141,14 +141,38 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* D. MOBILE LAYOUT (Max-width: 767px) */
+    /* D. MOBILE LAYOUT (Max-width: 767px) - THE FIX IS HERE */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        section[data-testid="stMain"] { margin-left: 0 !important; width: 100% !important; }
-        section[data-testid="stSidebar"] { position: relative !important; width: 100% !important; transform: none; }
-        .block-container { padding-top: 4rem !important; padding-left: 1rem !important; padding-right: 1rem !important; }
-        header[data-testid="stHeader"] { display: block !important; background-color: #0D1117 !important; z-index: 99999 !important; }
-        button[data-testid*="SidebarCollapseButton"], [data-testid*="collapsedControl"] { display: block !important; color: #E6EDF3 !important; }
+        /* Reset Main Content to Normal */
+        section[data-testid="stMain"] { 
+            margin-left: 0 !important; 
+            width: 100% !important; 
+        }
+        
+        /* Allow sidebar to be hidden/overlay (Removed the bad 'relative' code) */
+        section[data-testid="stSidebar"] { 
+            /* We leave this alone so Streamlit handles the slide-out animation */
+        }
+        
+        .block-container { 
+            padding-top: 4rem !important; 
+            padding-left: 1rem !important; 
+            padding-right: 1rem !important; 
+        }
+        
+        /* Bring back the Header & Hamburger */
+        header[data-testid="stHeader"] { 
+            display: block !important; 
+            background-color: #0D1117 !important; 
+            z-index: 99999 !important; 
+        }
+        
+        button[data-testid*="SidebarCollapseButton"], 
+        [data-testid*="collapsedControl"] { 
+            display: block !important; 
+            color: #E6EDF3 !important; 
+        }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -271,28 +295,28 @@ with col_head:
     """, unsafe_allow_html=True)
 
 with col_meta:
-    # UPDATED BADGE CSS: auto width, white-space nowrap
+    # BADGE CSS: Smart constraints with ellipsis
     st.markdown(f"""
         <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
-            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; width: auto; min-width: 80px; white-space: nowrap;">
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Underlying</div>
-                <div style="color: white; font-size: 1.1rem; font-weight: 800;">{asset_underlying}</div>
+                <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_underlying}</div>
             </div>
-            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; width: auto; min-width: 80px; white-space: nowrap;">
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Company</div>
-                <div style="color: white; font-size: 1.1rem; font-weight: 800;">{asset_company}</div>
+                <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_company}</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
-# --- 5 COLUMNS (Annualized moved to far right) ---
+# --- 5 COLUMNS ---
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
 m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
-# The 5th column will automatically get the "Gold" styling from CSS
+# The 5th column gets the "Gold" styling
 m5.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
 
 # --- 7. CHART ---
