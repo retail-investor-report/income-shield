@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (DEEP DIVE FIX - no overlapping, no arrow, stable layout) ---
+# --- 2. THE "EMPIRE" STYLING (deep dive fix - no overlapping, stable layout) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -18,6 +18,7 @@ st.markdown("""
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
+        overflow: hidden !important;  /* Prevent any app-wide overflow */
     }
 
     ::-webkit-scrollbar { display: none; }
@@ -68,7 +69,7 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP ONLY - Stable expanded sidebar, no arrow, no overlap */
+    /* B. DESKTOP ONLY - Sidebar expanded, main content fully visible */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         /* Sidebar expanded, dark, no scroll, no arrow */
@@ -81,10 +82,14 @@ st.markdown("""
             transform: translateX(0) !important;
             visibility: visible !important;
             overflow: hidden !important;
-            position: relative !important;  /* Avoid fixed to prevent overlap issues */
+            position: absolute !important;  /* Absolute to avoid layering issues with fixed */
+            top: 0 !important;
+            left: 0 !important;
+            height: 100% !important;
+            z-index: 1000 !important;
         }
 
-        /* Hide all collapse/open arrows/buttons - comprehensive coverage */
+        /* Hide all collapse/open controls */
         [data-testid*="SidebarCollapse"],
         [data-testid*="collapsedControl"],
         [data-testid*="stSidebarCollapseBtn"],
@@ -98,13 +103,10 @@ st.markdown("""
         section[data-testid="stSidebar"] button,
         .stSidebarUserContent button,
         svg[aria-label*="chevron"],
-        svg[aria-label*="arrow"],
-        [role="button"][aria-label*="Collapse"],
-        [role="button"][aria-label*="Expand"] {
+        svg[aria-label*="arrow"] {
             display: none !important;
             visibility: hidden !important;
             pointer-events: none !important;
-            opacity: 0 !important;
         }
 
         header[data-testid="stHeader"],
@@ -113,31 +115,26 @@ st.markdown("""
             display: none !important;
         }
 
-        /* Main content offset - no hiding behind sidebar */
-        .block-container {
-            padding-top: 1rem !important;
-            padding-left: 320px !important;  /* sidebar width + gap */
-            padding-right: 2rem !important;
-            padding-bottom: 1rem !important;
+        /* Main content fully visible, no hiding */
+        .main .block-container {
+            margin-left: 300px !important;
+            padding-left: 20px !important;  /* Gap between sidebar and content */
             max-width: calc(100% - 320px) !important;
             box-sizing: border-box !important;
             overflow: hidden !important;
         }
 
-        /* Safety: prevent any app-wide overlap or overflow */
         .main {
             margin: 0 !important;
             padding: 0 !important;
-            overflow: hidden !important;
-        }
-
-        .stAppViewContainer {
+            position: relative !important;
+            z-index: 1 !important;  /* Ensure main is in front of any layers */
             overflow: hidden !important;
         }
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE ONLY - untouched, perfect as is */
+    /* C. MOBILE ONLY - untouched, perfect */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
         header[data-testid="stHeader"] {
@@ -318,10 +315,19 @@ fig.update_layout(
         x=1,
         font=dict(color="#E6EDF3")
     ),
-    hovermode="x unified"
+    hovermode="x unified",
+    xaxis = dict(
+        fixedrange = True  # Disable zoom on x-axis
+    ),
+    yaxis = dict(
+        fixedrange = True  # Disable zoom on y-axis
+    )
 )
 
-st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+st.plotly_chart(fig, use_container_width=True, config={
+    'displayModeBar': False,  # Completely hide modebar to prevent zoom buttons
+    'staticPlot': False  # Keep interactive for hover, but no zoom
+})
 
 # Data breakdown
 with st.expander("View Data"):
