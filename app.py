@@ -57,7 +57,7 @@ st.markdown("""
         filter: brightness(1.2);
     }
     
-    /* --- TOOLTIP ICON (The Question Mark) --- */
+    /* --- TOOLTIP ICON --- */
     [data-testid="stMetricLabel"] svg {
         fill: #E6EDF3 !important;
         opacity: 0.9 !important;
@@ -69,7 +69,7 @@ st.markdown("""
         opacity: 1.0 !important;
     }
 
-    /* --- TOOLTIP POPUP CONTENT FIX --- */
+    /* --- TOOLTIP POPUP CONTENT --- */
     div[data-baseweb="popover"] {
         background-color: #FFFFFF !important;
         border: 1px solid #30363d !important;
@@ -270,41 +270,52 @@ m3.metric("Dividends Collected", f"${cash_total:,.2f}")
 m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
 m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
+# --- NEW: NAV DECODER STICKERS (The "Comic" Guide) ---
+# Placed between metrics and chart for maximum visibility
+st.markdown(f"""
+    <div style="display: flex; gap: 20px; margin-top: 15px; margin-bottom: 5px; align-items: center;">
+        <div style="
+            background: rgba(138, 199, 222, 0.1); 
+            border: 1px solid #8AC7DE; 
+            border-radius: 20px; 
+            padding: 5px 15px; 
+            color: #8AC7DE; 
+            font-weight: bold; 
+            font-size: 0.9rem;
+            display: flex; align-items: center; gap: 8px;">
+            <div style="width: 12px; height: 12px; background: #8AC7DE; border-radius: 50%;"></div>
+            BLUE LINE = APPRECIATION
+        </div>
+        <div style="
+            background: rgba(255, 75, 75, 0.1); 
+            border: 1px solid #FF4B4B; 
+            border-radius: 20px; 
+            padding: 5px 15px; 
+            color: #FF4B4B; 
+            font-weight: bold; 
+            font-size: 0.9rem;
+            display: flex; align-items: center; gap: 8px;">
+            <div style="width: 12px; height: 12px; background: #FF4B4B; border-radius: 50%;"></div>
+            RED LINE = EROSION
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
 # --- 7. CHART ---
 fig = go.Figure()
 
-# 1. Price Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
     mode='lines', name='Asset Value (Price)',
     line=dict(color=price_line_color, width=2)
 ))
 
-# 2. True Value Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
     mode='lines', name='True Value (Price + Divs)',
     line=dict(color='#00C805', width=3),
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
-))
-
-# 3. LEGEND TRICK: Add "Fake" traces to create the Asset Value Color Key
-# These will show up in the legend but won't draw lines (visible=True but no data)
-fig.add_trace(go.Scatter(
-    x=[None], y=[None],
-    mode='lines',
-    name='Appreciation (End > Start)',
-    line=dict(color='#8AC7DE', width=2), # Blue
-    showlegend=True
-))
-
-fig.add_trace(go.Scatter(
-    x=[None], y=[None],
-    mode='lines',
-    name='Erosion (End < Start)',
-    line=dict(color='#FF4B4B', width=2), # Red
-    showlegend=True
 ))
 
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
@@ -332,14 +343,14 @@ fig.update_layout(
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
     height=380,
-    margin=dict(l=0, r=0, t=30, b=0),
+    margin=dict(l=0, r=0, t=10, b=0), # Reduced top margin since we removed title
     legend=dict(
         orientation="h",
         yanchor="bottom",
         y=1.02,
         xanchor="right",
         x=1,
-        font=dict(color="#E6EDF3", size=10) # Made font slightly smaller to fit it all
+        font=dict(color="#E6EDF3")
     ),
     hovermode="x unified",
     xaxis = dict(fixedrange = True),
