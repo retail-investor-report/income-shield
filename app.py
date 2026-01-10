@@ -186,12 +186,6 @@ if days_held > 0:
 else:
     annual_yield = 0.0
 
-# Metric: Break Even Price
-# (Total Cost - Dividends) / Shares
-breakeven = (initial_cap - cash_total) / shares
-if breakeven < 0:
-    breakeven = 0 # You are free rolling!
-
 # --- 6. DASHBOARD ---
 try:
     meta_row = price_df.iloc[0]
@@ -231,13 +225,13 @@ with col_meta:
 
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
-# SWAPPED Market Value for Break Even
-m2.metric("Break-Even Price", f"${breakeven:,.2f}", help="The price the asset can drop to before you lose money.")
+# RESTORED Market Value
+m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
 m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 m5.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
 
-# --- 7. CHART WITH COMIC OVERLAY ---
+# --- 7. CHART WITH "STAMP" OVERLAY ---
 fig = go.Figure()
 
 fig.add_trace(go.Scatter(
@@ -256,24 +250,26 @@ fig.add_trace(go.Scatter(
 
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
 
-# COMIC BOOK STYLE OVERLAY (ANNOTATION)
-profit_color = "#00C805" if total_pl >= 0 else "#FF4B4B"
+# NEW: "STAMP" STYLE OVERLAY
+# Solid Background, White Text
+profit_bg = "#00C805" if total_pl >= 0 else "#FF4B4B"
 profit_text = f"PROFIT: +${total_pl:,.2f}" if total_pl >= 0 else f"LOSS: -${abs(total_pl):,.2f}"
 
 fig.add_annotation(
-    x=0.02, y=0.98, # Top Left
+    x=0.02, y=0.95, 
     xref="paper", yref="paper",
     text=profit_text,
     showarrow=False,
     font=dict(
-        family="Arial Black, sans-serif",
-        size=18,
-        color=profit_color
+        family="Arial Black, sans-serif", # Heavy font
+        size=16,
+        color="white" # White text on colored bg
     ),
-    bgcolor="rgba(13, 17, 23, 0.8)", # Semi-transparent dark bg
-    bordercolor=profit_color,
-    borderwidth=2,
-    borderpad=10,
+    bgcolor=profit_bg,
+    bordercolor=profit_bg,
+    borderwidth=1,
+    borderpad=8, # More padding for "button" look
+    opacity=0.9,
     align="left"
 )
 
