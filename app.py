@@ -66,7 +66,7 @@ st.markdown("""
         filter: brightness(1.2);
     }
     
-    /* --- TOOLTIP ICON --- */
+    /* --- TOOLTIP ICON (The Question Mark) --- */
     [data-testid="stMetricLabel"] svg {
         fill: #E6EDF3 !important;
         opacity: 0.9 !important;
@@ -76,6 +76,20 @@ st.markdown("""
     [data-testid="stMetricLabel"]:hover svg {
         fill: #F59E0B !important;
         opacity: 1.0 !important;
+    }
+
+    /* --- TOOLTIP POPUP BOX FIX (The Invisible Text Fix) --- */
+    div[role="tooltip"] {
+        background-color: #1E293B !important; /* Dark Slate Background */
+        color: #FFFFFF !important;             /* White Text */
+        border: 1px solid #8AC7DE !important;  /* Blue Border */
+        border-radius: 6px !important;
+        font-size: 0.9rem !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+    }
+    /* Fix the arrow attached to the tooltip */
+    div[role="tooltip"] > div {
+        background-color: #1E293B !important;
     }
 
     /* =========================================
@@ -90,7 +104,6 @@ st.markdown("""
     }
 
     /* 2. FORCE THE HEADER (Month/Year) TO BE DARK */
-    /* This fixes the "Light Gray Bar" issue in your screenshot */
     div[data-baseweb="calendar"] > div {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
@@ -98,7 +111,7 @@ st.markdown("""
     
     /* 3. Navigation Arrows (< >) */
     div[data-baseweb="calendar"] button svg {
-        fill: #8AC7DE !important; /* Make arrows Blue so they pop */
+        fill: #8AC7DE !important;
     }
     div[data-baseweb="calendar"] button {
         background-color: transparent !important;
