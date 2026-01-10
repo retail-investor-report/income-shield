@@ -182,7 +182,7 @@ if df_unified is None:
 #         SIDEBAR & MODE SELECTION
 # ==========================================
 with st.sidebar:
-    st.header("Simulator Config")
+    # REMOVED "Simulator Config" Header as requested
     
     # THE BIG SWITCH
     app_mode = st.radio("Select Mode", ["🛡️ Single Asset", "⚔️ Head-to-Head"], label_visibility="collapsed")
@@ -373,10 +373,30 @@ if app_mode == "🛡️ Single Asset":
 
 # >>>>>>>>>>>>>>> MODE B: HEAD-TO-HEAD COMPARISON <<<<<<<<<<<<<<<
 else:
-    st.markdown(f"""
-        <h1 style="font-size: 2.2rem; color: #E6EDF3; margin-bottom: 10px;">
-            ⚔️ <span style="color: #F59E0B;">Head-to-Head</span> Comparison
-        </h1>
+    # --------------------------------------------------------
+    # NEW TITLE STYLE: Metallic Gradient with Heavy Blue Stroke
+    # --------------------------------------------------------
+    st.markdown("""
+        <div style="margin-bottom: 10px;">
+            <h1 style="
+                font-family: 'Arial Black', sans-serif;
+                font-size: 3rem;
+                font-weight: 900;
+                text-transform: uppercase;
+                margin: 0;
+                line-height: 1;
+                /* Metallic Gradient Fill */
+                background: linear-gradient(to bottom, #FFFFFF 20%, #B0C4DE 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                /* Heavy Blue Stroke */
+                -webkit-text-stroke: 1.5px #00509E;
+                /* Drop Shadow for Pop */
+                filter: drop-shadow(0px 3px 0px #003366);
+            ">
+                HEAD-TO-HEAD COMPARISON
+            </h1>
+        </div>
     """, unsafe_allow_html=True)
     
     if not selected_tickers:
