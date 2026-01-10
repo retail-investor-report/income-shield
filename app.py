@@ -82,27 +82,36 @@ st.markdown("""
        THE POPOP CONFLICT FIX (Calendar vs Tooltip)
        ========================================= */
 
-    /* 1. DEFAULT POPOVER (This targets Tooltips primarily) */
+    /* 1. DEFAULT POPOVER (Targets Tooltips primarily) */
     div[data-baseweb="popover"] > div {
-        background-color: #FFFFFF !important; /* White Background */
-        color: #000000 !important; /* Black Text */
+        background-color: #FFFFFF; /* White Background for normal tooltips */
+        color: #000000;
+        border: 1px solid #30363d;
+    }
+
+    /* 2. CALENDAR POPOVER OVERRIDE - FIXED */
+    /* Force the actual calendar container to be Dark, overriding the parent popover */
+    div[data-baseweb="calendar"] {
+        background-color: #1E293B !important;
+        color: #FFFFFF !important;
+    }
+
+    /* Force the popover WRAPPING the calendar to be dark (Double Safety) */
+    div[data-baseweb="popover"]:has(div[data-baseweb="calendar"]) > div {
+        background-color: #1E293B !important;
         border: 1px solid #30363d !important;
     }
 
-    /* 2. CALENDAR POPOVER OVERRIDE */
-    /* If the popover contains a calendar, force it DARK */
-    div[data-baseweb="popover"]:has(div[data-baseweb="calendar"]) > div {
-        background-color: #1E293B !important; /* Dark Blue BG */
-        border: 1px solid #30363d !important;
-    }
     /* Force ALL text inside the calendar to be White */
     div[data-baseweb="calendar"] * {
         color: #FFFFFF !important; 
     }
+    
     /* Specific overrides for buttons (arrows) and day numbers */
     div[data-baseweb="calendar"] button, div[data-baseweb="calendar"] div {
         color: #FFFFFF !important;
     }
+    
     /* Hover state for days (Blue BG, Dark Text) */
     div[data-baseweb="calendar"] [aria-selected="false"]:hover {
         background-color: #8AC7DE !important;
@@ -115,20 +124,16 @@ st.markdown("""
     }
 
     /* 3. DROPDOWN POPOVER OVERRIDE */
-    /* If the popover contains a list (dropdown), force it DARK */
     div[data-baseweb="popover"]:has(ul[role="listbox"]) > div {
-        background-color: #1E293B !important; /* Dark Blue BG */
+        background-color: #1E293B !important;
     }
-    /* Dropdown Options */
     ul[role="listbox"] li {
-        color: #FFFFFF !important; /* White Text Default */
+        color: #FFFFFF !important; 
     }
-    /* Dropdown Hover State */
     ul[role="listbox"] li:hover, ul[role="listbox"] li[aria-selected="true"] {
         background-color: #8AC7DE !important;
-        color: #0D1117 !important; /* Black Text on Hover */
+        color: #0D1117 !important;
     }
-    /* Force inner text divs to inherit color */
     ul[role="listbox"] li * {
         color: inherit !important;
     }
@@ -320,16 +325,16 @@ m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 # --- 7. CHART ---
 fig = go.Figure()
 
-# REAL TRACES (Hidden from legend)
+# REAL TRACES (Hidden from legend but renamed for Tooltip)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='_hidden_price', showlegend=False,
+    mode='lines', name='Asset Value', showlegend=False,
     line=dict(color=price_line_color, width=2)
 ))
 
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
-    mode='lines', name='_hidden_true', showlegend=False,
+    mode='lines', name='True Value', showlegend=False,
     line=dict(color='#00C805', width=3),
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
