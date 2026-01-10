@@ -183,8 +183,9 @@ with st.sidebar:
     
     # THE BIG SWITCH
     app_mode = st.radio("Select Mode", ["🛡️ Single Asset", "⚔️ Head-to-Head"], label_visibility="collapsed")
-    st.markdown("---")
-
+    
+    # SPACER REMOVED HERE
+    
     all_tickers = sorted(df_unified['Ticker'].unique())
 
     # ------------------------------------
