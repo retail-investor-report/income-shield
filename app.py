@@ -273,18 +273,41 @@ m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 # --- 7. CHART ---
 fig = go.Figure()
 
+# REAL TRACES (Hidden from legend)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='Asset Value (Price)',
+    mode='lines', name='_hidden_price', showlegend=False,
     line=dict(color=price_line_color, width=2)
 ))
 
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
-    mode='lines', name='True Value (Price + Divs)',
+    mode='lines', name='_hidden_true', showlegend=False,
     line=dict(color='#00C805', width=3),
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
+))
+
+# FAKE TRACES (For Custom Legend)
+# 1. Green Trace
+fig.add_trace(go.Scatter(
+    x=[None], y=[None], mode='lines', 
+    name='True Value (Price + Divs)',
+    line=dict(color='#00C805', width=3), showlegend=True
+))
+
+# 2. Blue Trace (Asset Value)
+fig.add_trace(go.Scatter(
+    x=[None], y=[None], mode='lines', 
+    name='Asset Value (Price)',
+    line=dict(color='#8AC7DE', width=2), showlegend=True
+))
+
+# 3. Red Trace (Asset Value - REPEATED to show it's the same thing)
+fig.add_trace(go.Scatter(
+    x=[None], y=[None], mode='lines', 
+    name='Asset Value (Price)',
+    line=dict(color='#FF4B4B', width=2), showlegend=True
 ))
 
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
@@ -328,7 +351,7 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
-# --- NAV DECODER BAR (UPDATED) ---
+# --- NAV DECODER BAR (UPDATED WITH GREEN) ---
 st.markdown("""
     <div style="
         background-color: #161b22; 
@@ -338,12 +361,16 @@ st.markdown("""
         margin-top: 10px; 
         margin-bottom: 20px; 
         text-align: center;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
     ">
-        <div>
-            <span style="color: #8b949e; font-size: 0.9rem; margin-right: 15px; text-transform: uppercase; letter-spacing: 1px;">
+        <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px;">
+            <span style="color: #8b949e; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">
                 What does the line color mean? *
             </span>
-            <span style="color: #8AC7DE; font-weight: 900; font-size: 1.1rem; margin-right: 20px; text-shadow: 0 0 10px rgba(138, 199, 222, 0.3);">
+            <span style="color: #00C805; font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 10px rgba(0, 200, 5, 0.3);">
+                💚 GREEN = DIVS + PRICE
+            </span>
+            <span style="color: #8AC7DE; font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 10px rgba(138, 199, 222, 0.3);">
                 🔵 BLUE = APPRECIATION
             </span>
             <span style="color: #FF4B4B; font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 10px rgba(255, 75, 75, 0.3);">
