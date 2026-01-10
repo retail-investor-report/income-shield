@@ -129,27 +129,26 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA LOADING (FIXED: NO CACHING ERRORS) ---
-# Defined outside to ensure they are clean
-URL_UNIFIED = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
-URL_HISTORY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
-
+# --- 3. DATA LOADING ---
 @st.cache_data(ttl=300)
 def load_data():
-    # REMOVED try/except here. If this fails, we want it to CRASH
-    # so Streamlit does NOT cache a "None" result.
-    df_u = pd.read_csv(URL_UNIFIED)
-    df_h = pd.read_csv(URL_HISTORY)
-    
-    df_u['Date'] = pd.to_datetime(df_u['Date'])
-    df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
-    return df_u, df_h
+    try:
+        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
+        h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
+        
+        df_u = pd.read_csv(u_url)
+        df_h = pd.read_csv(h_url)
+        
+        df_u['Date'] = pd.to_datetime(df_u['Date'])
+        df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
+        return df_u, df_h
+    except Exception as e:
+        return None, None
 
-try:
-    df_unified, df_history = load_data()
-except Exception as e:
-    # We handle the error HERE, outside the cache
-    st.error(f"⚠️ Connection Error. Please refresh the page. Details: {e}")
+df_unified, df_history = load_data()
+
+if df_unified is None:
+    st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
     st.stop()
 
 # --- 4. SIDEBAR CONTROLS ---
