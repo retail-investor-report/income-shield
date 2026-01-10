@@ -180,6 +180,67 @@ df_unified, df_history = load_data()
 if df_unified is None:
     st.stop()
 
+# --- HELPER: COMPOUNDING ENGINE (THE SNOWBALL) ---
+def calculate_journey(ticker, start_date, end_date, initial_shares, drip_enabled, unified_df, history_df):
+    # 1. Get Price Data
+    t_price = unified_df[unified_df['Ticker'] == ticker].sort_values('Date')
+    journey = t_price[(t_price['Date'] >= start_date) & (t_price['Date'] <= end_date)].copy()
+    
+    if journey.empty:
+        return journey
+        
+    # 2. Get Dividend Data
+    t_divs = history_df[history_df['Ticker'] == ticker].sort_values('Date of Pay')
+    relevant_divs = t_divs[(t_divs['Date of Pay'] >= start_date) & (t_divs['Date of Pay'] <= end_date)].copy()
+    
+    # 3. Calculate Daily State
+    journey = journey.set_index('Date')
+    
+    # Initialize Tracking Columns
+    journey['Shares'] = initial_shares
+    journey['Cash_Pocketed'] = 0.0
+    
+    current_shares = initial_shares
+    cum_cash = 0.0
+    
+    # --- THE COMPOUNDING LOOP ---
+    if not relevant_divs.empty:
+        for _, row in relevant_divs.iterrows():
+            d_date = row['Date of Pay']
+            d_amt = row['Amount']
+            
+            # Only process if this date exists in our price journey
+            if d_date in journey.index:
+                # Calculate the Payout for this specific day
+                # NOTE: current_shares grows over time if DRIP is on
+                payout = current_shares * d_amt
+                
+                if drip_enabled:
+                    # DRIP ON: Buy more shares
+                    reinvest_price = journey.loc[d_date, 'Closing Price']
+                    new_shares = payout / reinvest_price
+                    current_shares += new_shares
+                    # Update share count for this day and all future days
+                    journey.loc[d_date:, 'Shares'] = current_shares
+                else:
+                    # DRIP OFF: Put cash in pocket
+                    cum_cash += payout
+                    journey.loc[d_date:, 'Cash_Pocketed'] = cum_cash
+
+    # 4. Final Values
+    journey = journey.reset_index()
+    journey['Market_Value'] = journey['Closing Price'] * journey['Shares']
+    
+    if drip_enabled:
+        # If DRIP, True Value is just the Market Value (Cash is inside the shares)
+        journey['True_Value'] = journey['Market_Value']
+    else:
+        # If Income, True Value is Shares + Cash Pocketed
+        journey['True_Value'] = journey['Market_Value'] + journey['Cash_Pocketed']
+    
+    return journey
+
+
 # ==========================================
 #         SIDEBAR & MODE SELECTION
 # ==========================================
@@ -188,6 +249,11 @@ with st.sidebar:
     app_mode = st.radio("Select Mode", ["🛡️ Single Asset", "⚔️ Head-to-Head"], label_visibility="collapsed")
     
     all_tickers = sorted(df_unified['Ticker'].unique())
+
+    # GLOBAL DRIP TOGGLE
+    st.markdown("---")
+    use_drip = st.checkbox("🔄 Enable DRIP", value=False, help="Reinvests all dividends back into shares on the Pay Date.")
+    st.markdown("---")
 
     # ------------------------------------
     # MODE A: SINGLE ASSET
@@ -223,16 +289,15 @@ with st.sidebar:
             
         mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
         
-        # Prepare Data for Main Loop
-        journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
-        
-        if not journey.empty:
-            entry_price = journey.iloc[0]['Closing Price']
+        # Initial Share Calculation
+        temp_journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)]
+        if not temp_journey.empty:
+            entry_price = temp_journey.iloc[0]['Closing Price']
             if mode == "Share Count":
-                shares = st.number_input("Shares Owned", min_value=1, value=10)
+                initial_shares = st.number_input("Shares Owned", min_value=1, value=10)
             else:
                 dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
-                shares = float(dollars) / entry_price
+                initial_shares = float(dollars) / entry_price
             st.info(f"Entry Price: ${entry_price:.2f}")
         else:
             st.error("No data for date range.")
@@ -266,24 +331,14 @@ with st.sidebar:
 # >>>>>>>>>>>>>>> MODE A: SINGLE ASSET DASHBOARD <<<<<<<<<<<<<<<
 if app_mode == "🛡️ Single Asset":
     
-    # 1. CALCULATIONS
-    div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
-    my_divs = div_df[(div_df['Date of Pay'] >= buy_date) & (div_df['Date of Pay'] <= end_date)].copy()
-    my_divs['CumDiv'] = my_divs['Amount'].cumsum()
-
-    def get_total_div(d):
-        rows = my_divs[my_divs['Date of Pay'] <= d]
-        return rows['CumDiv'].iloc[-1] if not rows.empty else 0.0
-
-    journey['Div_Per_Share'] = journey['Date'].apply(get_total_div)
-    journey['Market_Value'] = journey['Closing Price'] * shares
-    journey['Cash_Banked'] = journey['Div_Per_Share'] * shares
-    journey['True_Value'] = journey['Market_Value'] + journey['Cash_Banked']
-
-    initial_cap = entry_price * shares
+    # 1. CALCULATE JOURNEY (using the Helper Function)
+    journey = calculate_journey(selected_ticker, buy_date, end_date, initial_shares, use_drip, df_unified, df_history)
+    
+    initial_cap = entry_price * initial_shares
     current_market_val = journey.iloc[-1]['Market_Value']
-    cash_total = journey.iloc[-1]['Cash_Banked']
+    cash_total = journey.iloc[-1]['Cash_Pocketed']
     current_total_val = journey.iloc[-1]['True_Value']
+    final_shares = journey.iloc[-1]['Shares']
 
     market_pl = current_market_val - initial_cap
     total_pl = current_total_val - initial_cap
@@ -294,7 +349,7 @@ if app_mode == "🛡️ Single Asset":
 
     # 2. HEADER
     try:
-        meta_row = price_df.iloc[0]
+        meta_row = df_unified[df_unified['Ticker'] == selected_ticker].iloc[0]
         asset_underlying = meta_row.get('Underlying', '-')
         asset_company = meta_row.get('Company', '-')
     except:
@@ -308,7 +363,7 @@ if app_mode == "🛡️ Single Asset":
                     {selected_ticker} <span style="color: #8AC7DE;">Performance Simulator</span>
                 </h1>
                 <p style="font-size: 1.1rem; color: #8AC7DE; opacity: 0.8; margin-top: -5px; margin-bottom: 10px;">
-                    <b>{shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()} ({days_held} days)
+                    <b>{final_shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()} ({days_held} days)
                 </p>
             </div>
         """, unsafe_allow_html=True)
@@ -329,17 +384,35 @@ if app_mode == "🛡️ Single Asset":
     # 3. METRICS
     m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Initial Capital", f"${initial_cap:,.2f}")
-    m2.metric("Asset Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
-    m3.metric("Dividends Collected", f"${cash_total:,.2f}") 
-    m4.metric("Annualized Yield", f"{annual_yield:.2f}%")
+    
+    # Conditional Metric Logic
+    val_label = "End Asset Value" if not use_drip else "End Value (DRIP)"
+    cash_label = "Dividends Collected" if not use_drip else "New Shares Acquired"
+    
+    m2.metric(val_label, f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
+    
+    if use_drip:
+        shares_gained = final_shares - initial_shares
+        m3.metric(cash_label, f"{shares_gained:.2f} Shares")
+        m4.metric("Effective Yield", "N/A (Reinvested)")
+    else:
+        m3.metric(cash_label, f"${cash_total:,.2f}") 
+        m4.metric("Annualized Yield", f"{annual_yield:.2f}%")
+
     m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
     # 4. SINGLE CHART
     fig = go.Figure()
-    price_color = '#8AC7DE' if journey.iloc[-1]['Closing Price'] >= journey.iloc[0]['Closing Price'] else '#FF4B4B'
-
-    fig.add_trace(go.Scatter(x=journey['Date'], y=journey['Market_Value'], mode='lines', name='Asset Value', line=dict(color=price_color, width=2)))
-    fig.add_trace(go.Scatter(x=journey['Date'], y=journey['True_Value'], mode='lines', name='True Value', line=dict(color='#00C805', width=3), fill='tonexty', fillcolor='rgba(0, 200, 5, 0.1)'))
+    
+    # Logic: If DRIP is ON, "True Value" line includes reinvestment growth.
+    
+    fig.add_trace(go.Scatter(x=journey['Date'], y=journey['True_Value'], mode='lines', name='Total Value', line=dict(color='#00C805', width=3), fill='tonexty', fillcolor='rgba(0, 200, 5, 0.1)'))
+    
+    # Optional: If DRIP is off, show simple price line too. If DRIP is on, "Market Value" IS "True Value" so no need for 2 lines.
+    if not use_drip:
+        price_color = '#8AC7DE' if journey.iloc[-1]['Closing Price'] >= journey.iloc[0]['Closing Price'] else '#FF4B4B'
+        fig.add_trace(go.Scatter(x=journey['Date'], y=journey['Market_Value'], mode='lines', name='Asset Price', line=dict(color=price_color, width=2, dash='dot')))
+    
     fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
 
     profit_text = f"PROFIT: +${total_pl:,.2f}" if total_pl >= 0 else f"LOSS: -${abs(total_pl):,.2f}"
@@ -361,14 +434,14 @@ if app_mode == "🛡️ Single Asset":
     # 5. LEGEND DECODER
     st.markdown("""
         <div style="background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 5px 8px; text-align: center;">
-            <span style="color: #00C805; font-weight: 800;">💚 True Value (Divs + Price)</span> &nbsp;&nbsp;
+            <span style="color: #00C805; font-weight: 800;">💚 True Value (Total Equity)</span> &nbsp;&nbsp;
             <span style="color: #8AC7DE; font-weight: 800;">🔵 Price Appreciation</span> &nbsp;&nbsp;
             <span style="color: #FF4B4B; font-weight: 800;">🔴 Price Erosion</span>
         </div>
     """, unsafe_allow_html=True)
     
     with st.expander("View Data"):
-        st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
+        st.dataframe(journey[['Date', 'Closing Price', 'Shares', 'Cash_Pocketed', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
 
 
 # >>>>>>>>>>>>>>> MODE B: HEAD-TO-HEAD COMPARISON <<<<<<<<<<<<<<<
@@ -385,14 +458,11 @@ else:
                 text-transform: uppercase;
                 margin: 0;
                 line-height: 1;
-                /* Metallic Gradient Fill */
                 background: linear-gradient(to bottom, #FFFFFF 20%, #B0C4DE 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
-                /* Heavy Blue Stroke with Rounded Joins */
                 -webkit-text-stroke: 1.5px #00509E;
                 stroke-linejoin: round;
-                /* Drop Shadow for Pop */
                 filter: drop-shadow(0px 3px 0px #003366);
             ">
                 HEAD-TO-HEAD COMPARISON
@@ -411,34 +481,33 @@ else:
     colors = ['#00C805', '#F59E0B', '#8AC7DE', '#FF4B4B', '#A855F7', '#EC4899', '#EAB308']
     
     for idx, t in enumerate(selected_tickers):
-        # 1. Get Data
-        t_price = df_unified[df_unified['Ticker'] == t].sort_values('Date')
-        t_divs = df_history[df_history['Ticker'] == t].sort_values('Date of Pay')
+        # 1. Calculate Journey for this ticker using the same engine
+        # To normalize, we assume an initial investment of 10,000 for the Chart calculation
+        # But for the chart % line, the specific amount doesn't matter, just the ratio.
+        # We will use the 'sim_amt' from sidebar to get accurate final values.
         
-        # 2. Filter Date Range
-        t_journey = t_price[(t_price['Date'] >= buy_date) & (t_price['Date'] <= end_date)].copy()
+        # Get start price
+        t_price_check = df_unified[df_unified['Ticker'] == t].sort_values('Date')
+        t_price_check = t_price_check[(t_price_check['Date'] >= buy_date) & (t_price_check['Date'] <= end_date)]
+        
+        if t_price_check.empty:
+            continue
+            
+        start_p = t_price_check.iloc[0]['Closing Price']
+        initial_s = sim_amt / start_p
+        
+        # RUN THE ENGINE
+        t_journey = calculate_journey(t, buy_date, end_date, initial_s, use_drip, df_unified, df_history)
         
         if t_journey.empty:
             continue
-            
-        # 3. Calculate Return
-        start_p = t_journey.iloc[0]['Closing Price']
-        end_p = t_journey.iloc[-1]['Closing Price']
+
+        # 2. Normalize to Percentage Return
+        # Total Return = (True Value - Initial Cap) / Initial Cap
+        initial_cap = sim_amt
+        t_journey['Total_Return_Pct'] = ((t_journey['True_Value'] - initial_cap) / initial_cap) * 100
         
-        # Div Logic
-        t_div_subset = t_divs[(t_divs['Date of Pay'] >= buy_date) & (t_divs['Date of Pay'] <= end_date)].copy()
-        t_div_subset['CumDiv'] = t_div_subset['Amount'].cumsum()
-        
-        def get_cum_div(d):
-            r = t_div_subset[t_div_subset['Date of Pay'] <= d]
-            return r['CumDiv'].iloc[-1] if not r.empty else 0.0
-            
-        t_journey['CumDivs'] = t_journey['Date'].apply(get_cum_div)
-        
-        # Normalize to Percentage Return
-        t_journey['Total_Return_Pct'] = ((t_journey['Closing Price'] + t_journey['CumDivs'] - start_p) / start_p) * 100
-        
-        # 4. Add to Chart
+        # 3. Add to Chart
         line_color = colors[idx % len(colors)]
         fig_comp.add_trace(go.Scatter(
             x=t_journey['Date'], 
@@ -448,24 +517,38 @@ else:
             line=dict(color=line_color, width=3)
         ))
         
-        # 5. Stats for Table
-        final_ret = t_journey.iloc[-1]['Total_Return_Pct']
-        total_cash_per_share = t_journey.iloc[-1]['CumDivs']
-        yield_pct = (total_cash_per_share / start_p) * 100
+        # 4. Stats for Table
+        final_row = t_journey.iloc[-1]
+        final_ret = final_row['Total_Return_Pct']
         
-        # Dollar Simulation
-        shares_bought = sim_amt / start_p
-        end_value = shares_bought * end_p
-        cash_generated = shares_bought * total_cash_per_share
+        end_value = final_row['Market_Value']
+        cash_generated = final_row['Cash_Pocketed']
+        final_total = final_row['True_Value']
         
-        comp_data.append({
+        # Yield is only relevant if DRIP is OFF
+        if not use_drip:
+            yield_pct = (cash_generated / initial_cap) * 100
+        else:
+            yield_pct = 0.0 # Or we could show "Growth %"
+        
+        # DRIP SPECIFIC DATA
+        shares_added = final_row['Shares'] - initial_s
+        
+        data_row = {
             "Ticker": t,
             "Total Return": final_ret,
-            "Yield %": yield_pct,
-            "💰 Cash Generated": cash_generated,
-            "📉 Share Value (Remaining)": end_value,
-            "💚 Total Value": end_value + cash_generated
-        })
+            "💚 Total Value": final_total
+        }
+        
+        if use_drip:
+            data_row["📈 New Shares Added"] = shares_added
+            data_row["Yield %"] = "N/A" # DRIP enabled
+        else:
+            data_row["💰 Cash Generated"] = cash_generated
+            data_row["Yield %"] = yield_pct
+            data_row["📉 Share Value (Remaining)"] = end_value
+
+        comp_data.append(data_row)
         
     # --- RENDER COMPARISON CHART ---
     fig_comp.add_hline(y=0, line_dash="solid", line_color="white", opacity=0.5, annotation_text="Break Even")
@@ -489,18 +572,23 @@ else:
         st.markdown(f"### 🏆 Leaderboard (${sim_amt:,.0f} Investment)")
         df_comp = pd.DataFrame(comp_data).sort_values("Total Return", ascending=False)
         
-        # Formatting for display
+        # Formatting
         df_display = df_comp.copy()
         df_display['Total Return'] = df_display['Total Return'].apply(lambda x: f"{x:+.2f}%")
-        df_display['Yield %'] = df_display['Yield %'].apply(lambda x: f"{x:.2f}%")
-        df_display['💰 Cash Generated'] = df_display['💰 Cash Generated'].apply(lambda x: f"${x:,.2f}")
-        df_display['📉 Share Value (Remaining)'] = df_display['📉 Share Value (Remaining)'].apply(lambda x: f"${x:,.2f}")
         df_display['💚 Total Value'] = df_display['💚 Total Value'].apply(lambda x: f"${x:,.2f}")
         
-        # Show specific columns
+        if use_drip:
+             df_display['📈 New Shares Added'] = df_display['📈 New Shares Added'].apply(lambda x: f"{x:.2f}")
+             cols = ["Ticker", "Total Return", "📈 New Shares Added", "💚 Total Value"]
+        else:
+             df_display['Yield %'] = df_display['Yield %'].apply(lambda x: f"{x:.2f}%")
+             df_display['💰 Cash Generated'] = df_display['💰 Cash Generated'].apply(lambda x: f"${x:,.2f}")
+             df_display['📉 Share Value (Remaining)'] = df_display['📉 Share Value (Remaining)'].apply(lambda x: f"${x:,.2f}")
+             cols = ["Ticker", "Total Return", "Yield %", "💰 Cash Generated", "📉 Share Value (Remaining)", "💚 Total Value"]
+
         st.dataframe(
             df_display, 
-            column_order=["Ticker", "Total Return", "Yield %", "💰 Cash Generated", "📉 Share Value (Remaining)", "💚 Total Value"],
+            column_order=cols,
             hide_index=True,
             use_container_width=True
         )
