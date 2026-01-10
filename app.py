@@ -127,8 +127,11 @@ st.markdown("""
     .stSidebar .stSelectbox, .stSidebar .stDateInput, .stSidebar .stRadio, .stSidebar .stNumberInput { padding-top: 0rem !important; padding-bottom: 0rem !important; }
     .stSidebar .stCheckbox label { font-weight: bold; color: #8AC7DE !important; }
 
-    /* DATAFRAME FIXES FOR DARK MODE */
+    /* DATAFRAME FIXES */
     div[data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 5px; overflow: hidden; }
+    
+    /* >>> HIDE THE COLUMN MENU (3 DOTS) <<< */
+    button[title="View column menu"] { display: none !important; }
 
     /* C. DESKTOP LAYOUT LOCK (Min-width 1200px) */
     @media (min-width: 1200px) {
@@ -453,7 +456,6 @@ else:
         height=400,
         margin=dict(l=0, r=0, t=30, b=0),
         hovermode="x unified",
-        # LEGEND FIX: Forced white color
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="white")),
         yaxis_title="Total Return (%)",
         xaxis=dict(fixedrange=True), yaxis=dict(fixedrange=True)
