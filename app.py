@@ -25,6 +25,12 @@ st.markdown("""
     }
     .element-container { margin-bottom: 0.2rem !important; }
 
+    /* --- HIDE THE TOP RIGHT ICONS (GitHub, Fork, Toolbar) --- */
+    [data-testid="stToolbar"] { display: none !important; }
+    [data-testid="stHeaderActionElements"] { display: none !important; }
+    [data-testid="stDecoration"] { display: none !important; }
+    div[data-testid="stStatusWidget"] { visibility: hidden !important; }
+
     /* B. COMPONENT STYLING */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
@@ -112,7 +118,7 @@ st.markdown("""
         color: #FFFFFF !important;
     }
     
-    /* 4. THE DROPDOWN MENU ITSELF (The Popover list of months) - THIS WAS THE ISSUE */
+    /* 4. THE DROPDOWN MENU ITSELF (The Popover list of months) */
     ul[role="listbox"], div[data-baseweb="menu"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
@@ -193,6 +199,7 @@ st.markdown("""
     @media (max-width: 1199px) {
         section[data-testid="stMain"] { margin-left: 0 !important; width: 100% !important; }
         .block-container { padding-top: 4rem !important; padding-left: 1rem !important; padding-right: 1rem !important; max-width: 100vw !important; min-width: 100vw !important; }
+        /* Keep Header Block Visible for Sidebar Button, but Hide Children */
         header[data-testid="stHeader"] { display: block !important; background-color: #0D1117 !important; z-index: 99999 !important; }
         button[data-testid*="SidebarCollapseButton"], [data-testid*="collapsedControl"] { display: block !important; color: #E6EDF3 !important; }
     }
