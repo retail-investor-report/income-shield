@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (final desktop lock + no scrollbars) ---
+# --- 2. THE "EMPIRE" STYLING (bulletproof desktop lock) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -68,10 +68,10 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP ONLY - Permanent, non-collapsible sidebar, no arrows/scroll */
+    /* B. DESKTOP ONLY - Completely non-collapsible sidebar, no arrows/scroll */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
-        /* Sidebar fixed, non-collapsible, no scrollbars */
+        /* Lock sidebar permanently visible, fixed, no scroll */
         [data-testid="stSidebar"] {
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
@@ -79,33 +79,40 @@ st.markdown("""
             min-width: 300px !important;
             max-width: 300px !important;
             position: fixed !important;
-            top: 0;
-            left: 0;
+            top: 0 !important;
+            left: 0 !important;
             height: 100vh !important;
             z-index: 1000 !important;
-            overflow: hidden !important;           /* ← No scrollbars */
+            overflow: hidden !important;  /* No scrollbars ever */
             transform: translateX(0) !important;
         }
 
-        /* Completely hide ALL collapse/open controls and arrows on desktop */
+        /* Hide EVERY possible collapse/open button, arrow, or control */
         [data-testid*="SidebarCollapse"],
         [data-testid*="collapsedControl"],
         [data-testid*="stSidebarCollapseBtn"],
-        button[aria-label*="Collapse"],
+        [data-testid*="stSidebarUserContent"] button,
+        button[aria-label*="Collapse sidebar"],
         button[aria-label*="Open sidebar"],
-        button[kind="primary"] svg,
-        section[data-testid="stSidebar"] button {
+        button[title*="Collapse"],
+        button[title*="Expand"],
+        section[data-testid="stSidebar"] button,
+        .stSidebarUserContent button,
+        svg[aria-label*="chevron"] {
             display: none !important;
+            pointer-events: none !important;
+            visibility: hidden !important;
         }
 
         header[data-testid="stHeader"],
-        [data-testid="stToolbar"] {
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"] {
             display: none !important;
         }
 
-        /* Main content starts right next to sidebar */
+        /* Main content offset */
         .main .block-container {
-            margin-left: 320px !important;         /* 300px + 20px breathing room */
+            margin-left: 320px !important;
             max-width: calc(100% - 340px) !important;
             padding: 1rem 2rem 2rem 1rem !important;
         }
@@ -116,7 +123,7 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE ONLY - leave completely alone (perfect as is) */
+    /* C. MOBILE ONLY - untouched & perfect */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
         header[data-testid="stHeader"] {
