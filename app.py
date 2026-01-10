@@ -25,10 +25,13 @@ st.markdown("""
     }
     .element-container { margin-bottom: 0.2rem !important; }
 
-    /* --- HIDE THE TOP RIGHT ICONS (GitHub, Fork, Toolbar) --- */
+    /* --- SURGICAL REMOVAL OF TOP RIGHT ICONS ONLY --- */
+    /* Hide the Decoration Bar (Rainbow line) */
+    [data-testid="stDecoration"] { display: none !important; }
+    
+    /* Hide the Toolbar (GitHub, Fork, 3 Dots) - The Right Side */
     [data-testid="stToolbar"] { display: none !important; }
     [data-testid="stHeaderActionElements"] { display: none !important; }
-    [data-testid="stDecoration"] { display: none !important; }
     div[data-testid="stStatusWidget"] { visibility: hidden !important; }
 
     /* B. COMPONENT STYLING */
@@ -100,68 +103,41 @@ st.markdown("""
     /* =========================================
        THE CALENDAR "EVERYTHING" FIX 
        ========================================= */
-
-    /* 1. The Main Calendar Container */
     div[data-baseweb="calendar"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
-
-    /* 2. The Header (Month/Year display) */
-    div[data-baseweb="calendar"] > div {
-        background-color: #1E293B !important;
-    }
-
-    /* 3. The Dropdowns INSIDE the Calendar (Month/Year Selectors) */
-    div[data-baseweb="select"] div {
-        color: #FFFFFF !important;
-    }
-    
-    /* 4. THE DROPDOWN MENU ITSELF (The Popover list of months) */
+    div[data-baseweb="calendar"] > div { background-color: #1E293B !important; }
+    div[data-baseweb="select"] div { color: #FFFFFF !important; }
     ul[role="listbox"], div[data-baseweb="menu"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
     }
-
-    /* 5. The Items inside the Dropdown (Jan, Feb, Mar...) */
     li[role="option"] {
-        color: #FFFFFF !important; /* White Text */
-        background-color: #1E293B !important; /* Dark BG */
+        color: #FFFFFF !important;
+        background-color: #1E293B !important;
     }
-
-    /* 6. Hover/Selected State for Dropdown Items */
     li[role="option"]:hover, li[role="option"][aria-selected="true"] {
-        background-color: #8AC7DE !important; /* Blue Highlight */
-        color: #0D1117 !important; /* Dark Text on Blue */
+        background-color: #8AC7DE !important;
+        color: #0D1117 !important;
         font-weight: bold !important;
     }
-
-    /* 7. Navigation Arrows (< >) */
     div[data-baseweb="calendar"] button svg { fill: #8AC7DE !important; }
     div[data-baseweb="calendar"] button { background-color: transparent !important; }
-
-    /* 8. Day Names (Su, Mo, Tu...) */
     div[data-baseweb="calendar"] div[role="grid"] div { color: #E6EDF3 !important; }
-
-    /* 9. The Day Numbers */
     div[data-baseweb="calendar"] button[aria-label] { color: #FFFFFF !important; }
-
-    /* 10. Selected Day */
     div[data-baseweb="calendar"] [aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
         font-weight: bold !important;
     }
-    
-    /* 11. Hover Day */
     div[data-baseweb="calendar"] [aria-selected="false"]:hover {
         background-color: #30363d !important;
         color: #FFFFFF !important;
     }
 
     /* ========================================= */
-
     /* TEXT OVERRIDES */
     h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
 
@@ -192,16 +168,37 @@ st.markdown("""
         section[data-testid="stSidebar"] h2 { padding-top: 0rem !important; margin-top: 0rem !important; margin-bottom: 1rem !important; }
         section[data-testid="stMain"] { margin-left: 300px !important; width: calc(100% - 300px) !important; position: relative !important; display: block !important; }
         .block-container { padding-left: 3rem !important; padding-right: 3rem !important; padding-top: 1rem !important; padding-bottom: 1rem !important; max-width: 100% !important; }
-        header[data-testid="stHeader"], button[data-testid="stSidebarCollapseBtn"], div[data-testid="collapsedControl"] { display: none !important; }
+        /* Hide Header entirely on Desktop since sidebar is fixed */
+        header[data-testid="stHeader"] { display: none !important; }
     }
 
     /* D. MOBILE LAYOUT (Max-width 1199px) */
     @media (max-width: 1199px) {
         section[data-testid="stMain"] { margin-left: 0 !important; width: 100% !important; }
         .block-container { padding-top: 4rem !important; padding-left: 1rem !important; padding-right: 1rem !important; max-width: 100vw !important; min-width: 100vw !important; }
-        /* Keep Header Block Visible for Sidebar Button, but Hide Children */
-        header[data-testid="stHeader"] { display: block !important; background-color: #0D1117 !important; z-index: 99999 !important; }
-        button[data-testid*="SidebarCollapseButton"], [data-testid*="collapsedControl"] { display: block !important; color: #E6EDF3 !important; }
+        
+        /* THE CRITICAL FIX: Make Header container visible for the button, but transparent */
+        header[data-testid="stHeader"] { 
+            display: block !important; 
+            background-color: transparent !important; 
+            z-index: 99999 !important; 
+        }
+
+        /* FORCE THE SIDEBAR TOGGLE & ARROW TO BE VISIBLE & BLUE */
+        button[data-testid="baseButton-header"], 
+        [data-testid="collapsedControl"], 
+        [data-testid="stSidebarCollapseButton"] { 
+            display: block !important; 
+            color: #8AC7DE !important; 
+            z-index: 100000 !important; 
+            visibility: visible !important;
+        }
+        
+        /* Ensure the arrow icon inside is also colored */
+        [data-testid="collapsedControl"] svg, 
+        [data-testid="stSidebarCollapseButton"] svg {
+            fill: #8AC7DE !important;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
