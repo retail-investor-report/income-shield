@@ -58,7 +58,6 @@ st.markdown("""
     }
     
     /* --- TOOLTIP ICON (The Question Mark) --- */
-    /* Forces the icon to be White and Visible */
     [data-testid="stMetricLabel"] svg {
         fill: #E6EDF3 !important;
         opacity: 0.9 !important;
@@ -66,17 +65,19 @@ st.markdown("""
         height: 16px !important;
     }
     [data-testid="stMetricLabel"]:hover svg {
-        fill: #F59E0B !important; /* Turns Gold on Hover */
+        fill: #F59E0B !important;
         opacity: 1.0 !important;
     }
 
-    /* --- TOOLTIP POPUP TEXT (The actual popup bubble) --- */
-    /* Forces the text INSIDE the bubble to be Black */
-    div[role="tooltip"] > div {
-        background-color: #FFFFFF !important; /* White Background */
-        color: #000000 !important; /* BLACK TEXT */
-        border: 1px solid #30363d;
-        font-weight: bold;
+    /* --- TOOLTIP POPUP CONTENT FIX (THE NUCLEAR OPTION) --- */
+    /* Target the base web popover specifically */
+    div[data-baseweb="popover"] {
+        background-color: #FFFFFF !important; /* Force White BG */
+        border: 1px solid #30363d !important;
+    }
+    /* Force ALL text inside the popover to be Black */
+    div[data-baseweb="popover"] * {
+        color: #000000 !important;
     }
 
     /* TEXT OVERRIDES */
