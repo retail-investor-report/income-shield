@@ -9,132 +9,32 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (MARK XVII: THE MONOLITH - MOBILE FIX) ---
-# Core: #0D1117 | Accent: #8AC7DE | Tertiary: #1E293B
+# --- 2. THE "EMPIRE" STYLING (MOBILE MENU FIX) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. GLOBAL LAYOUT & COLORS */
+    /* A. GLOBAL STYLES (Colors & Basics) */
     /* ------------------------------------------------------------------- */
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
     }
-
-    /* ------------------------------------------------------------------- */
-    /* B. DESKTOP-ONLY SIDEBAR (LOCKED OPEN) */
-    /* Applies only when screen is wider than 768px */
-    /* ------------------------------------------------------------------- */
-    @media (min-width: 768px) {
-        [data-testid="stSidebar"] {
-            background-color: #0D1117;
-            border-right: 1px solid #30363d;
-            width: 300px !important;
-            min-width: 300px !important;
-            max-width: 300px !important;
-            transform: translateX(0) !important;
-            left: 0 !important;
-            display: flex !important;
-            visibility: visible !important;
-            transition: none !important;
-        }
-        
-        /* Hide collapse button on Desktop */
-        button[data-testid="stSidebarCollapseButton"],
-        button[kind="collapseSidebar"] {
-            display: none !important;
-        }
-        
-        /* Hide expand arrow on Desktop */
-        div[data-testid="collapsedControl"],
-        [data-testid="collapsedControl"] {
-            display: none !important;
-        }
-        
-        /* Prevent sidebar nav interaction on Desktop */
-        [data-testid="stSidebarNav"] {
-            pointer-events: none !important;
-        }
-        
-        /* Hide Header on Desktop to keep clean look */
-        header[data-testid="stHeader"] {
-            display: none !important;
-        }
-        
-        /* Push main content to account for fixed sidebar */
-        .main .block-container {
-            padding-left: 2rem !important;
-            padding-right: 2rem !important;
-        }
-    }
-
-    /* ------------------------------------------------------------------- */
-    /* C. MOBILE ADJUSTMENTS (Standard Streamlit Behavior) */
-    /* Applies when screen is smaller than 768px */
-    /* ------------------------------------------------------------------- */
-    @media (max-width: 767px) {
-        /* Allow sidebar to be collapsible again */
-        [data-testid="stSidebar"] {
-            background-color: #0D1117;
-            border-right: 1px solid #30363d;
-        }
-        
-        /* Show the header so users can find the hamburger menu/settings */
-        header[data-testid="stHeader"] {
-            display: block !important;
-            background-color: #0D1117 !important;
-        }
-        
-        /* Ensure collapse buttons are visible */
-        button[data-testid="stSidebarCollapseButton"] {
-            display: block !important;
-            color: #E6EDF3 !important;
-        }
-
-        /* Reduce padding for small screens */
-        .block-container {
-            padding-top: 3rem !important; /* Make room for header */
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-    }
-
-    /* ------------------------------------------------------------------- */
-    /* D. SHARED STYLING (Applies to both Mobile & Desktop) */
-    /* ------------------------------------------------------------------- */
     
-    /* Compact sidebar content */
-    section[data-testid="stSidebar"] > div > div > div > div.block-container {
-        padding-top: 0.2rem !important;
-        padding-bottom: 0.2rem !important;
-        padding-left: 0.8rem !important;
-        padding-right: 0.8rem !important;
+    /* Global scrollbar hide */
+    ::-webkit-scrollbar { display: none; }
+    
+    /* Metrics Styling */
+    div[data-testid="stMetric"] {
+        background-color: #1E293B;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 10px;
     }
+    div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; }
+    div[data-testid="stMetricValue"] div { color: #FFFFFF !important; }
+    h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
 
-    /* Reduce margins in sidebar */
-    .stSidebar .element-container,
-    .stSidebar .stSelectbox,
-    .stSidebar .stDateInput,
-    .stSidebar .stRadio,
-    .stSidebar .stNumberInput,
-    .stSidebar .stMarkdown,
-    .stSidebar .stInfo {
-        margin-top: 0.2rem !important;
-        margin-bottom: 0.2rem !important;
-    }
-    
-    .stSidebar h2 {
-        margin-top: 0.2rem !important;
-        margin-bottom: 0.2rem !important;
-        font-size: 1.2rem !important;
-    }
-    
-    .stSidebar hr {
-        margin: 0.2rem 0 !important;
-        border-top: 1px solid #30363d !important;
-    }
-    
-    /* DROPDOWN VISIBILITY (HIGH CONTRAST) */
+    /* Dropdown/Input Styling */
     div[data-baseweb="select"] > div,
     div[data-testid="stDateInput"] > div,
     div[data-baseweb="input"] > div {
@@ -143,67 +43,88 @@ st.markdown("""
         color: #FFFFFF !important;
         font-weight: bold !important;
     }
+    input { color: #FFFFFF !important; font-weight: bold !important; }
     
-    input {
-        color: #FFFFFF !important;
-        font-weight: bold !important;
-    }
-    
-    div[data-baseweb="popover"],
-    div[data-baseweb="menu"] {
+    /* Menu/Popover Backgrounds */
+    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
         background-color: #1E293B !important;
-        border: 1px solid #30363d !important;
+        border-color: #30363d !important;
     }
-    
     ul[role="listbox"] > li[role="option"] {
-        background-color: #1E293B !important;
         color: #FFFFFF !important;
-        font-weight: bold !important;
-        padding: 12px !important;
+        background-color: #1E293B !important;
     }
-    
     ul[role="listbox"] > li[role="option"]:hover,
     ul[role="listbox"] > li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
+    .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
     
-    .stSelectbox svg, .stDateInput svg {
-        fill: #8AC7DE !important;
+    /* Sidebar Text Spacing */
+    .stSidebar .element-container, .stSidebar .stSelectbox, .stSidebar .stDateInput {
+        margin-top: 0.2rem !important;
+        margin-bottom: 0.2rem !important;
     }
 
-    div[role="radiogroup"] label {
-        color: #E6EDF3 !important;
+    /* ------------------------------------------------------------------- */
+    /* B. DESKTOP ONLY (> 768px) - "THE MONOLITH" */
+    /* ------------------------------------------------------------------- */
+    @media (min-width: 768px) {
+        /* 1. LOCK SIDEBAR OPEN */
+        [data-testid="stSidebar"] {
+            width: 300px !important;
+            min-width: 300px !important;
+            max-width: 300px !important;
+            transform: translateX(0) !important;
+            visibility: visible !important;
+        }
+        
+        /* 2. HIDE HEADER & BUTTONS (Strictly Desktop) */
+        header[data-testid="stHeader"] { display: none !important; }
+        button[data-testid="stSidebarCollapseButton"] { display: none !important; }
+        div[data-testid="collapsedControl"] { display: none !important; }
+        [data-testid="stToolbar"] { display: none !important; }
+        
+        /* 3. Adjust Main Padding */
+        .block-container {
+            padding-top: 1rem !important;
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
+        }
     }
-    
-    /* Hide Scrollbars */
-    ::-webkit-scrollbar {
-        display: none;
-    }
-    
-    /* METRICS & TEXT */
-    h1, h2, h3, h4, h5, h6, p, label {
-        color: #E6EDF3 !important;
-    }
-    
-    div[data-testid="stMetric"] {
-        background-color: #1E293B;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 10px;
-    }
-    div[data-testid="stMetricLabel"] p {
-        color: #8AC7DE !important;
-    }
-    div[data-testid="stMetricValue"] div {
-        color: #FFFFFF !important;
-    }
-    
-    /* Remove toolbar decoration */
-    [data-testid="stToolbar"] {display: none !important;}
-    [data-testid="stDecoration"] {display: none !important;}
-    footer {display: none !important;}
 
+    /* ------------------------------------------------------------------- */
+    /* C. MOBILE ONLY (< 768px) - "FUNCTIONAL MODE" */
+    /* ------------------------------------------------------------------- */
+    @media (max-width: 767px) {
+        /* 1. RESTORE HEADER (Vital for Menu) */
+        header[data-testid="stHeader"] {
+            display: block !important;
+            background-color: #0D1117 !important; /* Match background */
+            z-index: 999999 !important; /* Ensure it sits on top */
+        }
+        
+        /* 2. FORCE HAMBURGER BUTTON VISIBILITY */
+        button[data-testid="stSidebarCollapseButton"] {
+            display: block !important;
+            color: #E6EDF3 !important; /* Light color for icon */
+        }
+        
+        /* 3. ALLOW SIDEBAR COLLAPSE */
+        [data-testid="stSidebar"] {
+            /* Let Streamlit handle width/collapse naturally */
+            background-color: #0D1117;
+            border-right: 1px solid #30363d;
+        }
+        
+        /* 4. PUSH CONTENT DOWN (So header doesn't cover title) */
+        .block-container {
+            padding-top: 4rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -211,7 +132,7 @@ st.markdown("""
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
+        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         
         df_u = pd.read_csv(u_url)
@@ -386,4 +307,3 @@ st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 # Data breakdown (Compact)
 with st.expander("View Data"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True, height=200)
-
