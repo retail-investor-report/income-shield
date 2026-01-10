@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE STYLING (Compact & Jazzed Up) ---
+# --- 2. THE STYLING (Auto-Sizing Badges + Highlighted Yield) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -20,29 +20,30 @@ st.markdown("""
         color: #E6EDF3;
     }
 
-    /* Kill Scrollbars */
     ::-webkit-scrollbar { display: none !important; }
     
     /* ------------------------------------------------------------------- */
     /* B. COMPONENT STYLING */
     /* ------------------------------------------------------------------- */
     
-    /* METRICS: Compact but popped */
+    /* STANDARD METRICS (Slots 1-4) */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
         border-radius: 10px;
         padding: 10px 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        min-height: 100px; /* Uniform height */
+        min-height: 100px;
     }
     
     /* SPECIAL HIGHLIGHT: The 5th Metric (Annualized Yield) */
+    /* This targets the last metric card in the row */
     div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetric"] {
-        background-color: #1a2e35 !important;
-        border: 1px solid #F59E0B !important;
+        background-color: #1a2e35 !important; /* Subtle Green/Blue tint */
+        border: 1px solid #F59E0B !important; /* Gold/Amber Border */
     }
     
+    /* Metric Labels */
     div[data-testid="stMetricLabel"] p { 
         color: #8AC7DE !important; 
         font-size: 0.85rem !important;
@@ -270,29 +271,28 @@ with col_head:
     """, unsafe_allow_html=True)
 
 with col_meta:
-    # UPDATED BADGE CSS: Smart constraints with ellipsis
-    # Changed: max-width: 48%, overflow: hidden, text-overflow: ellipsis
+    # UPDATED BADGE CSS: auto width, white-space nowrap
     st.markdown(f"""
         <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
-            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; width: auto; min-width: 80px; white-space: nowrap;">
                 <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Underlying</div>
-                <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_underlying}</div>
+                <div style="color: white; font-size: 1.1rem; font-weight: 800;">{asset_underlying}</div>
             </div>
-            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; width: auto; min-width: 80px; white-space: nowrap;">
                 <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Company</div>
-                <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_company}</div>
+                <div style="color: white; font-size: 1.1rem; font-weight: 800;">{asset_company}</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
-# --- 5 COLUMNS ---
+# --- 5 COLUMNS (Annualized moved to far right) ---
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
 m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
-# The 5th column gets the "Gold" styling
+# The 5th column will automatically get the "Gold" styling from CSS
 m5.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
 
 # --- 7. CHART ---
@@ -321,3 +321,32 @@ fig.update_layout(
     height=380,
     margin=dict(l=0, r=0, t=30, b=0),
     legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="right",
+        x=1,
+        font=dict(color="#E6EDF3")
+    ),
+    hovermode="x unified",
+    xaxis = dict(
+        fixedrange = True
+    ),
+    yaxis = dict(
+        fixedrange = True
+    )
+)
+
+st.plotly_chart(fig, use_container_width=True, config={
+    'displayModeBar': False,
+    'staticPlot': False
+})
+
+# Data breakdown
+with st.expander("View Data"):
+    st.dataframe(
+        journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']]
+            .sort_values('Date', ascending=False),
+        use_container_width=True,
+        height=200
+    )
