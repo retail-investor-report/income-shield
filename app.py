@@ -108,32 +108,44 @@ st.markdown("""
         color: #E6EDF3 !important;
     }
 
-    /* 5. The Days Numbers */
+    /* 5. The Days Numbers (Default State) */
     div[data-baseweb="calendar"] button[aria-label] {
         color: #FFFFFF !important;
+        background-color: transparent !important;
     }
 
-    /* 6. Fix "White Blocks" for Empty Days */
-    div[data-baseweb="calendar"] div[aria-label=""] {
+    /* 6. FIX WHITE BLOCKS (Empty Days) */
+    /* This specific targeting hides the empty grid cells */
+    div[data-baseweb="calendar"] button[aria-label^="Not chosen"] {
+        background-color: transparent !important; 
+        border: none !important;
+    }
+    /* Fallback for completely empty divs in the grid */
+    div[data-baseweb="calendar"] div[role="grid"] > div:empty {
         background-color: transparent !important;
     }
 
     /* 7. Selected Day (Red/Blue Circle) */
     div[data-baseweb="calendar"] [aria-selected="true"] {
         background-color: #8AC7DE !important;
-        color: #0D1117 !important;
+        color: #0D1117 !important; /* Dark text on Blue BG */
         font-weight: bold !important;
     }
     
-    /* 8. Hover Day */
-    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
+    /* 8. HOVER STATE FIX (The "White on White" fix) */
+    /* When hovering a day that isn't selected, make BG dark grey, keep text white */
+    div[data-baseweb="calendar"] button[aria-label]:not([aria-selected="true"]):hover {
         background-color: #30363d !important;
         color: #FFFFFF !important;
+    }
+    /* When hovering the CURRENTLY selected day, keep it Blue */
+    div[data-baseweb="calendar"] button[aria-selected="true"]:hover {
+        background-color: #8AC7DE !important;
+        color: #0D1117 !important;
     }
 
     /* =========================================
        THE DROPDOWN MENU FIX (Year/Month Picker)
-       This fixes the "White on White" inside the list
        ========================================= */
        
     /* 1. The Container (The List Itself) */
@@ -149,7 +161,6 @@ st.markdown("""
     }
 
     /* 3. The "Selected" or "Highlighted" Option */
-    /* This overrides the white box seen in your screenshot */
     li[role="option"][aria-selected="true"], 
     li[role="option"]:hover {
         background-color: #8AC7DE !important; /* Bright Blue Background */
