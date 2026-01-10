@@ -23,7 +23,7 @@ st.markdown("""
         border-radius: 10px;
         padding: 10px 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        min-height: 100px;
+        min-height: 80px; /* SQUEEZED: Was 100px */
         transition: transform 0.2s;
     }
     
@@ -355,8 +355,8 @@ fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=380,
-    margin=dict(l=0, r=0, t=30, b=0),
+    height=350, # SQUEEZED HEIGHT
+    margin=dict(l=0, r=0, t=20, b=0), # SQUEEZED TOP MARGIN
     showlegend=False,
     hovermode="x unified",
     xaxis = dict(fixedrange = True),
