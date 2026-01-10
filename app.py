@@ -38,6 +38,10 @@ st.markdown("""
         transition: none !important; /* Disable slide animation */
         overflow-y: hidden !important; /* Prevent scrolling */
     }
+    /* Target inner div for overflow */
+    section[data-testid="stSidebar"] > div {
+        overflow-y: hidden !important;
+    }
     /* Hide collapse button (expanded state) */
     button[data-testid="stSidebarCollapseButton"],
     button[kind="collapseSidebar"] {
@@ -57,8 +61,8 @@ st.markdown("""
    
     /* Compact sidebar content */
     section[data-testid="stSidebar"] > div > div > div > div.block-container {
-        padding-top: 0.5rem !important;
-        padding-bottom: 0.5rem !important;
+        padding-top: 0.2rem !important;
+        padding-bottom: 0.2rem !important;
         padding-left: 1rem !important;
         padding-right: 1rem !important;
     }
@@ -71,13 +75,24 @@ st.markdown("""
     .stSidebar .stNumberInput,
     .stSidebar .stMarkdown,
     .stSidebar .stInfo {
-        margin-top: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
+        margin-top: 0.2rem !important;
+        margin-bottom: 0.2rem !important;
+    }
+   
+    /* Compact headers and labels */
+    .stSidebar h2 {
+        margin-top: 0.2rem !important;
+        margin-bottom: 0.2rem !important;
+        font-size: 1.2rem !important; /* Slightly smaller for fit */
+    }
+    .stSidebar label {
+        margin-bottom: 0.1rem !important;
+        font-size: 0.9rem !important; /* Slightly smaller for fit */
     }
    
     /* Make horizontal rules thinner */
     .stSidebar hr {
-        margin: 0.5rem 0 !important;
+        margin: 0.2rem 0 !important;
         border-top: 1px solid #30363d !important;
     }
    
