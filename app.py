@@ -79,63 +79,69 @@ st.markdown("""
     }
 
     /* =========================================
-       THE CORRECT CALENDAR FIX
+       THE CALENDAR FIX (Desktop Hover & White Blocks)
        ========================================= */
 
-    /* 1. Main Calendar Container */
+    /* 1. Force the Main Calendar Container Dark */
     div[data-baseweb="calendar"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
     
-    /* 2. Header (Month/Year) */
-    div[data-baseweb="calendar"] > div:first-child {
+    /* 2. Force the Header (Month/Year) Dark */
+    div[data-baseweb="calendar"] > div {
         background-color: #1E293B !important;
-        color: #FFFFFF !important;
     }
     
-    /* 3. Arrows (< >) */
+    /* 3. Navigation Arrows (< >) */
     div[data-baseweb="calendar"] button svg {
         fill: #8AC7DE !important; 
     }
-    
-    /* 4. RESET THE GRID (Fixes White Squares) */
-    /* We make EVERY cell transparent by default. This makes empty blocks invisible. */
-    div[data-baseweb="calendar"] div[role="grid"] > div {
+    div[data-baseweb="calendar"] button {
+        background-color: transparent !important;
+    }
+
+    /* 4. THE WHITE SQUARES FIX */
+    /* Target any div in the grid that does NOT have a day label (the filler squares) */
+    div[data-baseweb="calendar"] div[role="grid"] > div:not([aria-label]) {
         background-color: transparent !important;
         border: none !important;
     }
-
-    /* 5. STYLE THE ACTUAL DATES */
-    /* We target the interactive element (the one with aria-label) */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-label] {
-        color: #FFFFFF !important; /* Force Text White */
-        background-color: transparent !important; /* Default to transparent */
-        font-weight: bold !important;
+    /* Backup: Target empty divs specifically */
+    div[data-baseweb="calendar"] div[role="grid"] > div:empty {
+        background-color: transparent !important;
     }
 
-    /* 6. HOVER STATE (Fixes White-on-White) */
-    /* When you hover a date, make BG Dark Grey */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-label]:hover {
-        background-color: #30363d !important;
+    /* 5. THE DAY CELLS (Normal State) */
+    div[data-baseweb="calendar"] div[role="grid"] [aria-label] {
         color: #FFFFFF !important;
+        background-color: transparent !important;
+        border-radius: 50%; /* Optional: Makes hover circle nicer */
+    }
+
+    /* 6. THE HOVER FIX (Crucial for Desktop) */
+    /* This overrides the default "White on White" hover */
+    div[data-baseweb="calendar"] div[role="grid"] [aria-label]:hover {
+        background-color: #30363d !important; /* Dark Grey Background */
+        color: #FFFFFF !important; /* White Text */
+        font-weight: bold !important;
         cursor: pointer !important;
     }
 
-    /* 7. SELECTED STATE */
-    /* Selected date is Blue */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-selected="true"] {
-        background-color: #8AC7DE !important;
-        color: #0D1117 !important; /* Dark Text */
-    }
-    /* Ensure Hovering the selected date doesn't ruin it */
+    /* 7. SELECTED DATE STATE (Overrides Hover) */
+    /* Keeps the selected date Blue even when you hover over it */
+    div[data-baseweb="calendar"] div[role="grid"] [aria-selected="true"],
     div[data-baseweb="calendar"] div[role="grid"] [aria-selected="true"]:hover {
         background-color: #8AC7DE !important;
-        color: #0D1117 !important;
+        color: #0D1117 !important; /* Dark Text */
+        font-weight: 800 !important;
     }
 
-    /* 8. DROPDOWN FIX (Month/Year Picker) */
+    /* =========================================
+       THE DROPDOWN FIX (Year/Month Picker)
+       ========================================= */
+       
     ul[role="listbox"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
