@@ -245,13 +245,13 @@ except Exception:
     asset_underlying = "-"
     asset_company = "-"
 
-# --- HEADER SECTION (TIGHTENED) ---
+# --- HEADER SECTION (Performance Added Back) ---
 col_head, col_meta = st.columns([2.5, 1])
 
 with col_head:
     st.markdown(f"""
-        <div style="margin-top: -10px;"> <h1 style="font-size: 2.8rem; margin-bottom: 0px; color: #E6EDF3; line-height: 1.2;">
-                {selected_ticker} <span style="color: #8AC7DE;">Simulator</span>
+        <div style="margin-top: -10px;"> <h1 style="font-size: 2.5rem; margin-bottom: 0px; color: #E6EDF3; line-height: 1.2;">
+                {selected_ticker} <span style="color: #8AC7DE;">Performance Simulator</span>
             </h1>
             <p style="font-size: 1.1rem; color: #8AC7DE; opacity: 0.8; margin-top: -5px; margin-bottom: 10px;">
                 <b>{shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()}
@@ -273,8 +273,6 @@ with col_meta:
             </div>
         </div>
     """, unsafe_allow_html=True)
-
-# NO SPACER HERE ANYMORE
 
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
