@@ -92,14 +92,32 @@ st.markdown("""
     div[data-baseweb="popover"] > div[role="presentation"] {
         background-color: #1E293B !important; /* Target inner popover content */
     }
+    div[data-baseweb="popover"] > div > div {
+        background-color: #1E293B !important; /* Additional nesting for inner divs */
+    }
+    div[data-baseweb="menu"] > div {
+        background-color: #1E293B !important; /* Target menu inner div */
+    }
+    div[data-baseweb="menu"] > div > ul {
+        background-color: #1E293B !important; /* Target nested ul in menu */
+    }
     ul[role="listbox"] {
         background-color: #1E293B !important; /* Force dark bg on list */
     }
     div[data-baseweb="popover"] ul[role="listbox"] {
         background-color: #1E293B !important; /* Nested selector for reliability */
     }
+    div[role="listbox"] {
+        background-color: #1E293B !important; /* Additional for listbox div */
+    }
+    div[role="listbox"] ul {
+        background-color: #1E293B !important; /* Target ul inside listbox */
+    }
     .stSelectbox ul {
         background-color: #1E293B !important; /* Streamlit-specific */
+    }
+    [data-baseweb="select"] ul {
+        background-color: #1E293B !important; /* Under select */
     }
    
     /* The List Items */
