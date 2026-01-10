@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE STYLING (Mobile Fixed + Smart Badges) ---
+# --- 2. THE STYLING (Landscape Safe) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -92,9 +92,10 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. DESKTOP LAYOUT LOCK (Min-width: 768px) */
+    /* C. DESKTOP LAYOUT LOCK (UPDATED: Min-width 1024px) */
+    /* Only triggers on Laptops/Large Screens */
     /* ------------------------------------------------------------------- */
-    @media (min-width: 768px) {
+    @media (min-width: 1024px) {
         
         /* Fixed Sidebar */
         section[data-testid="stSidebar"] {
@@ -141,24 +142,23 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* D. MOBILE LAYOUT (Max-width: 767px) - THE FIX IS HERE */
+    /* D. MOBILE & TABLET LAYOUT (UPDATED: Max-width 1023px) */
+    /* Covers Phones (Portrait/Landscape) and Tablets */
     /* ------------------------------------------------------------------- */
-    @media (max-width: 767px) {
+    @media (max-width: 1023px) {
         /* Reset Main Content to Normal */
         section[data-testid="stMain"] { 
             margin-left: 0 !important; 
             width: 100% !important; 
         }
         
-        /* Allow sidebar to be hidden/overlay (Removed the bad 'relative' code) */
-        section[data-testid="stSidebar"] { 
-            /* We leave this alone so Streamlit handles the slide-out animation */
-        }
-        
+        /* Force container to use full width (Fixes "Little Rectangle" issue) */
         .block-container { 
             padding-top: 4rem !important; 
             padding-left: 1rem !important; 
             padding-right: 1rem !important; 
+            max-width: 100vw !important;
+            min-width: 100vw !important;
         }
         
         /* Bring back the Header & Hamburger */
@@ -295,7 +295,7 @@ with col_head:
     """, unsafe_allow_html=True)
 
 with col_meta:
-    # BADGE CSS: Smart constraints with ellipsis
+    # BADGE CSS
     st.markdown(f"""
         <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
             <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -315,8 +315,6 @@ m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
 m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
-
-# The 5th column gets the "Gold" styling
 m5.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
 
 # --- 7. CHART ---
