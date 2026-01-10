@@ -32,8 +32,9 @@ st.markdown("""
         background-color: #1E293B;
         border: 1px solid #30363d;
         border-radius: 10px;
-        padding: 10px 15px; /* Reduced vertical padding */
+        padding: 10px 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        min-height: 100px; /* Ensure uniform height for 5 columns */
     }
     
     div[data-testid="stMetricLabel"] p { 
@@ -43,7 +44,7 @@ st.markdown("""
     }
     div[data-testid="stMetricValue"] div { 
         color: #FFFFFF !important; 
-        font-size: 1.6rem !important; /* Slightly smaller for fit */
+        font-size: 1.5rem !important; /* Slightly smaller to fit 5 cols */
         font-weight: 700 !important;
     }
 
@@ -59,7 +60,7 @@ st.markdown("""
         color: #FFFFFF !important;
         font-weight: bold !important;
         border-radius: 6px !important;
-        min-height: 40px !important; /* Force compactness */
+        min-height: 40px !important;
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
 
@@ -80,7 +81,6 @@ st.markdown("""
         margin-top: 0rem !important;
         margin-bottom: 0.5rem !important;
     }
-    /* Specific overrides for widgets */
     .stSidebar .stSelectbox, .stSidebar .stDateInput, .stSidebar .stRadio, .stSidebar .stNumberInput {
         padding-top: 0rem !important;
         padding-bottom: 0rem !important;
@@ -91,7 +91,6 @@ st.markdown("""
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         
-        /* SIDEBAR */
         section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
@@ -103,17 +102,15 @@ st.markdown("""
             border-right: 1px solid #30363d !important;
             z-index: 9999 !important;
             transform: none !important;
-            padding-top: 1rem !important; /* Minimal top padding */
+            padding-top: 1rem !important;
         }
         
-        /* Reduce sidebar header margin */
         section[data-testid="stSidebar"] h2 {
             padding-top: 0rem !important;
             margin-top: 0rem !important;
             margin-bottom: 1rem !important;
         }
 
-        /* MAIN APP SECTION */
         section[data-testid="stMain"] {
             margin-left: 300px !important;
             width: calc(100% - 300px) !important;
@@ -121,16 +118,14 @@ st.markdown("""
             display: block !important;
         }
 
-        /* INNER PADDING - TIGHTENED */
         .block-container {
             padding-left: 3rem !important; 
             padding-right: 3rem !important;
-            padding-top: 2rem !important; /* Pulled up significantly */
+            padding-top: 2rem !important;
             padding-bottom: 1rem !important;
             max-width: 100% !important;
         }
 
-        /* HIDE CONTROLS */
         header[data-testid="stHeader"],
         button[data-testid="stSidebarCollapseBtn"],
         div[data-testid="collapsedControl"] {
@@ -236,6 +231,15 @@ start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
+# --- NEW: ANNUALIZED YIELD CALCULATION ---
+days_held = (end_date - buy_date).days
+if days_held > 0:
+    # (Dividends / Initial) * (365 / Days)
+    raw_yield = cash_total / initial_cap
+    annual_yield = raw_yield * (365.25 / days_held) * 100
+else:
+    annual_yield = 0.0
+
 # --- 6. DASHBOARD ---
 try:
     meta_row = price_df.iloc[0]
@@ -245,22 +249,22 @@ except Exception:
     asset_underlying = "-"
     asset_company = "-"
 
-# --- HEADER SECTION (Performance Added Back) ---
+# --- HEADER SECTION ---
 col_head, col_meta = st.columns([2.5, 1])
 
 with col_head:
     st.markdown(f"""
-        <div style="margin-top: -10px;"> <h1 style="font-size: 2.5rem; margin-bottom: 0px; color: #E6EDF3; line-height: 1.2;">
+        <div style="margin-top: -10px;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0px; color: #E6EDF3; line-height: 1.2;">
                 {selected_ticker} <span style="color: #8AC7DE;">Performance Simulator</span>
             </h1>
             <p style="font-size: 1.1rem; color: #8AC7DE; opacity: 0.8; margin-top: -5px; margin-bottom: 10px;">
-                <b>{shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()}
+                <b>{shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()} ({days_held} days)
             </p>
         </div>
     """, unsafe_allow_html=True)
 
 with col_meta:
-    # Compact Badges
     st.markdown(f"""
         <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
             <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 90px;">
@@ -274,11 +278,13 @@ with col_meta:
         </div>
     """, unsafe_allow_html=True)
 
-m1, m2, m3, m4 = st.columns(4)
+# --- 5 COLUMNS FOR METRICS ---
+m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
-m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
+m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Extrapolated yield based on dividends received in this timeframe.")
+m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
 # --- 7. CHART ---
 fig = go.Figure()
@@ -303,7 +309,7 @@ fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=380, # Reduced height to prevent scroll
+    height=380,
     margin=dict(l=0, r=0, t=30, b=0),
     legend=dict(
         orientation="h",
