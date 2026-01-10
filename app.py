@@ -78,76 +78,80 @@ st.markdown("""
         opacity: 1.0 !important;
     }
 
-    /* --- TOOLTIP POPUP BOX FIX (The Invisible Text Fix) --- */
+    /* --- TOOLTIP POPUP BOX FIX --- */
     div[role="tooltip"] {
-        background-color: #1E293B !important; /* Dark Slate Background */
-        color: #FFFFFF !important;             /* White Text */
-        border: 1px solid #8AC7DE !important;  /* Blue Border */
+        background-color: #1E293B !important; 
+        color: #FFFFFF !important;             
+        border: 1px solid #8AC7DE !important;  
         border-radius: 6px !important;
         font-size: 0.9rem !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
     }
-    /* Fix the arrow attached to the tooltip */
     div[role="tooltip"] > div {
         background-color: #1E293B !important;
     }
 
     /* =========================================
-       THE CALENDAR "WHITE ON WHITE" FIX 
+       THE CALENDAR "EVERYTHING" FIX 
        ========================================= */
 
-    /* 1. Target the Calendar Container */
+    /* 1. The Main Calendar Container */
     div[data-baseweb="calendar"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
 
-    /* 2. FORCE THE HEADER (Month/Year) TO BE DARK */
+    /* 2. The Header (Month/Year display) */
     div[data-baseweb="calendar"] > div {
         background-color: #1E293B !important;
+    }
+
+    /* 3. The Dropdowns INSIDE the Calendar (Month/Year Selectors) */
+    div[data-baseweb="select"] div {
         color: #FFFFFF !important;
     }
     
-    /* 3. Navigation Arrows (< >) */
-    div[data-baseweb="calendar"] button svg {
-        fill: #8AC7DE !important;
-    }
-    div[data-baseweb="calendar"] button {
-        background-color: transparent !important;
+    /* 4. THE DROPDOWN MENU ITSELF (The Popover list of months) - THIS WAS THE ISSUE */
+    ul[role="listbox"], div[data-baseweb="menu"] {
+        background-color: #1E293B !important;
+        border: 1px solid #30363d !important;
     }
 
-    /* 4. Day Names (Su, Mo, Tu...) */
-    div[data-baseweb="calendar"] div[role="grid"] div {
-        color: #E6EDF3 !important;
+    /* 5. The Items inside the Dropdown (Jan, Feb, Mar...) */
+    li[role="option"] {
+        color: #FFFFFF !important; /* White Text */
+        background-color: #1E293B !important; /* Dark BG */
     }
 
-    /* 5. The Days Numbers */
-    div[data-baseweb="calendar"] button[aria-label] {
-        color: #FFFFFF !important;
+    /* 6. Hover/Selected State for Dropdown Items */
+    li[role="option"]:hover, li[role="option"][aria-selected="true"] {
+        background-color: #8AC7DE !important; /* Blue Highlight */
+        color: #0D1117 !important; /* Dark Text on Blue */
+        font-weight: bold !important;
     }
 
-    /* 6. Fix "White Blocks" for Empty Days */
-    div[data-baseweb="calendar"] div[aria-label=""] {
-        background-color: transparent !important;
-    }
+    /* 7. Navigation Arrows (< >) */
+    div[data-baseweb="calendar"] button svg { fill: #8AC7DE !important; }
+    div[data-baseweb="calendar"] button { background-color: transparent !important; }
 
-    /* 7. Selected Day (Red/Blue Circle) */
+    /* 8. Day Names (Su, Mo, Tu...) */
+    div[data-baseweb="calendar"] div[role="grid"] div { color: #E6EDF3 !important; }
+
+    /* 9. The Day Numbers */
+    div[data-baseweb="calendar"] button[aria-label] { color: #FFFFFF !important; }
+
+    /* 10. Selected Day */
     div[data-baseweb="calendar"] [aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
         font-weight: bold !important;
     }
     
-    /* 8. Hover Day */
+    /* 11. Hover Day */
     div[data-baseweb="calendar"] [aria-selected="false"]:hover {
         background-color: #30363d !important;
         color: #FFFFFF !important;
-    }
-
-    /* 9. Month Dropdown specific fix */
-    div[data-baseweb="popover"] ul[role="listbox"] {
-        background-color: #1E293B !important;
     }
 
     /* ========================================= */
@@ -155,7 +159,7 @@ st.markdown("""
     /* TEXT OVERRIDES */
     h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
 
-    /* INPUTS */
+    /* INPUTS & SELECTS GLOBAL */
     div[data-baseweb="select"] > div, div[data-testid="stDateInput"] > div, div[data-baseweb="input"] > div {
         background-color: #1E293B !important;
         border-color: #30363d !important;
