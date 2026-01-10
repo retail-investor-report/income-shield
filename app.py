@@ -184,8 +184,6 @@ with st.sidebar:
     # THE BIG SWITCH
     app_mode = st.radio("Select Mode", ["🛡️ Single Asset", "⚔️ Head-to-Head"], label_visibility="collapsed")
     
-    # SPACER REMOVED HERE
-    
     all_tickers = sorted(df_unified['Ticker'].unique())
 
     # ------------------------------------
@@ -414,7 +412,6 @@ else:
         t_journey['CumDivs'] = t_journey['Date'].apply(get_cum_div)
         
         # Normalize to Percentage Return (True Value vs Initial Price)
-        # Formula: ((Price + CumDivs) - StartPrice) / StartPrice * 100
         t_journey['Total_Return_Pct'] = ((t_journey['Closing Price'] + t_journey['CumDivs'] - start_p) / start_p) * 100
         
         # 4. Add to Chart
@@ -442,8 +439,8 @@ else:
             "Total Return": final_ret,
             "Yield %": yield_pct,
             "💰 Cash Generated": cash_generated,
-            "📉 End Asset Value": end_value,
-            "Total Value": end_value + cash_generated
+            "📉 Share Value (Remaining)": end_value,
+            "💚 Total Value": end_value + cash_generated
         })
         
     # --- RENDER COMPARISON CHART ---
@@ -456,7 +453,8 @@ else:
         height=400,
         margin=dict(l=0, r=0, t=30, b=0),
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        # LEGEND FIX: Forced white color
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="white")),
         yaxis_title="Total Return (%)",
         xaxis=dict(fixedrange=True), yaxis=dict(fixedrange=True)
     )
@@ -473,12 +471,13 @@ else:
         df_display['Total Return'] = df_display['Total Return'].apply(lambda x: f"{x:+.2f}%")
         df_display['Yield %'] = df_display['Yield %'].apply(lambda x: f"{x:.2f}%")
         df_display['💰 Cash Generated'] = df_display['💰 Cash Generated'].apply(lambda x: f"${x:,.2f}")
-        df_display['📉 End Asset Value'] = df_display['📉 End Asset Value'].apply(lambda x: f"${x:,.2f}")
+        df_display['📉 Share Value (Remaining)'] = df_display['📉 Share Value (Remaining)'].apply(lambda x: f"${x:,.2f}")
+        df_display['💚 Total Value'] = df_display['💚 Total Value'].apply(lambda x: f"${x:,.2f}")
         
         # Show specific columns
         st.dataframe(
             df_display, 
-            column_order=["Ticker", "Total Return", "Yield %", "💰 Cash Generated", "📉 End Asset Value"],
+            column_order=["Ticker", "Total Return", "Yield %", "💰 Cash Generated", "📉 Share Value (Remaining)", "💚 Total Value"],
             hide_index=True,
             use_container_width=True
         )
