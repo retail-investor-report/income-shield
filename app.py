@@ -35,14 +35,14 @@ st.markdown("""
 
     /* SLOT 5: True Total Value (THE BIG ONE) */
     div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetric"] {
-        background-color: #0D1117 !important; /* Darker bg to make text pop */
-        border: 2px solid #00C805 !important; /* Green border */
+        background-color: #0D1117 !important;
+        border: 2px solid #00C805 !important;
         transform: scale(1.15); /* PHYSICALLY LARGER */
         z-index: 10;
         margin-left: 10px;
     }
     div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricValue"] div {
-        font-size: 1.8rem !important; /* Huge text */
+        font-size: 1.8rem !important;
     }
 
     /* METRIC TEXT */
@@ -248,12 +248,12 @@ with col_meta:
 # --- 5 COLUMNS ---
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
-m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
-# No delta for Dividends Collected (Slot 3)
+
+# RENAMED to "Asset Value" + added specific help tooltip
+m2.metric("Asset Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}", help="Value of your shares held at the end of the simulation.")
+
 m3.metric("Dividends Collected", f"${cash_total:,.2f}") 
-# Slot 4: Annualized Yield (Gold Highlight)
 m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
-# Slot 5: True Total Value (The Big One)
 m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
 # --- 7. CHART ---
