@@ -6,32 +6,44 @@ import plotly.graph_objects as go
 st.set_page_config(
     page_title="Income Shield Simulator",
     layout="wide",
-    initial_sidebar_state="auto"  # Key change: auto = show desktop, hide mobile
+    initial_sidebar_state="expanded"
 )
 
-# --- 2. STYLING (Balanced Responsive Fix) ---
+# --- 2. THE "EMPIRE" STYLING (MOBILE MENU FIX + DESKTOP COLOR FIX) ---
 st.markdown("""
     <style>
-    /* GLOBAL */
+    /* ------------------------------------------------------------------- */
+    /* A. GLOBAL STYLES (Colors & Basics) */
+    /* ------------------------------------------------------------------- */
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
     }
 
-    ::-webkit-scrollbar { display: none; }
+    /* Global scrollbar hide */
+    ::-webkit-scrollbar {
+        display: none;
+    }
 
-    /* METRICS & TEXT */
+    /* Metrics Styling */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
         border-radius: 8px;
         padding: 10px;
     }
-    div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; }
-    div[data-testid="stMetricValue"] div { color: #FFFFFF !important; }
-    h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
+    div[data-testid="stMetricLabel"] p {
+        color: #8AC7DE !important;
+    }
+    div[data-testid="stMetricValue"] div {
+        color: #FFFFFF !important;
+    }
 
-    /* INPUTS / DROPDOWNS (dark popup enforced) */
+    h1, h2, h3, h4, h5, h6, p, label {
+        color: #E6EDF3 !important;
+    }
+
+    /* Dropdown/Input Styling */
     div[data-baseweb="select"] > div,
     div[data-testid="stDateInput"] > div,
     div[data-baseweb="input"] > div {
@@ -39,34 +51,38 @@ st.markdown("""
         border-color: #30363d !important;
         color: #FFFFFF !important;
         font-weight: bold !important;
-        font-size: 16px !important;
     }
-    input { color: #FFFFFF !important; font-weight: bold !important; }
 
+    input {
+        color: #FFFFFF !important;
+        font-weight: bold !important;
+    }
+
+    /* Menu/Popover Backgrounds - strong enforcement */
     div[data-baseweb="popover"],
     div[data-baseweb="menu"],
-    div[data-baseweb="popover"] > div,
-    div[data-baseweb="popover"] > div > div,
     ul[role="listbox"],
-    li[role="option"] {
+    ul[role="listbox"] > li[role="option"] {
         background-color: #1E293B !important;
-        color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
+
     li[role="option"] {
-        background-color: #1E293B !important;
         color: #FFFFFF !important;
-        font-size: 16px !important;
-        padding: 10px !important;
+        background-color: #1E293B !important;
     }
+
     li[role="option"]:hover,
     li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
-    .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
-    /* Sidebar text compact */
+    .stSelectbox svg, .stDateInput svg {
+        fill: #8AC7DE !important;
+    }
+
+    /* Sidebar Text Spacing */
     .stSidebar .element-container,
     .stSidebar .stSelectbox,
     .stSidebar .stDateInput {
@@ -74,63 +90,75 @@ st.markdown("""
         margin-bottom: 0.2rem !important;
     }
 
-    /* SIDEBAR ALWAYS DARK */
+    /* ------------------------------------------------------------------- */
+    /* B. SIDEBAR BASE - always apply dark background (fixes desktop glitch) */
+    /* ------------------------------------------------------------------- */
     [data-testid="stSidebar"] {
         background-color: #0D1117 !important;
         border-right: 1px solid #30363d !important;
     }
 
-    /* DESKTOP ONLY (≥768px) */
+    /* ------------------------------------------------------------------- */
+    /* C. DESKTOP ONLY (> 768px) - "THE MONOLITH" - fixed colors & no overlap */
+    /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
-        /* Lock sidebar open & fixed */
+        /* Lock sidebar open & fixed width */
         [data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
+            max-width: 300px !important;
             transform: translateX(0) !important;
+            visibility: visible !important;
         }
 
-        /* Hide collapse controls */
-        [data-testid*="SidebarCollapse"],
+        /* Hide collapse button & arrow on desktop */
+        [data-testid*="SidebarCollapseBtn"],
         [data-testid*="collapsedControl"],
-        button[kind="primary"] svg[aria-label*="Close"],
-        button[kind="primary"] svg[aria-label*="Open"] {
+        button[data-testid*="SidebarCollapse"] {
             display: none !important;
         }
 
-        header[data-testid="stHeader"] { display: none !important; }
+        /* Hide header completely on desktop */
+        header[data-testid="stHeader"] {
+            display: none !important;
+        }
+
+        /* Toolbar & decoration */
         [data-testid="stToolbar"] { display: none !important; }
 
-        /* Prevent bunching: give main content space for sidebar */
+        /* Give main content space so it doesn't bunch right */
         .block-container {
             padding-top: 1rem !important;
-            padding-left: 320px !important;
+            padding-left: 320px !important;  /* ← This fixes the bunching */
             padding-right: 2rem !important;
             padding-bottom: 1rem !important;
         }
     }
 
-    /* MOBILE ONLY (<768px) */
+    /* ------------------------------------------------------------------- */
+    /* D. MOBILE ONLY (< 768px) - "FUNCTIONAL MODE" - your original logic */
+    /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        /* Restore header & allow full collapse */
+        /* Restore header for hamburger */
         header[data-testid="stHeader"] {
             display: block !important;
             background-color: #0D1117 !important;
-            z-index: 999 !important;
+            z-index: 999999 !important;
         }
 
-        /* Ensure collapse button visible */
-        [data-testid*="SidebarCollapse"],
+        /* Force hamburger button visibility */
+        button[data-testid*="SidebarCollapseButton"],
         [data-testid*="collapsedControl"] {
             display: block !important;
             color: #E6EDF3 !important;
         }
 
-        /* Natural mobile sidebar width */
+        /* Let Streamlit handle sidebar naturally on mobile */
         [data-testid="stSidebar"] {
-            width: 80vw !important;
-            max-width: 300px !important;
+            /* No forced width/transform here - allows full collapse */
         }
 
+        /* Push content down */
         .block-container {
             padding-top: 4rem !important;
             padding-left: 1rem !important;
@@ -140,11 +168,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 3. DATA LOADING & rest of your code (unchanged) ---
+# --- 3. DATA LOADING ---
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
+        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
@@ -159,24 +187,39 @@ if df_unified is None:
     st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
     st.stop()
 
+# --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
     st.header("🛡️ Simulator")
+    
+    # Ticker
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
+    
     st.markdown("---")
+    
+    # 1. Start Date
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
+    
+    # 2. End Date Logic
     date_mode = st.radio("Simulation End Point:", ["Hold to Present", "Sell on Specific Date"])
+    
     if date_mode == "Sell on Specific Date":
         end_date = st.date_input("Sell Date", pd.to_datetime("today"))
         end_date = pd.to_datetime(end_date)
     else:
         end_date = pd.to_datetime("today")
+       
     st.markdown("---")
+    
+    # 3. Position Size
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
+    
+    # 4. Data Filtering Logic
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
     journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
+   
     if not journey.empty:
         entry_price = journey.iloc[0]['Closing Price']
         if mode == "Share Count":
@@ -184,34 +227,43 @@ with st.sidebar:
         else:
             dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
             shares = float(dollars) / entry_price
+       
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
         st.error("No data available.")
         st.stop()
 
+# --- 5. CALCULATIONS ---
 div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
 my_divs = div_df[(div_df['Date of Pay'] >= buy_date) & (div_df['Date of Pay'] <= end_date)].copy()
 my_divs['CumDiv'] = my_divs['Amount'].cumsum()
+
 def get_total_div(d):
     rows = my_divs[my_divs['Date of Pay'] <= d]
     return rows['CumDiv'].iloc[-1] if not rows.empty else 0.0
+
 journey['Div_Per_Share'] = journey['Date'].apply(get_total_div)
 journey['Market_Value'] = journey['Closing Price'] * shares
 journey['Cash_Banked'] = journey['Div_Per_Share'] * shares
 journey['True_Value'] = journey['Market_Value'] + journey['Cash_Banked']
 
+# Totals
 initial_cap = entry_price * shares
 current_market_val = journey.iloc[-1]['Market_Value']
 cash_total = journey.iloc[-1]['Cash_Banked']
 current_total_val = journey.iloc[-1]['True_Value']
+
+# Deltas
 market_pl = current_market_val - initial_cap
 total_pl = current_total_val - initial_cap
 total_return_pct = (total_pl / initial_cap) * 100
 
+# Chart Color Logic
 start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
+# --- 6. DASHBOARD ---
 try:
     meta_row = price_df.iloc[0]
     asset_underlying = meta_row.get('Underlying', '-')
@@ -241,13 +293,49 @@ m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
 m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
+# --- 7. CHART ---
 fig = go.Figure()
-fig.add_trace(go.Scatter(x=journey['Date'], y=journey['Market_Value'], mode='lines', name='Price only', line=dict(color=price_line_color, width=2)))
-fig.add_trace(go.Scatter(x=journey['Date'], y=journey['True_Value'], mode='lines', name='True Value (Price + Divs)', line=dict(color='#00C805', width=3), fill='tonexty', fillcolor='rgba(0, 200, 5, 0.1)'))
+
+fig.add_trace(go.Scatter(
+    x=journey['Date'], y=journey['Market_Value'],
+    mode='lines', name='Price only',
+    line=dict(color=price_line_color, width=2)
+))
+
+fig.add_trace(go.Scatter(
+    x=journey['Date'], y=journey['True_Value'],
+    mode='lines', name='True Value (Price + Divs)',
+    line=dict(color='#00C805', width=3),
+    fill='tonexty',
+    fillcolor='rgba(0, 200, 5, 0.1)'
+))
+
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
-fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=380, margin=dict(l=0, r=0, t=20, b=0), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), hovermode="x unified")
+
+fig.update_layout(
+    template="plotly_dark",
+    paper_bgcolor='rgba(0,0,0,0)',
+    plot_bgcolor='rgba(0,0,0,0)',
+    height=380,
+    margin=dict(l=0, r=0, t=20, b=0),
+    legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="right",
+        x=1,
+        font=dict(color="#E6EDF3")
+    ),
+    hovermode="x unified"
+)
+
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
+# Data breakdown (Compact)
 with st.expander("View Data"):
-    st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True, height=200)
-
+    st.dataframe(
+        journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']]
+            .sort_values('Date', ascending=False),
+        use_container_width=True,
+        height=200
+    )
