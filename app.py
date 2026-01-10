@@ -317,9 +317,23 @@ start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
+# Get metadata for selected ticker from df_unified (columns 'Underlying' and 'Company')
+underlying_col = 'Underlying'
+issuer_col = 'Company'
+
+if underlying_col in price_df.columns and not price_df[underlying_col].isnull().all():
+    underlying = price_df[underlying_col].dropna().iloc[0] if not price_df[underlying_col].dropna().empty else "Unknown"
+else:
+    underlying = "Unknown"
+
+if issuer_col in price_df.columns and not price_df[issuer_col].isnull().all():
+    issuer = price_df[issuer_col].dropna().iloc[0] if not price_df[issuer_col].dropna().empty else "Unknown"
+else:
+    issuer = "Unknown"
+
 # --- 6. DASHBOARD ---
-# Compact Header
-st.markdown(f"### {selected_ticker} Performance Simulator")
+# Compact Header with added info
+st.markdown(f"### {selected_ticker} Performance Simulator | Underlying: {underlying} | ETF Issuer: {issuer}")
 st.markdown(f"**{shares:.2f} shares** | {buy_date.date()} ➝ {end_date.date()}")
 
 m1, m2, m3, m4 = st.columns(4)
