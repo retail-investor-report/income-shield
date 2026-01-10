@@ -24,25 +24,37 @@ st.markdown("""
         padding: 10px 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         min-height: 100px;
+        transition: transform 0.2s;
     }
     
-    /* SPECIAL HIGHLIGHT: 5th Metric (Annualized Yield) */
-    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetric"] {
+    /* SLOT 4: Annualized Yield (Gold Highlight) */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="stMetric"] {
         background-color: #1a2e35 !important;
         border: 1px solid #F59E0B !important;
     }
-    
+
+    /* SLOT 5: True Total Value (THE BIG ONE) */
+    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetric"] {
+        background-color: #0D1117 !important; /* Darker bg to make text pop */
+        border: 2px solid #00C805 !important; /* Green border */
+        transform: scale(1.15); /* PHYSICALLY LARGER */
+        z-index: 10;
+        margin-left: 10px;
+    }
+    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricValue"] div {
+        font-size: 1.8rem !important; /* Huge text */
+    }
+
+    /* METRIC TEXT */
     div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; font-size: 0.85rem !important; font-weight: 600 !important; }
     div[data-testid="stMetricValue"] div { color: #FFFFFF !important; font-size: 1.5rem !important; font-weight: 700 !important; }
 
-    /* --- NEW: DELTA (COLORED NUMBERS) STYLING --- */
-    div[data-testid="stMetricDelta"] svg {
-        transform: scale(1.2); /* Make the arrow icon bigger */
-    }
+    /* DELTA (COLORED NUMBERS) STYLING */
+    div[data-testid="stMetricDelta"] svg { transform: scale(1.2); }
     div[data-testid="stMetricDelta"] > div {
-        font-size: 1.1rem !important; /* INCREASE SIZE (was default small) */
-        font-weight: 800 !important;  /* Make it extra bold */
-        filter: brightness(1.2);      /* Make the colors (red/green) pop more */
+        font-size: 1.1rem !important; 
+        font-weight: 800 !important;
+        filter: brightness(1.2);
     }
     
     /* TOOLTIP FIX */
@@ -188,7 +200,7 @@ start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
-# Metric: Annualized Yield
+# Annualized Yield
 days_held = (end_date - buy_date).days
 if days_held > 0:
     raw_yield = cash_total / initial_cap
@@ -233,12 +245,16 @@ with col_meta:
         </div>
     """, unsafe_allow_html=True)
 
+# --- 5 COLUMNS ---
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
-m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
-m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
-m5.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
+# No delta for Dividends Collected (Slot 3)
+m3.metric("Dividends Collected", f"${cash_total:,.2f}") 
+# Slot 4: Annualized Yield (Gold Highlight)
+m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
+# Slot 5: True Total Value (The Big One)
+m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
 # --- 7. CHART ---
 fig = go.Figure()
@@ -259,7 +275,7 @@ fig.add_trace(go.Scatter(
 
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
 
-# OVERLAY (SOLID BLOCK)
+# OVERLAY (STAMP)
 profit_bg = "#00C805" if total_pl >= 0 else "#FF4B4B"
 profit_text = f"PROFIT: +${total_pl:,.2f}" if total_pl >= 0 else f"LOSS: -${abs(total_pl):,.2f}"
 
@@ -268,11 +284,7 @@ fig.add_annotation(
     xref="paper", yref="paper",
     text=profit_text,
     showarrow=False,
-    font=dict(
-        family="Arial Black, sans-serif",
-        size=16,
-        color="white"
-    ),
+    font=dict(family="Arial Black, sans-serif", size=16, color="white"),
     bgcolor=profit_bg,
     bordercolor=profit_bg,
     borderwidth=1,
