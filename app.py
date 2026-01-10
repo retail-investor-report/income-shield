@@ -70,16 +70,25 @@ st.markdown("""
         opacity: 1.0 !important;
     }
 
-    /* --- TOOLTIP POPUP TEXT (The actual popup bubble) --- */
-    /* Forces the text INSIDE the bubble to be Black */
+    /* --- TOOLTIP POPUP TEXT (THE FIX) --- */
+    /* 1. Target the box itself */
     div[role="tooltip"] > div {
         background-color: #FFFFFF !important; /* White Background */
-        color: #000000 !important; /* BLACK TEXT */
         border: 1px solid #30363d;
-        font-weight: bold;
+    }
+    
+    /* 2. NUCLEAR OPTION: Force ALL text elements inside the tooltip to be BLACK.
+       This overrides your global 'p' tag setting which was making it white. */
+    div[role="tooltip"] *, 
+    div[role="tooltip"] p, 
+    div[role="tooltip"] div,
+    div[role="tooltip"] span {
+        color: #000000 !important; /* BLACK TEXT */
+        font-weight: bold !important;
     }
 
     /* TEXT OVERRIDES */
+    /* Note: This was the line causing the issue, the tooltip fix above now overrides this for the bubble */
     h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
 
     /* INPUTS */
