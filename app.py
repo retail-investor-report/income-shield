@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (LOCKED DESKTOP / NATIVE MOBILE) ---
+# --- 2. THE "EMPIRE" STYLING (FINAL DESKTOP LOCK) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -20,7 +20,7 @@ st.markdown("""
         color: #E6EDF3;
     }
     
-    /* Force Sidebar Background Color */
+    /* Sidebar Background Color */
     section[data-testid="stSidebar"] {
         background-color: #0D1117 !important;
         border-right: 1px solid #30363d;
@@ -72,34 +72,36 @@ st.markdown("""
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         
-        /* 1. LOCK SIDEBAR (Fixed position, fixed width, no scroll) */
+        /* 1. HIDE THE COLLAPSE BUTTON (The "X" or "Arrow") */
+        button[data-testid="stSidebarCollapseButton"] {
+            display: none !important;
+        }
+        
+        /* 2. HIDE THE EXPAND BUTTON (The arrow that appears if collapsed) */
+        [data-testid="collapsedControl"] {
+            display: none !important;
+        }
+
+        /* 3. LOCK SIDEBAR WIDTH & VISIBILITY */
         section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
             max-width: 300px !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            bottom: 0 !important;
-            overflow: hidden !important; /* KILL SIDEBAR SCROLL */
-            z-index: 100 !important;
+            transform: none !important; /* Disable slide animation */
+            visibility: visible !important;
         }
 
-        /* 2. KILL THE ARROW (The user cannot close what has no button) */
-        button[data-testid="stSidebarCollapseButton"] { display: none !important; }
-        div[data-testid="collapsedControl"] { display: none !important; }
-        
-        /* 3. HIDE HEADER (Cleaner look on desktop) */
+        /* 4. HIDE HEADER (Cleaner Desktop Look) */
         header[data-testid="stHeader"] { display: none !important; }
         div[data-testid="stToolbar"] { display: none !important; }
 
-        /* 4. PUSH MAIN CONTENT (Create safe zone for the fixed sidebar) */
+        /* 5. ADJUST MAIN CONTENT (Push it right by 300px) */
         .main .block-container {
             margin-left: 300px !important;
+            width: calc(100% - 300px) !important;
             padding-left: 2rem !important;
             padding-right: 2rem !important;
             padding-top: 1rem !important;
-            max-width: calc(100% - 300px) !important;
         }
     }
 
@@ -107,15 +109,17 @@ st.markdown("""
     /* C. MOBILE MODE (Screens smaller than 768px) */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        /* We leave almost everything alone here so Streamlit works naturally */
-        
-        /* Ensure Header & Menu Button are visible */
+        /* NO LAYOUT OVERRIDES HERE. 
+           We let Streamlit handle the sidebar collapse/expand naturally. 
+           Only the global colors from Section A apply. */
+           
+        /* Ensure Header is visible for the menu button */
         header[data-testid="stHeader"] {
             display: block !important;
             background-color: #0D1117 !important;
         }
         
-        /* Ensure Content sits below header */
+        /* Add padding so header doesn't cover content */
         .main .block-container {
             padding-top: 4rem !important;
         }
@@ -127,7 +131,7 @@ st.markdown("""
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        # UPDATED UNIFIED DATA LINK (Using the one from your snippet)
+        # Link from your latest snippet
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
         # History link
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
@@ -139,13 +143,12 @@ def load_data():
         df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
         return df_u, df_h
     except Exception as e:
-        # We allow this to return None so the app stops gracefully rather than caching an error
         return None, None
 
 df_unified, df_history = load_data()
 
 if df_unified is None:
-    st.error("Connection Error: Please check the Google Sheet links or your internet connection.")
+    st.error("Connection Error: Please check the Google Sheet links.")
     st.stop()
 
 # --- 4. SIDEBAR CONTROLS ---
