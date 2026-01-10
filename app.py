@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (final fix: main content no longer hidden behind sidebar) ---
+# --- 2. THE "EMPIRE" STYLING (DEEP DIVE FIX - no overlapping, no arrow, stable layout) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -68,64 +68,76 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP ONLY - fixed sidebar + main content starts correctly */
+    /* B. DESKTOP ONLY - Stable expanded sidebar, no arrow, no overlap */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
-        /* Sidebar locked fixed */
+        /* Sidebar expanded, dark, no scroll, no arrow */
         [data-testid="stSidebar"] {
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
             width: 300px !important;
             min-width: 300px !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            height: 100vh !important;
-            z-index: 1000 !important;
-            overflow: hidden !important;
+            max-width: 300px !important;
             transform: translateX(0) !important;
+            visibility: visible !important;
+            overflow: hidden !important;
+            position: relative !important;  /* Avoid fixed to prevent overlap issues */
         }
 
-        /* Hide all collapse controls */
+        /* Hide all collapse/open arrows/buttons - comprehensive coverage */
         [data-testid*="SidebarCollapse"],
         [data-testid*="collapsedControl"],
         [data-testid*="stSidebarCollapseBtn"],
+        [data-testid*="stSidebarUserContent"] button,
         button[aria-label*="Collapse"],
         button[aria-label*="Open"],
         button[aria-label*="sidebar"],
+        button[title*="Collapse"],
+        button[title*="Expand"],
+        button[kind="primary"],
+        section[data-testid="stSidebar"] button,
+        .stSidebarUserContent button,
         svg[aria-label*="chevron"],
-        svg[aria-label*="arrow"] {
+        svg[aria-label*="arrow"],
+        [role="button"][aria-label*="Collapse"],
+        [role="button"][aria-label*="Expand"] {
             display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            opacity: 0 !important;
         }
 
         header[data-testid="stHeader"],
-        [data-testid="stToolbar"] {
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"] {
             display: none !important;
         }
 
-        /* Main content starts AFTER the sidebar, no hiding */
-        .main {
-            margin-left: 300px !important;
+        /* Main content offset - no hiding behind sidebar */
+        .block-container {
+            padding-top: 1rem !important;
+            padding-left: 320px !important;  /* sidebar width + gap */
+            padding-right: 2rem !important;
+            padding-bottom: 1rem !important;
+            max-width: calc(100% - 320px) !important;
             box-sizing: border-box !important;
+            overflow: hidden !important;
         }
 
-        .main .block-container {
-            margin-left: 20px !important;               /* breathing room after sidebar */
-            max-width: calc(100vw - 320px) !important;  /* full remaining width */
-            width: calc(100vw - 320px) !important;
-            padding: 1rem 2rem 2rem 1rem !important;
-            overflow-x: hidden !important;
+        /* Safety: prevent any app-wide overlap or overflow */
+        .main {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
         }
 
-        /* Safety: prevent any overflow */
         .stAppViewContainer {
-            max-width: 100vw !important;
-            overflow-x: hidden !important;
+            overflow: hidden !important;
         }
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE ONLY - untouched (perfect) */
+    /* C. MOBILE ONLY - untouched, perfect as is */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
         header[data-testid="stHeader"] {
