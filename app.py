@@ -92,29 +92,23 @@ st.markdown("""
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
 
-    /* --- DROPDOWNS (THE FIX) --- */
-    /* Container styling */
+    /* --- DROPDOWNS --- */
     div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"], li[role="option"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
-    /* Force inner text to be white by default */
     li[role="option"] div, li[role="option"] span {
         color: #FFFFFF !important;
     }
-    
-    /* Hover/Selected State styling */
     li[role="option"]:hover, li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
-    /* Force inner text to be black on hover */
     li[role="option"]:hover div, li[role="option"]:hover span,
     li[role="option"][aria-selected="true"] div, li[role="option"][aria-selected="true"] span {
         color: #0D1117 !important;
     }
-    
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
     /* SIDEBAR COMPACTING */
@@ -247,7 +241,9 @@ except Exception:
     asset_underlying = "-"
     asset_company = "-"
 
-col_head, col_meta = st.columns([2.5, 1])
+# --- HEADER SECTION (WIDER COLUMNS FOR BADGES) ---
+# Changed from [2.5, 1] to [1.8, 1.2] to give badges 40% of space
+col_head, col_meta = st.columns([1.8, 1.2])
 
 with col_head:
     st.markdown(f"""
@@ -262,13 +258,14 @@ with col_head:
     """, unsafe_allow_html=True)
 
 with col_meta:
+    # UPDATED BADGE CSS: Added flex-grow to ensure they expand
     st.markdown(f"""
         <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
-            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1;">
                 <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Underlying</div>
                 <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_underlying}</div>
             </div>
-            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1;">
                 <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Company</div>
                 <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_company}</div>
             </div>
@@ -361,13 +358,13 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
-# --- COMPACT NAV DECODER BAR (FINE PRINT VERSION) ---
+# --- COMPACT NAV DECODER BAR ---
 st.markdown("""
     <div style="
         background-color: #161b22; 
         border: 1px solid #30363d; 
         border-radius: 8px; 
-        padding: 8px 10px; /* Reduced Padding */
+        padding: 8px 10px; 
         margin-top: 5px; 
         margin-bottom: 5px; 
         text-align: center;
