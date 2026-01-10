@@ -77,8 +77,7 @@ st.markdown("""
         border: 1px solid #30363d;
     }
     
-    /* 2. NUCLEAR OPTION: Force ALL text elements inside the tooltip to be BLACK.
-       This overrides your global 'p' tag setting which was making it white. */
+    /* 2. NUCLEAR OPTION: Force ALL text elements inside the tooltip to be BLACK. */
     div[role="tooltip"] *, 
     div[role="tooltip"] p, 
     div[role="tooltip"] div,
@@ -88,7 +87,6 @@ st.markdown("""
     }
 
     /* TEXT OVERRIDES */
-    /* Note: This was the line causing the issue, the tooltip fix above now overrides this for the bubble */
     h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
 
     /* INPUTS */
@@ -284,7 +282,8 @@ m3.metric("Dividends Collected", f"${cash_total:,.2f}")
 # Tooltip 2: Annualized Yield
 m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
 
-m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
+# Tooltip 3: True Total Value (NEW)
+m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%", help="The Value of your Shares + All the divs you received (NO DRIP)")
 
 # --- 7. CHART ---
 fig = go.Figure()
