@@ -9,28 +9,20 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (FIXED DESKTOP / PERFECT MOBILE) ---
+# --- 2. THE "EMPIRE" STYLING (final desktop lock + no scrollbars) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. GLOBAL COLORS & SCROLLBAR KILLER */
+    /* A. GLOBAL STYLES */
     /* ------------------------------------------------------------------- */
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
     }
-    
-    /* NUCLEAR OPTION FOR SCROLLBARS (Chrome, Safari, Edge, Firefox) */
-    ::-webkit-scrollbar { display: none !important; }
-    * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
-    
-    /* Sidebar Background */
-    section[data-testid="stSidebar"] {
-        background-color: #0D1117 !important;
-        border-right: 1px solid #30363d;
-    }
-    
-    /* Metrics Styling */
+
+    ::-webkit-scrollbar { display: none; }
+
+    /* Metrics & Text */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
@@ -40,7 +32,7 @@ st.markdown("""
     div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; }
     div[data-testid="stMetricValue"] div { color: #FFFFFF !important; }
     h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
-    
+
     /* Inputs & Dropdowns */
     div[data-baseweb="select"] > div,
     div[data-testid="stDateInput"] > div,
@@ -51,86 +43,104 @@ st.markdown("""
         font-weight: bold !important;
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
-    
-    /* Popups/Menus */
-    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
+
+    div[data-baseweb="popover"],
+    div[data-baseweb="menu"],
+    ul[role="listbox"],
+    li[role="option"] {
         background-color: #1E293B !important;
-        border-color: #30363d !important;
-    }
-    ul[role="listbox"] > li[role="option"] {
         color: #FFFFFF !important;
-        background-color: #1E293B !important;
+        border: 1px solid #30363d !important;
     }
-    ul[role="listbox"] > li[role="option"]:hover,
-    ul[role="listbox"] > li[role="option"][aria-selected="true"] {
+    li[role="option"]:hover,
+    li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
+    /* Sidebar compact spacing */
+    .stSidebar .element-container,
+    .stSidebar .stSelectbox,
+    .stSidebar .stDateInput {
+        margin-top: 0.2rem !important;
+        margin-bottom: 0.2rem !important;
+    }
+
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP MODE (> 768px) - LOCKED, COMPACT, NO SCROLL */
+    /* B. DESKTOP ONLY - Permanent, non-collapsible sidebar, no arrows/scroll */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
-        
-        /* 1. LOCK SIDEBAR & HIDE BUTTONS */
-        section[data-testid="stSidebar"] {
+        /* Sidebar fixed, non-collapsible, no scrollbars */
+        [data-testid="stSidebar"] {
+            background-color: #0D1117 !important;
+            border-right: 1px solid #30363d !important;
             width: 300px !important;
             min-width: 300px !important;
             max-width: 300px !important;
             position: fixed !important;
-            top: 0 !important; left: 0 !important; bottom: 0 !important;
-            z-index: 100 !important;
-            overflow: hidden !important; /* Force no scroll */
-        }
-        button[data-testid="stSidebarCollapseButton"] { display: none !important; }
-        [data-testid="collapsedControl"] { display: none !important; }
-        
-        /* 2. COMPACT SIDEBAR SPACING (The Squeeze) */
-        section[data-testid="stSidebar"] .stElementContainer {
-            margin-bottom: 0.3rem !important; /* Tight spacing */
-        }
-        section[data-testid="stSidebar"] h2 {
-            font-size: 1.1rem !important;
-            padding-bottom: 0.3rem !important;
-            margin-top: 0.5rem !important;
-        }
-        section[data-testid="stSidebar"] hr {
-            margin: 0.5em 0 !important;
+            top: 0;
+            left: 0;
+            height: 100vh !important;
+            z-index: 1000 !important;
+            overflow: hidden !important;           /* ← No scrollbars */
+            transform: translateX(0) !important;
         }
 
-        /* 3. FIX MAIN CONTENT OVERLAP */
-        /* Hide Header */
-        header[data-testid="stHeader"] { display: none !important; }
-        div[data-testid="stToolbar"] { display: none !important; }
-        
-        /* Shift entire content container right */
+        /* Completely hide ALL collapse/open controls and arrows on desktop */
+        [data-testid*="SidebarCollapse"],
+        [data-testid*="collapsedControl"],
+        [data-testid*="stSidebarCollapseBtn"],
+        button[aria-label*="Collapse"],
+        button[aria-label*="Open sidebar"],
+        button[kind="primary"] svg,
+        section[data-testid="stSidebar"] button {
+            display: none !important;
+        }
+
+        header[data-testid="stHeader"],
+        [data-testid="stToolbar"] {
+            display: none !important;
+        }
+
+        /* Main content starts right next to sidebar */
         .main .block-container {
-            margin-left: 300px !important;
-            width: calc(100% - 300px) !important;
-            padding-top: 2rem !important;
-            padding-right: 3rem !important;
-            padding-left: 3rem !important; /* Internal padding */
-            max-width: 100% !important;
+            margin-left: 320px !important;         /* 300px + 20px breathing room */
+            max-width: calc(100% - 340px) !important;
+            padding: 1rem 2rem 2rem 1rem !important;
+        }
+
+        .main {
+            margin: 0 auto !important;
         }
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE MODE (< 768px) - 100% STANDARD STREAMLIT */
+    /* C. MOBILE ONLY - leave completely alone (perfect as is) */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        /* Restore Header for Menu */
         header[data-testid="stHeader"] {
             display: block !important;
             background-color: #0D1117 !important;
+            z-index: 999 !important;
         }
-        
-        /* Move content down so header doesn't cover it */
-        .main .block-container {
+
+        button[data-testid*="SidebarCollapseButton"],
+        [data-testid*="collapsedControl"] {
+            display: block !important;
+            color: #E6EDF3 !important;
+        }
+
+        [data-testid="stSidebar"] {
+            background-color: #0D1117 !important;
+            border-right: 1px solid #30363d !important;
+        }
+
+        .block-container {
             padding-top: 4rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
         }
-        
-        /* Sidebar behaves naturally on mobile (collapsible) */
     }
     </style>
 """, unsafe_allow_html=True)
@@ -149,17 +159,17 @@ def load_data():
         df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
         return df_u, df_h
     except Exception as e:
+        st.error(f"Data loading error: {str(e)}")
         return None, None
 
 df_unified, df_history = load_data()
-
 if df_unified is None:
-    st.error("Connection Error. Please refresh.")
     st.stop()
 
 # --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
     st.header("🛡️ Simulator")
+    
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
     
@@ -170,18 +180,20 @@ with st.sidebar:
     buy_date = pd.to_datetime(buy_date)
     
     date_mode = st.radio("Simulation End Point:", ["Hold to Present", "Sell on Specific Date"])
+    
     if date_mode == "Sell on Specific Date":
         end_date = st.date_input("Sell Date", pd.to_datetime("today"))
         end_date = pd.to_datetime(end_date)
     else:
         end_date = pd.to_datetime("today")
-        
+       
     st.markdown("---")
+    
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
     
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
     journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
-    
+   
     if not journey.empty:
         entry_price = journey.iloc[0]['Closing Price']
         if mode == "Share Count":
@@ -189,9 +201,10 @@ with st.sidebar:
         else:
             dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
             shares = float(dollars) / entry_price
+       
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
-        st.error("No data available.")
+        st.error("No data available for selected date range.")
         st.stop()
 
 # --- 5. CALCULATIONS ---
@@ -234,15 +247,9 @@ col_head, col_meta = st.columns([3, 1])
 with col_head:
     st.markdown(f"### {selected_ticker} Performance Simulator")
     st.markdown(f"**{shares:.2f} shares** | {buy_date.date()} ➝ {end_date.date()}")
-
 with col_meta:
     st.markdown(f"""
-        <div style="
-            text-align: left; 
-            padding: 5px; 
-            border-left: 2px solid #30363d; 
-            margin-top: 5px;
-            padding-left: 15px;">
+        <div style="text-align: left; padding: 5px; border-left: 2px solid #30363d; margin-top: 5px; padding-left: 15px;">
             <span style="color: #8AC7DE; font-size: 0.8rem;">Underlying</span><br>
             <span style="color: #E6EDF3; font-weight: bold; font-size: 1rem;">{asset_underlying}</span><br>
             <div style="height: 5px;"></div>
@@ -259,11 +266,13 @@ m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 
 # --- 7. CHART ---
 fig = go.Figure()
+
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
     mode='lines', name='Price only',
     line=dict(color=price_line_color, width=2)
 ))
+
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
     mode='lines', name='True Value (Price + Divs)',
@@ -271,6 +280,7 @@ fig.add_trace(go.Scatter(
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
 ))
+
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
 
 fig.update_layout(
@@ -289,6 +299,7 @@ fig.update_layout(
     ),
     hovermode="x unified"
 )
+
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 # Data breakdown
