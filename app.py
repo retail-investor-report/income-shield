@@ -37,7 +37,7 @@ st.markdown("""
     div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetric"] {
         background-color: #0D1117 !important;
         border: 2px solid #00C805 !important;
-        transform: scale(1.15); /* PHYSICALLY LARGER */
+        transform: scale(1.15); 
         z-index: 10;
         margin-left: 10px;
     }
@@ -57,9 +57,18 @@ st.markdown("""
         filter: brightness(1.2);
     }
     
-    /* TOOLTIP FIX */
-    div[data-testid="stMetricLabel"] svg { fill: #E6EDF3 !important; opacity: 0.7; }
-    div[data-testid="stMetricLabel"] svg:hover { opacity: 1.0; fill: #F59E0B !important; }
+    /* --- TOOLTIP ICON VISIBILITY FIX --- */
+    /* Forces the small question mark to be White and Visible */
+    [data-testid="stMetricLabel"] svg {
+        fill: #E6EDF3 !important;
+        opacity: 0.9 !important;
+        width: 16px !important;
+        height: 16px !important;
+    }
+    [data-testid="stMetricLabel"]:hover svg {
+        fill: #F59E0B !important; /* Turns Gold on Hover */
+        opacity: 1.0 !important;
+    }
 
     /* TEXT OVERRIDES */
     h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
@@ -249,11 +258,14 @@ with col_meta:
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 
-# RENAMED to "Asset Value" + added specific help tooltip
+# Tooltip 1: Asset Value
 m2.metric("Asset Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}", help="Value of your shares held at the end of the simulation.")
 
 m3.metric("Dividends Collected", f"${cash_total:,.2f}") 
+
+# Tooltip 2: Annualized Yield
 m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
+
 m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
 # --- 7. CHART ---
