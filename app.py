@@ -9,25 +9,22 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (COMPACT DESKTOP / PERFECT MOBILE) ---
+# --- 2. THE "EMPIRE" STYLING (FIXED DESKTOP / PERFECT MOBILE) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. GLOBAL COLORS & SCROLLBAR HIDING */
+    /* A. GLOBAL COLORS & SCROLLBAR KILLER */
     /* ------------------------------------------------------------------- */
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
     }
     
-    /* KILL ALL SCROLLBARS (Visual Only) - Solves the "Tiny scrollbar" issue */
-    ::-webkit-scrollbar {
-        display: none !important;
-        width: 0px !important;
-        background: transparent !important;
-    }
+    /* NUCLEAR OPTION FOR SCROLLBARS (Chrome, Safari, Edge, Firefox) */
+    ::-webkit-scrollbar { display: none !important; }
+    * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
     
-    /* Force Sidebar Background */
+    /* Sidebar Background */
     section[data-testid="stSidebar"] {
         background-color: #0D1117 !important;
         border-right: 1px solid #30363d;
@@ -55,7 +52,7 @@ st.markdown("""
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
     
-    /* Menus & Popups */
+    /* Popups/Menus */
     div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
         background-color: #1E293B !important;
         border-color: #30363d !important;
@@ -72,15 +69,11 @@ st.markdown("""
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP MODE (> 768px) - LOCKED & COMPACT */
+    /* B. DESKTOP MODE (> 768px) - LOCKED, COMPACT, NO SCROLL */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         
-        /* 1. HIDE BUTTONS (Prevent Ghost Arrow) */
-        button[data-testid="stSidebarCollapseButton"] { display: none !important; }
-        [data-testid="collapsedControl"] { display: none !important; }
-
-        /* 2. LOCK SIDEBAR & SQUEEZE CONTENT */
+        /* 1. LOCK SIDEBAR & HIDE BUTTONS */
         section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
@@ -88,57 +81,56 @@ st.markdown("""
             position: fixed !important;
             top: 0 !important; left: 0 !important; bottom: 0 !important;
             z-index: 100 !important;
-            overflow: hidden !important; /* STRICTLY NO SCROLL */
+            overflow: hidden !important; /* Force no scroll */
         }
+        button[data-testid="stSidebarCollapseButton"] { display: none !important; }
+        [data-testid="collapsedControl"] { display: none !important; }
         
-        /* 3. COMPACT SPACING (The "Squeeze") */
-        /* Reduce gap between sidebar elements */
+        /* 2. COMPACT SIDEBAR SPACING (The Squeeze) */
         section[data-testid="stSidebar"] .stElementContainer {
-            margin-bottom: 0.5rem !important; /* Tighter vertical spacing */
+            margin-bottom: 0.3rem !important; /* Tight spacing */
         }
-        /* Reduce header size slightly in sidebar */
         section[data-testid="stSidebar"] h2 {
-            font-size: 1.2rem !important;
-            padding-bottom: 0.5rem !important;
+            font-size: 1.1rem !important;
+            padding-bottom: 0.3rem !important;
+            margin-top: 0.5rem !important;
         }
-        /* Tighten the horizontal rules */
         section[data-testid="stSidebar"] hr {
-            margin: 1em 0 !important;
+            margin: 0.5em 0 !important;
         }
 
-        /* 4. CONTENT PADDING */
+        /* 3. FIX MAIN CONTENT OVERLAP */
+        /* Hide Header */
         header[data-testid="stHeader"] { display: none !important; }
         div[data-testid="stToolbar"] { display: none !important; }
         
+        /* Shift entire content container right */
         .main .block-container {
             margin-left: 300px !important;
             width: calc(100% - 300px) !important;
-            padding: 2rem !important;
+            padding-top: 2rem !important;
+            padding-right: 3rem !important;
+            padding-left: 3rem !important; /* Internal padding */
+            max-width: 100% !important;
         }
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE MODE (< 768px) - PRESERVED & LENGTHENED */
+    /* C. MOBILE MODE (< 768px) - 100% STANDARD STREAMLIT */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        /* Standard Streamlit Header for Menu Access */
+        /* Restore Header for Menu */
         header[data-testid="stHeader"] {
             display: block !important;
             background-color: #0D1117 !important;
         }
         
-        /* Ensure content is not hidden behind header */
+        /* Move content down so header doesn't cover it */
         .main .block-container {
             padding-top: 4rem !important;
         }
         
-        /* ATTEMPT TO LENGTHEN APP (Remove Scroll-within-scroll) */
-        /* This tells the browser "Don't clip the app, let it grow" */
-        .stApp {
-            height: auto !important;
-            min-height: 100vh !important;
-            overflow: visible !important;
-        }
+        /* Sidebar behaves naturally on mobile (collapsible) */
     }
     </style>
 """, unsafe_allow_html=True)
@@ -147,7 +139,6 @@ st.markdown("""
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        # LINK SOURCE: User Provided
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         
