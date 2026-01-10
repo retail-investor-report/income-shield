@@ -130,8 +130,10 @@ st.markdown("""
     /* DATAFRAME FIXES */
     div[data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 5px; overflow: hidden; }
     
-    /* >>> NUCLEAR FIX: HIDE COLUMN MENU BUTTONS <<< */
+    /* >>> NUCLEAR FIX: HIDE COLUMN MENU BUTTONS & SCROLLBARS <<< */
     div[data-testid="stDataFrame"] div[role="columnheader"] button { display: none !important; }
+    div[data-testid="stDataFrame"] div[data-testid="stVerticalBlock"] { overflow: hidden !important; }
+    div[data-testid="stDataFrame"] ::-webkit-scrollbar { display: none !important; }
 
     /* C. DESKTOP LAYOUT LOCK (Min-width 1200px) */
     @media (min-width: 1200px) {
@@ -182,8 +184,6 @@ if df_unified is None:
 #         SIDEBAR & MODE SELECTION
 # ==========================================
 with st.sidebar:
-    # REMOVED "Simulator Config" Header as requested
-    
     # THE BIG SWITCH
     app_mode = st.radio("Select Mode", ["🛡️ Single Asset", "⚔️ Head-to-Head"], label_visibility="collapsed")
     
@@ -374,12 +374,12 @@ if app_mode == "🛡️ Single Asset":
 # >>>>>>>>>>>>>>> MODE B: HEAD-TO-HEAD COMPARISON <<<<<<<<<<<<<<<
 else:
     # --------------------------------------------------------
-    # NEW TITLE STYLE: Metallic Gradient with Heavy Blue Stroke
+    # NEW TITLE STYLE: Metallic Gradient with Rounded Corners
     # --------------------------------------------------------
     st.markdown("""
         <div style="margin-bottom: 10px;">
             <h1 style="
-                font-family: 'Arial Black', sans-serif;
+                font-family: 'Verdana', sans-serif;
                 font-size: 3rem;
                 font-weight: 900;
                 text-transform: uppercase;
@@ -389,8 +389,9 @@ else:
                 background: linear-gradient(to bottom, #FFFFFF 20%, #B0C4DE 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
-                /* Heavy Blue Stroke */
+                /* Heavy Blue Stroke with Rounded Joins */
                 -webkit-text-stroke: 1.5px #00509E;
+                stroke-linejoin: round;
                 /* Drop Shadow for Pop */
                 filter: drop-shadow(0px 3px 0px #003366);
             ">
@@ -434,7 +435,7 @@ else:
             
         t_journey['CumDivs'] = t_journey['Date'].apply(get_cum_div)
         
-        # Normalize to Percentage Return (True Value vs Initial Price)
+        # Normalize to Percentage Return
         t_journey['Total_Return_Pct'] = ((t_journey['Closing Price'] + t_journey['CumDivs'] - start_p) / start_p) * 100
         
         # 4. Add to Chart
@@ -447,7 +448,7 @@ else:
             line=dict(color=line_color, width=3)
         ))
         
-        # 5. Stats for Table (Using sim_amt)
+        # 5. Stats for Table
         final_ret = t_journey.iloc[-1]['Total_Return_Pct']
         total_cash_per_share = t_journey.iloc[-1]['CumDivs']
         yield_pct = (total_cash_per_share / start_p) * 100
