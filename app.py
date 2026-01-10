@@ -16,18 +16,14 @@ st.markdown("""
     .stApp { background-color: #0D1117; color: #E6EDF3; }
     ::-webkit-scrollbar { display: none !important; }
     
-    /* REMOVE DEFAULT STREAMLIT PADDING */
+    /* VACUUM SEAL: Remove padding */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 1rem !important;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
     }
-    
-    /* REDUCE GAP BETWEEN WIDGETS */
-    .element-container {
-        margin-bottom: 0.2rem !important;
-    }
+    .element-container { margin-bottom: 0.2rem !important; }
 
     /* B. COMPONENT STYLING */
     div[data-testid="stMetric"] {
@@ -82,39 +78,62 @@ st.markdown("""
         opacity: 1.0 !important;
     }
 
-    /* --- TOOLTIP POPOVER (DEFAULT) --- */
-    /* This handles the Tooltips (White BG / Black Text) */
-    div[data-baseweb="popover"] {
-        background-color: #FFFFFF !important;
+    /* =========================================
+       THE POPOP CONFLICT FIX (Calendar vs Tooltip)
+       ========================================= */
+
+    /* 1. DEFAULT POPOVER (This targets Tooltips primarily) */
+    div[data-baseweb="popover"] > div {
+        background-color: #FFFFFF !important; /* White Background */
+        color: #000000 !important; /* Black Text */
         border: 1px solid #30363d !important;
     }
-    div[data-baseweb="popover"] * {
-        color: #000000 !important;
-    }
 
-    /* --- CALENDAR POPOVER (SMART OVERRIDE) --- */
-    /* If the popover contains a calendar, FORCE it to be Dark Blue */
-    div[data-baseweb="popover"]:has(div[data-baseweb="calendar"]) {
-        background-color: #1E293B !important;
+    /* 2. CALENDAR POPOVER OVERRIDE */
+    /* If the popover contains a calendar, force it DARK */
+    div[data-baseweb="popover"]:has(div[data-baseweb="calendar"]) > div {
+        background-color: #1E293B !important; /* Dark Blue BG */
+        border: 1px solid #30363d !important;
     }
-    
-    /* Force text inside the calendar to be White */
-    div[data-baseweb="popover"]:has(div[data-baseweb="calendar"]) * {
+    /* Force ALL text inside the calendar to be White */
+    div[data-baseweb="calendar"] * {
+        color: #FFFFFF !important; 
+    }
+    /* Specific overrides for buttons (arrows) and day numbers */
+    div[data-baseweb="calendar"] button, div[data-baseweb="calendar"] div {
         color: #FFFFFF !important;
     }
-
-    /* Specific Calendar Elements */
-    div[data-baseweb="calendar"] button {
-        color: #FFFFFF !important; /* Arrows */
-    }
-    div[data-baseweb="calendar"] div {
-        color: #FFFFFF !important; /* Days/Months */
-    }
-    /* Calendar Hover State */
+    /* Hover state for days (Blue BG, Dark Text) */
     div[data-baseweb="calendar"] [aria-selected="false"]:hover {
-        background-color: #30363d !important;
-        color: #8AC7DE !important;
+        background-color: #8AC7DE !important;
+        color: #0D1117 !important;
     }
+    /* Selected state for days */
+    div[data-baseweb="calendar"] [aria-selected="true"] {
+        background-color: #8AC7DE !important;
+        color: #0D1117 !important;
+    }
+
+    /* 3. DROPDOWN POPOVER OVERRIDE */
+    /* If the popover contains a list (dropdown), force it DARK */
+    div[data-baseweb="popover"]:has(ul[role="listbox"]) > div {
+        background-color: #1E293B !important; /* Dark Blue BG */
+    }
+    /* Dropdown Options */
+    ul[role="listbox"] li {
+        color: #FFFFFF !important; /* White Text Default */
+    }
+    /* Dropdown Hover State */
+    ul[role="listbox"] li:hover, ul[role="listbox"] li[aria-selected="true"] {
+        background-color: #8AC7DE !important;
+        color: #0D1117 !important; /* Black Text on Hover */
+    }
+    /* Force inner text divs to inherit color */
+    ul[role="listbox"] li * {
+        color: inherit !important;
+    }
+
+    /* ========================================= */
 
     /* TEXT OVERRIDES */
     h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
@@ -129,26 +148,6 @@ st.markdown("""
         min-height: 40px !important;
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
-
-    /* --- DROPDOWNS --- */
-    /* Dropdowns are also popovers, so we need to style them explicitly to match the dark theme */
-    ul[role="listbox"], li[role="option"] {
-        background-color: #1E293B !important;
-        border: 1px solid #30363d !important;
-    }
-    /* Force dropdown text to be white (override the tooltip rule) */
-    li[role="option"] div, li[role="option"] span {
-        color: #FFFFFF !important;
-    }
-    /* Hover/Selected State */
-    li[role="option"]:hover, li[role="option"][aria-selected="true"] {
-        background-color: #8AC7DE !important;
-    }
-    li[role="option"]:hover div, li[role="option"]:hover span,
-    li[role="option"][aria-selected="true"] div, li[role="option"][aria-selected="true"] span {
-        color: #0D1117 !important;
-    }
-    
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
     /* SIDEBAR COMPACTING */
@@ -165,7 +164,6 @@ st.markdown("""
         }
         section[data-testid="stSidebar"] h2 { padding-top: 0rem !important; margin-top: 0rem !important; margin-bottom: 1rem !important; }
         section[data-testid="stMain"] { margin-left: 300px !important; width: calc(100% - 300px) !important; position: relative !important; display: block !important; }
-        /* FORCING THE PADDING OVERRIDE ON MAIN CONTAINER */
         .block-container { padding-left: 3rem !important; padding-right: 3rem !important; padding-top: 1rem !important; padding-bottom: 1rem !important; max-width: 100% !important; }
         header[data-testid="stHeader"], button[data-testid="stSidebarCollapseBtn"], div[data-testid="collapsedControl"] { display: none !important; }
     }
@@ -380,8 +378,8 @@ fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=340, # SQUEEZED HEIGHT
-    margin=dict(l=0, r=0, t=20, b=0), # SQUEEZED MARGIN
+    height=340, 
+    margin=dict(l=0, r=0, t=20, b=0),
     showlegend=False,
     hovermode="x unified",
     xaxis = dict(fixedrange = True),
