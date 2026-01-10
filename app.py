@@ -79,7 +79,7 @@ st.markdown("""
     }
 
     /* =========================================
-       THE CALENDAR "WHITE ON WHITE" FIX 
+       THE CALENDAR STYLING (Main Body)
        ========================================= */
 
     /* 1. Target the Calendar Container */
@@ -90,7 +90,6 @@ st.markdown("""
     }
 
     /* 2. FORCE THE HEADER (Month/Year) TO BE DARK */
-    /* This fixes the "Light Gray Bar" issue in your screenshot */
     div[data-baseweb="calendar"] > div {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
@@ -98,7 +97,7 @@ st.markdown("""
     
     /* 3. Navigation Arrows (< >) */
     div[data-baseweb="calendar"] button svg {
-        fill: #8AC7DE !important; /* Make arrows Blue so they pop */
+        fill: #8AC7DE !important; 
     }
     div[data-baseweb="calendar"] button {
         background-color: transparent !important;
@@ -132,9 +131,34 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* 9. Month Dropdown specific fix */
-    div[data-baseweb="popover"] ul[role="listbox"] {
+    /* =========================================
+       THE DROPDOWN MENU FIX (Year/Month Picker)
+       This fixes the "White on White" inside the list
+       ========================================= */
+       
+    /* 1. The Container (The List Itself) */
+    ul[role="listbox"] {
         background-color: #1E293B !important;
+        border: 1px solid #30363d !important;
+    }
+
+    /* 2. The Options (Years/Months) - Default State */
+    li[role="option"] {
+        color: #FFFFFF !important; /* White Text */
+        background-color: #1E293B !important; /* Dark Blue Background */
+    }
+
+    /* 3. The "Selected" or "Highlighted" Option */
+    /* This overrides the white box seen in your screenshot */
+    li[role="option"][aria-selected="true"], 
+    li[role="option"]:hover {
+        background-color: #8AC7DE !important; /* Bright Blue Background */
+        color: #0D1117 !important; /* Dark Text */
+    }
+    
+    /* 4. Force text inside options to inherit color */
+    li[role="option"] * {
+        color: inherit !important;
     }
 
     /* ========================================= */
