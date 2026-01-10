@@ -128,7 +128,13 @@ st.markdown("""
     .stSidebar .stCheckbox label { font-weight: bold; color: #8AC7DE !important; }
 
     /* DATAFRAME FIXES */
-    div[data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 5px; overflow: hidden; }
+    div[data-testid="stDataFrame"] { 
+        border: 1px solid #30363d; 
+        border-radius: 5px; 
+        overflow: hidden;
+        /* FORCE DARK MODE FOR TABLES */
+        color-scheme: dark;
+    }
     
     /* >>> NUCLEAR FIX: HIDE COLUMN MENU BUTTONS & SCROLLBARS <<< */
     div[data-testid="stDataFrame"] div[role="columnheader"] button { display: none !important; }
@@ -446,23 +452,13 @@ if app_mode == "🛡️ Single Asset":
 
 # >>>>>>>>>>>>>>> MODE B: HEAD-TO-HEAD COMPARISON <<<<<<<<<<<<<<<
 else:
+    # --------------------------------------------------------
+    # RESTORED TITLE STYLE: Standard Markdown (White + Blue)
+    # --------------------------------------------------------
     st.markdown("""
-        <div style="margin-bottom: 10px;">
-            <h1 style="
-                font-family: 'Verdana', sans-serif;
-                font-size: 3rem;
-                font-weight: 900;
-                text-transform: uppercase;
-                margin: 0;
-                line-height: 1;
-                background: linear-gradient(to bottom, #FFFFFF 20%, #B0C4DE 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                -webkit-text-stroke: 1.5px #00509E;
-                stroke-linejoin: round;
-                filter: drop-shadow(0px 3px 0px #003366);
-            ">
-                HEAD-TO-HEAD COMPARISON
+        <div style="margin-top: -10px; margin-bottom: 20px;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0px; color: #E6EDF3; line-height: 1.2;">
+                ⚔️ Head-to-Head <span style="color: #8AC7DE;">Comparison</span>
             </h1>
         </div>
     """, unsafe_allow_html=True)
