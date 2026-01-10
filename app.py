@@ -9,32 +9,25 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (MARK XVIII: THE HEADS-UP DISPLAY) ---
+# --- 2. RESTORED ORIGINAL STYLING (No Global Overrides) ---
+# I removed the global background code that ruined your theme.
+# This CSS ONLY styles the new "Header Box" to make the text align correctly.
 st.markdown("""
     <style>
-    /* Global Text Clean up */
-    .stApp {
-        background-color: #0D1117;
-        color: #E6EDF3;
-    }
-    
-    /* The Custom Header Box */
+    /* Only styling the specific header box, touching nothing else */
     .metric-container {
         display: flex;
         flex-direction: row;
         align-items: center;
-        background-color: #161B22;
-        border-left: 5px solid #8AC7DE;
-        padding: 15px;
-        border-radius: 5px;
+        padding: 10px 0px;
         margin-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
     
     .ticker-title {
         font-size: 32px;
         font-weight: 800;
         margin-right: 25px;
-        color: #FFFFFF;
         line-height: 1;
     }
     
@@ -44,33 +37,22 @@ st.markdown("""
         justify-content: center;
     }
     
-    .meta-badge {
+    .meta-text {
         font-size: 14px;
         font-weight: 500;
-        color: #8B949E;
-        background-color: #21262D;
-        padding: 4px 10px;
-        border-radius: 4px;
-        margin: 2px 0;
-        border: 1px solid #30363D;
-        width: fit-content;
-    }
-    
-    .highlight {
-        color: #8AC7DE;
-        font-weight: 700;
+        opacity: 0.8;
+        margin: 0;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA LOADING (NOW WITH MASTER LIST "THE BRAIN") ---
+# --- 3. DATA LOADING ---
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        # ⚠️ PASTE YOUR NEW MASTER LIST CSV LINK HERE ⚠️
-        m_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=618318322&single=true&output=csv" 
+        # ⚠️ PASTE YOUR MASTER LIST LINK HERE ⚠️
+        m_url = "PASTE_YOUR_MASTER_LIST_PUBLISHED_CSV_LINK_HERE" 
         
-        # Keep your existing links
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         
@@ -78,15 +60,13 @@ def load_data():
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
         
-        # Clean Data
+        # --- THE FIX FOR "UNKNOWN" ---
+        # This strips the hidden spaces from your CSV headers (e.g. "Company " -> "Company")
+        df_m.columns = df_m.columns.str.strip() 
+        
         df_u['Date'] = pd.to_datetime(df_u['Date'])
         df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
         
-        # Normalize Ticker Column Names if needed
-        if 'Ticker' not in df_m.columns:
-             # Fallback if column A is unnamed or different in Master List
-             df_m.rename(columns={df_m.columns[0]: 'Ticker'}, inplace=True)
-             
         return df_m, df_u, df_h
     except Exception as e:
         return None, None, None
@@ -94,25 +74,20 @@ def load_data():
 df_master, df_unified, df_history = load_data()
 
 if df_unified is None:
-    st.error("🚨 Link Connection Error: Please check your Google Sheet CSV links (especially the new Master List).")
+    st.error("🚨 Link Connection Error: Check your CSV links.")
     st.stop()
 
 # --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
     st.header("🛡️ Simulator")
-    
-    # Ticker Selection
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
-    
     st.markdown("---")
     
-    # 1. Start Date
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
 
-    # 2. End Date Logic
     date_mode = st.radio("Simulation End Point:", ["Hold to Present", "Sell on Specific Date"])
     if date_mode == "Sell on Specific Date":
         end_date = st.date_input("Sell Date", pd.to_datetime("today"))
@@ -122,10 +97,7 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # 3. Position Size
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
-    
-    # 4. Data Filtering Logic
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
     journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
     
@@ -138,7 +110,7 @@ with st.sidebar:
             shares = float(dollars) / entry_price
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
-        st.error("No data available for this date range.")
+        st.error("No data available.")
         st.stop()
 
 # --- 5. CALCULATIONS ---
@@ -160,42 +132,40 @@ initial_cap = entry_price * shares
 current_market_val = journey.iloc[-1]['Market_Value']
 cash_total = journey.iloc[-1]['Cash_Banked']
 current_total_val = journey.iloc[-1]['True_Value']
-
-# Deltas
 market_pl = current_market_val - initial_cap
 total_pl = current_total_val - initial_cap
 total_return_pct = (total_pl / initial_cap) * 100
 
-# Chart Color Logic
 start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
-# --- 6. DASHBOARD HEADER (THE UPGRADE) ---
+# --- 6. DASHBOARD HEADER (THE FIX) ---
 
-# Fetch Metadata from Master List
+# Fetch Metadata safely
 try:
+    # We stripped whitespace earlier, so 'Company' and 'Underlying Asset' will now match
     meta_row = df_master[df_master['Ticker'] == selected_ticker].iloc[0]
-    # Check column names match your CSV exactly, adjust if needed
     underlying = meta_row.get('Underlying Asset', 'Unknown Asset') 
     issuer = meta_row.get('Company', 'Unknown Issuer')
 except:
-    underlying = "Unknown Asset"
-    issuer = "Unknown Issuer"
+    underlying = "-"
+    issuer = "-"
 
-# Render The Custom Header
+# Clean Text Header
+# I removed the dark boxes. It is now clean text that sits on your background.
 st.markdown(f"""
     <div class="metric-container">
         <div class="ticker-title">{selected_ticker} Simulator</div>
         <div class="badge-group">
-            <div class="meta-badge">UNDERLYING: <span class="highlight">{underlying}</span></div>
-            <div class="meta-badge">ISSUER: <span class="highlight">{issuer}</span></div>
+            <p class="meta-text">Underlying: <b>{underlying}</b></p>
+            <p class="meta-text">Issuer: <b>{issuer}</b></p>
         </div>
     </div>
 """, unsafe_allow_html=True)
 
 
-# Metrics Row
+# Metrics
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
@@ -204,15 +174,11 @@ m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 
 # --- 7. CHART ---
 fig = go.Figure()
-
-# Price Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='Price Only',
+    mode='lines', name='Price only',
     line=dict(color=price_line_color, width=2)
 ))
-
-# True Value Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
     mode='lines', name='True Value (Price + Divs)',
@@ -220,9 +186,7 @@ fig.add_trace(go.Scatter(
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
 ))
-
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
-
 fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
@@ -239,9 +203,7 @@ fig.update_layout(
     ),
     hovermode="x unified"
 )
-
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
-# Data breakdown
 with st.expander("View Data"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True, height=200)
