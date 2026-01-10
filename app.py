@@ -11,245 +11,193 @@ st.set_page_config(
 
 # --- 2. THE STYLING ---
 st.markdown("""
-<style>
-/* A. GLOBAL STYLES & LAYOUT FIXES */
-.stApp {
-    background-color: #0D1117;
-    color: #E6EDF3;
-}
-::-webkit-scrollbar {
-    display: none !important;
-}
-/* VACUUM SEAL: Remove padding */
-.block-container {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
-}
-.element-container {
-    margin-bottom: 0.2rem !important;
-}
-/* B. COMPONENT STYLING */
-div[data-testid="stMetric"] {
-    background-color: #1E293B;
-    border: 1px solid #30363d;
-    border-radius: 10px;
-    padding: 8px 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    min-height: 80px;
-    transition: transform 0.2s;
-}
-/* SLOT 4: Annualized Yield (Gold Highlight) */
-div[data-testid="column"]:nth-of-type(4) div[data-testid="stMetric"] {
-    background-color: #1a2e35 !important;
-    border: 1px solid #F59E0B !important;
-}
-/* SLOT 5: True Total Value (THE BIG ONE) */
-div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetric"] {
-    background-color: #0D1117 !important;
-    border: 2px solid #00C805 !important;
-    transform: scale(1.15);
-    z-index: 10;
-    margin-left: 10px;
-}
-div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricValue"] div {
-    font-size: 1.8rem !important;
-}
-/* METRIC TEXT */
-div[data-testid="stMetricLabel"] p {
-    color: #8AC7DE !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-}
-div[data-testid="stMetricValue"] div {
-    color: #FFFFFF !important;
-    font-size: 1.5rem !important;
-    font-weight: 700 !important;
-}
-/* DELTA (COLORED NUMBERS) STYLING */
-div[data-testid="stMetricDelta"] svg {
-    transform: scale(1.2);
-}
-div[data-testid="stMetricDelta"] > div {
-    font-size: 1.1rem !important;
-    font-weight: 800 !important;
-    filter: brightness(1.2);
-}
-/* --- TOOLTIP ICON (The Question Mark) --- */
-[data-testid="stMetricLabel"] svg {
-    fill: #E6EDF3 !important;
-    opacity: 0.9 !important;
-    width: 16px !important;
-    height: 16px !important;
-}
-[data-testid="stMetricLabel"]:hover svg {
-    fill: #F59E0B !important;
-    opacity: 1.0 !important;
-}
-/* --- TOOLTIP POPUP BOX FIX --- */
-div[role="tooltip"] {
-    background-color: #1E293B !important;
-    color: #FFFFFF !important;
-    border: 1px solid #8AC7DE !important;
-    border-radius: 6px !important;
-    font-size: 0.9rem !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
-}
-div[role="tooltip"] > div {
-    background-color: #1E293B !important;
-}
-/* ========================================= THE CALENDAR "EVERYTHING" FIX ========================================= */
-/* 1. The Main Calendar Container */
-div[data-baseweb="calendar"] {
-    background-color: #1E293B !important;
-    color: #FFFFFF !important;
-    border: 1px solid #30363d !important;
-}
-/* 2. The Header (Month/Year display) */
-div[data-baseweb="calendar"] > div {
-    background-color: #1E293B !important;
-}
-/* 3. The Dropdowns INSIDE the Calendar (Month/Year Selectors) */
-div[data-baseweb="select"] div {
-    color: #FFFFFF !important;
-}
-/* 4. THE DROPDOWN MENU ITSELF (The Popover list of months) - THIS WAS THE ISSUE */
-ul[role="listbox"], div[data-baseweb="menu"] {
-    background-color: #1E293B !important;
-    border: 1px solid #30363d !important;
-}
-/* 5. The Items inside the Dropdown (Jan, Feb, Mar...) */
-li[role="option"] {
-    color: #FFFFFF !important; /* White Text */
-    background-color: #1E293B !important; /* Dark BG */
-}
-/* 6. Hover/Selected State for Dropdown Items */
-li[role="option"]:hover, li[role="option"][aria-selected="true"] {
-    background-color: #8AC7DE !important; /* Blue Highlight */
-    color: #0D1117 !important; /* Dark Text on Blue */
-    font-weight: bold !important;
-}
-/* 7. Navigation Arrows (< >) */
-div[data-baseweb="calendar"] button svg {
-    fill: #8AC7DE !important;
-}
-div[data-baseweb="calendar"] button {
-    background-color: transparent !important;
-}
-/* 8. Day Names (Su, Mo, Tu...) */
-div[data-baseweb="calendar"] div[role="grid"] div {
-    color: #E6EDF3 !important;
-}
-/* 9. The Day Numbers */
-div[data-baseweb="calendar"] button[aria-label] {
-    color: #FFFFFF !important;
-}
-/* 10. Selected Day */
-div[data-baseweb="calendar"] [aria-selected="true"] {
-    background-color: #8AC7DE !important;
-    color: #0D1117 !important;
-    font-weight: bold !important;
-}
-/* 11. Hover Day */
-div[data-baseweb="calendar"] [aria-selected="false"]:hover {
-    background-color: #30363d !important;
-    color: #FFFFFF !important;
-}
-/* ========================================= */
-/* TEXT OVERRIDES */
-h1, h2, h3, h4, h5, h6, p, label {
-    color: #E6EDF3 !important;
-}
-/* INPUTS & SELECTS GLOBAL */
-div[data-baseweb="select"] > div, div[data-testid="stDateInput"] > div, div[data-baseweb="input"] > div {
-    background-color: #1E293B !important;
-    border-color: #30363d !important;
-    color: #FFFFFF !important;
-    font-weight: bold !important;
-    border-radius: 6px !important;
-    min-height: 40px !important;
-}
-input {
-    color: #FFFFFF !important;
-    font-weight: bold !important;
-}
-.stSelectbox svg, .stDateInput svg {
-    fill: #8AC7DE !important;
-}
-/* SIDEBAR COMPACTING */
-.stSidebar .element-container {
-    margin-top: 0rem !important;
-    margin-bottom: 0.5rem !important;
-}
-.stSidebar .stSelectbox, .stSidebar .stDateInput, .stSidebar .stRadio, .stSidebar .stNumberInput {
-    padding-top: 0rem !important;
-    padding-bottom: 0rem !important;
-}
-/* C. DESKTOP LAYOUT LOCK (Min-width 1200px) */
-@media (min-width: 1200px) {
-    section[data-testid="stSidebar"] {
-        width: 300px !important;
-        min-width: 300px !important;
-        height: 100vh !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        background-color: #0D1117 !important;
-        border-right: 1px solid #30363d !important;
-        z-index: 9999 !important;
-        transform: none !important;
-        padding-top: 1rem !important;
-    }
-    section[data-testid="stSidebar"] h2 {
-        padding-top: 0rem !important;
-        margin-top: 0rem !important;
-        margin-bottom: 1rem !important;
-    }
-    section[data-testid="stMain"] {
-        margin-left: 300px !important;
-        width: calc(100% - 300px) !important;
-        position: relative !important;
-        display: block !important;
-    }
+    <style>
+    /* A. GLOBAL STYLES & LAYOUT FIXES */
+    .stApp { background-color: #0D1117; color: #E6EDF3; }
+    ::-webkit-scrollbar { display: none !important; }
+    
+    /* VACUUM SEAL: Remove padding */
     .block-container {
-        padding-left: 3rem !important;
-        padding-right: 3rem !important;
         padding-top: 1rem !important;
         padding-bottom: 1rem !important;
-        max-width: 100% !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
     }
-    header[data-testid="stHeader"], button[data-testid="stSidebarCollapseBtn"], div[data-testid="collapsedControl"] {
-        display: none !important;
+    .element-container { margin-bottom: 0.2rem !important; }
+
+    /* B. COMPONENT STYLING */
+    div[data-testid="stMetric"] {
+        background-color: #1E293B;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 8px 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        min-height: 80px; 
+        transition: transform 0.2s;
     }
-}
-/* D. MOBILE LAYOUT (Max-width 1199px) */
-@media (max-width: 1199px) {
-    section[data-testid="stMain"] {
-        margin-left: 0 !important;
-        width: 100% !important;
+    
+    /* SLOT 4: Annualized Yield (Gold Highlight) */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="stMetric"] {
+        background-color: #1a2e35 !important;
+        border: 1px solid #F59E0B !important;
     }
-    .block-container {
-        padding-top: 4rem !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        max-width: 100vw !important;
-        min-width: 100vw !important;
-    }
-    header[data-testid="stHeader"] {
-        display: block !important;
+
+    /* SLOT 5: True Total Value (THE BIG ONE) */
+    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetric"] {
         background-color: #0D1117 !important;
-        z-index: 99999 !important;
+        border: 2px solid #00C805 !important;
+        transform: scale(1.15); 
+        z-index: 10;
+        margin-left: 10px;
     }
-    button[data-testid*="SidebarCollapseButton"], [data-testid*="collapsedControl"] {
-        display: block !important;
-        color: #E6EDF3 !important;
+    div[data-testid="column"]:nth-of-type(5) div[data-testid="stMetricValue"] div {
+        font-size: 1.8rem !important;
     }
-    [data-testid="stToolbar"] {
-        display: none !important;
+
+    /* METRIC TEXT */
+    div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; font-size: 0.85rem !important; font-weight: 600 !important; }
+    div[data-testid="stMetricValue"] div { color: #FFFFFF !important; font-size: 1.5rem !important; font-weight: 700 !important; }
+
+    /* DELTA (COLORED NUMBERS) STYLING */
+    div[data-testid="stMetricDelta"] svg { transform: scale(1.2); }
+    div[data-testid="stMetricDelta"] > div {
+        font-size: 1.1rem !important; 
+        font-weight: 800 !important;
+        filter: brightness(1.2);
     }
-}
-</style>
+    
+    /* --- TOOLTIP ICON (The Question Mark) --- */
+    [data-testid="stMetricLabel"] svg {
+        fill: #E6EDF3 !important;
+        opacity: 0.9 !important;
+        width: 16px !important;
+        height: 16px !important;
+    }
+    [data-testid="stMetricLabel"]:hover svg {
+        fill: #F59E0B !important;
+        opacity: 1.0 !important;
+    }
+
+    /* --- TOOLTIP POPUP BOX FIX --- */
+    div[role="tooltip"] {
+        background-color: #1E293B !important; 
+        color: #FFFFFF !important;             
+        border: 1px solid #8AC7DE !important;  
+        border-radius: 6px !important;
+        font-size: 0.9rem !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+    }
+    div[role="tooltip"] > div {
+        background-color: #1E293B !important;
+    }
+
+    /* =========================================
+       THE CALENDAR "EVERYTHING" FIX 
+       ========================================= */
+
+    /* 1. The Main Calendar Container */
+    div[data-baseweb="calendar"] {
+        background-color: #1E293B !important;
+        color: #FFFFFF !important;
+        border: 1px solid #30363d !important;
+    }
+
+    /* 2. The Header (Month/Year display) */
+    div[data-baseweb="calendar"] > div {
+        background-color: #1E293B !important;
+    }
+
+    /* 3. The Dropdowns INSIDE the Calendar (Month/Year Selectors) */
+    div[data-baseweb="select"] div {
+        color: #FFFFFF !important;
+    }
+    
+    /* 4. THE DROPDOWN MENU ITSELF (The Popover list of months) - THIS WAS THE ISSUE */
+    ul[role="listbox"], div[data-baseweb="menu"] {
+        background-color: #1E293B !important;
+        border: 1px solid #30363d !important;
+    }
+
+    /* 5. The Items inside the Dropdown (Jan, Feb, Mar...) */
+    li[role="option"] {
+        color: #FFFFFF !important; /* White Text */
+        background-color: #1E293B !important; /* Dark BG */
+    }
+
+    /* 6. Hover/Selected State for Dropdown Items */
+    li[role="option"]:hover, li[role="option"][aria-selected="true"] {
+        background-color: #8AC7DE !important; /* Blue Highlight */
+        color: #0D1117 !important; /* Dark Text on Blue */
+        font-weight: bold !important;
+    }
+
+    /* 7. Navigation Arrows (< >) */
+    div[data-baseweb="calendar"] button svg { fill: #8AC7DE !important; }
+    div[data-baseweb="calendar"] button { background-color: transparent !important; }
+
+    /* 8. Day Names (Su, Mo, Tu...) */
+    div[data-baseweb="calendar"] div[role="grid"] div { color: #E6EDF3 !important; }
+
+    /* 9. The Day Numbers */
+    div[data-baseweb="calendar"] button[aria-label] { color: #FFFFFF !important; }
+
+    /* 10. Selected Day */
+    div[data-baseweb="calendar"] [aria-selected="true"] {
+        background-color: #8AC7DE !important;
+        color: #0D1117 !important;
+        font-weight: bold !important;
+    }
+    
+    /* 11. Hover Day */
+    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
+        background-color: #30363d !important;
+        color: #FFFFFF !important;
+    }
+
+    /* ========================================= */
+
+    /* TEXT OVERRIDES */
+    h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
+
+    /* INPUTS & SELECTS GLOBAL */
+    div[data-baseweb="select"] > div, div[data-testid="stDateInput"] > div, div[data-baseweb="input"] > div {
+        background-color: #1E293B !important;
+        border-color: #30363d !important;
+        color: #FFFFFF !important;
+        font-weight: bold !important;
+        border-radius: 6px !important;
+        min-height: 40px !important;
+    }
+    input { color: #FFFFFF !important; font-weight: bold !important; }
+    .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
+
+    /* SIDEBAR COMPACTING */
+    .stSidebar .element-container { margin-top: 0rem !important; margin-bottom: 0.5rem !important; }
+    .stSidebar .stSelectbox, .stSidebar .stDateInput, .stSidebar .stRadio, .stSidebar .stNumberInput { padding-top: 0rem !important; padding-bottom: 0rem !important; }
+    .stSidebar .stCheckbox label { font-weight: bold; color: #8AC7DE !important; }
+
+    /* C. DESKTOP LAYOUT LOCK (Min-width 1200px) */
+    @media (min-width: 1200px) {
+        section[data-testid="stSidebar"] {
+            width: 300px !important; min-width: 300px !important; height: 100vh !important;
+            position: fixed !important; top: 0 !important; left: 0 !important;
+            background-color: #0D1117 !important; border-right: 1px solid #30363d !important;
+            z-index: 9999 !important; transform: none !important; padding-top: 1rem !important;
+        }
+        section[data-testid="stSidebar"] h2 { padding-top: 0rem !important; margin-top: 0rem !important; margin-bottom: 1rem !important; }
+        section[data-testid="stMain"] { margin-left: 300px !important; width: calc(100% - 300px) !important; position: relative !important; display: block !important; }
+        .block-container { padding-left: 3rem !important; padding-right: 3rem !important; padding-top: 1rem !important; padding-bottom: 1rem !important; max-width: 100% !important; }
+        header[data-testid="stHeader"], button[data-testid="stSidebarCollapseBtn"], div[data-testid="collapsedControl"] { display: none !important; }
+    }
+
+    /* D. MOBILE LAYOUT (Max-width 1199px) */
+    @media (max-width: 1199px) {
+        section[data-testid="stMain"] { margin-left: 0 !important; width: 100% !important; }
+        .block-container { padding-top: 4rem !important; padding-left: 1rem !important; padding-right: 1rem !important; max-width: 100vw !important; min-width: 100vw !important; }
+        header[data-testid="stHeader"] { display: block !important; background-color: #0D1117 !important; z-index: 99999 !important; }
+        button[data-testid*="SidebarCollapseButton"], [data-testid*="collapsedControl"] { display: block !important; color: #E6EDF3 !important; }
+    }
+    </style>
 """, unsafe_allow_html=True)
 
 # --- 3. DATA LOADING ---
@@ -258,8 +206,10 @@ def load_data():
     try:
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
+        
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
+        
         df_u['Date'] = pd.to_datetime(df_u['Date'])
         df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
         return df_u, df_h
@@ -268,26 +218,58 @@ def load_data():
         return None, None
 
 df_unified, df_history = load_data()
+
 if df_unified is None:
     st.stop()
 
 # --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
     st.header("🛡️ Simulator")
+    
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
-    default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
-    buy_date = st.date_input("Purchase Date", default_date)
+
+    # NEW: Filter data *now* to get inception date
+    price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
+    
+    if price_df.empty:
+        st.error("No data for this ticker.")
+        st.stop()
+        
+    inception_date = price_df['Date'].min()
+
+    # NEW: Checkbox to toggle logic
+    use_inception = st.checkbox("🚀 Start from Fund Inception", value=False)
+
+    if use_inception:
+        # If checked, set buy_date to inception and show info
+        buy_date = inception_date
+        st.markdown(f"<div style='font-size: 0.8rem; color: #8AC7DE; margin-top: -10px; margin-bottom: 10px; font-weight: bold;'>Starting: {buy_date.date()}</div>", unsafe_allow_html=True)
+    else:
+        # If unchecked, show standard manual input
+        default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
+        # Ensure default doesn't error if it's before inception
+        if default_date < inception_date:
+            default_date = inception_date
+            
+        buy_date = st.date_input("Purchase Date", default_date)
+    
     buy_date = pd.to_datetime(buy_date)
+    
+    # Sell Logic (Unaffected by the toggle above)
     date_mode = st.radio("Simulation End Point:", ["Hold to Present", "Sell on Specific Date"])
+    
     if date_mode == "Sell on Specific Date":
         end_date = st.date_input("Sell Date", pd.to_datetime("today"))
         end_date = pd.to_datetime(end_date)
     else:
         end_date = pd.to_datetime("today")
+        
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
-    price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
+    
+    # Filter Journey based on selected dates
     journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
+    
     if not journey.empty:
         entry_price = journey.iloc[0]['Closing Price']
         if mode == "Share Count":
@@ -295,6 +277,7 @@ with st.sidebar:
         else:
             dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
             shares = float(dollars) / entry_price
+        
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
         st.error("No data available for selected date range.")
@@ -318,6 +301,7 @@ initial_cap = entry_price * shares
 current_market_val = journey.iloc[-1]['Market_Value']
 cash_total = journey.iloc[-1]['Cash_Banked']
 current_total_val = journey.iloc[-1]['True_Value']
+
 market_pl = current_market_val - initial_cap
 total_pl = current_total_val - initial_cap
 total_return_pct = (total_pl / initial_cap) * 100
@@ -328,6 +312,7 @@ price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
 # Annualized Yield
 days_held = (end_date - buy_date).days
+
 if days_held > 0:
     raw_yield = cash_total / initial_cap
     annual_yield = raw_yield * (365.25 / days_held) * 100
@@ -345,94 +330,87 @@ except Exception:
 
 # --- HEADER SECTION ---
 col_head, col_meta = st.columns([1.8, 1.2])
+
 with col_head:
     st.markdown(f"""
-    <div style="margin-top: -10px;">
-        <h1 style="font-size: 2.5rem; margin-bottom: 0px; color: #E6EDF3; line-height: 1.2;">
-            {selected_ticker} <span style="color: #8AC7DE;">Performance Simulator</span>
-        </h1>
-        <p style="font-size: 1.1rem; color: #8AC7DE; opacity: 0.8; margin-top: -5px; margin-bottom: 10px;">
-            <b>{shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()} ({days_held} days)
-        </p>
-    </div>
+        <div style="margin-top: -10px;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0px; color: #E6EDF3; line-height: 1.2;">
+                {selected_ticker} <span style="color: #8AC7DE;">Performance Simulator</span>
+            </h1>
+            <p style="font-size: 1.1rem; color: #8AC7DE; opacity: 0.8; margin-top: -5px; margin-bottom: 10px;">
+                <b>{shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()} ({days_held} days)
+            </p>
+        </div>
     """, unsafe_allow_html=True)
+
 with col_meta:
     st.markdown(f"""
-    <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
-        <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1;">
-            <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Underlying</div>
-            <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_underlying}</div>
+        <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1;">
+                <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Underlying</div>
+                <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_underlying}</div>
+            </div>
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1;">
+                <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Company</div>
+                <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_company}</div>
+            </div>
         </div>
-        <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1;">
-            <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Company</div>
-            <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_company}</div>
-        </div>
-    </div>
     """, unsafe_allow_html=True)
 
 # --- 5 COLUMNS ---
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Asset Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}", help="Value of your shares held at the end of the simulation.")
-m3.metric("Dividends Collected", f"${cash_total:,.2f}")
+m3.metric("Dividends Collected", f"${cash_total:,.2f}") 
 m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
 m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
 # --- 7. CHART ---
 fig = go.Figure()
+
 # REAL TRACES (Renamed for correct Tooltip display)
 fig.add_trace(go.Scatter(
-    x=journey['Date'],
-    y=journey['Market_Value'],
-    mode='lines',
-    name='Asset Price',
-    showlegend=False,
+    x=journey['Date'], y=journey['Market_Value'],
+    mode='lines', name='Asset Price', showlegend=False,
     line=dict(color=price_line_color, width=2)
 ))
+
 fig.add_trace(go.Scatter(
-    x=journey['Date'],
-    y=journey['True_Value'],
-    mode='lines',
-    name='True Value',
-    showlegend=False,
+    x=journey['Date'], y=journey['True_Value'],
+    mode='lines', name='True Value', showlegend=False,
     line=dict(color='#00C805', width=3),
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
 ))
+
 # FAKE TRACES (For Custom Legend)
 fig.add_trace(go.Scatter(
-    x=[None],
-    y=[None],
-    mode='lines',
+    x=[None], y=[None], mode='lines', 
     name='True Value (Price + Divs)',
-    line=dict(color='#00C805', width=3),
-    showlegend=True
+    line=dict(color='#00C805', width=3), showlegend=True
 ))
+
 fig.add_trace(go.Scatter(
-    x=[None],
-    y=[None],
-    mode='lines',
+    x=[None], y=[None], mode='lines', 
     name='Asset Value (Price)',
-    line=dict(color='#8AC7DE', width=2),
-    showlegend=True
+    line=dict(color='#8AC7DE', width=2), showlegend=True
 ))
+
 fig.add_trace(go.Scatter(
-    x=[None],
-    y=[None],
-    mode='lines',
+    x=[None], y=[None], mode='lines', 
     name='Asset Value (Price)',
-    line=dict(color='#FF4B4B', width=2),
-    showlegend=True
+    line=dict(color='#FF4B4B', width=2), showlegend=True
 ))
+
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
+
 # OVERLAY (STAMP)
 profit_bg = "#00C805" if total_pl >= 0 else "#FF4B4B"
 profit_text = f"PROFIT: +${total_pl:,.2f}" if total_pl >= 0 else f"LOSS: -${abs(total_pl):,.2f}"
+
 fig.add_annotation(
-    x=0.02,
-    y=0.95,
-    xref="paper",
-    yref="paper",
+    x=0.02, y=0.95, 
+    xref="paper", yref="paper",
     text=profit_text,
     showarrow=False,
     font=dict(family="Arial Black, sans-serif", size=16, color="white"),
@@ -443,36 +421,57 @@ fig.add_annotation(
     opacity=0.9,
     align="left"
 )
+
 fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=340,
+    height=340, 
     margin=dict(l=0, r=0, t=20, b=0),
     showlegend=False,
     hovermode="x unified",
     xaxis = dict(fixedrange = True),
     yaxis = dict(fixedrange = True)
 )
+
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
 # --- COMPACT NAV DECODER BAR ---
 st.markdown("""
-<div style=" background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 5px 8px; margin-top: 2px; margin-bottom: 2px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; ">
-    <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-        <span style="color: #8b949e; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;"> Line Color Meaning * </span>
-        <span style="color: #00C805; font-weight: 800; font-size: 0.85rem;"> 💚 True Value - No DRIP (Divs + Price) </span>
-        <span style="color: #8AC7DE; font-weight: 800; font-size: 0.85rem;"> 🔵 Asset Value - Appreciation </span>
-        <span style="color: #FF4B4B; font-weight: 800; font-size: 0.85rem;"> 🔴 Asset Value - Erosion </span>
+    <div style="
+        background-color: #161b22; 
+        border: 1px solid #30363d; 
+        border-radius: 8px; 
+        padding: 5px 8px; 
+        margin-top: 2px; 
+        margin-bottom: 2px; 
+        text-align: center;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+    ">
+        <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
+            <span style="color: #8b949e; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                Line Color Meaning *
+            </span>
+            <span style="color: #00C805; font-weight: 800; font-size: 0.85rem;">
+                💚 True Value - No DRIP (Divs + Price)
+            </span>
+            <span style="color: #8AC7DE; font-weight: 800; font-size: 0.85rem;">
+                🔵 Asset Value - Appreciation
+            </span>
+            <span style="color: #FF4B4B; font-weight: 800; font-size: 0.85rem;">
+                🔴 Asset Value - Erosion
+            </span>
+        </div>
+        <div style="margin-top: 2px; font-size: 0.65rem; color: #555; font-style: italic; line-height: 1;">
+            * Status determined strictly by the purchase and sell dates selected above.
+        </div>
     </div>
-    <div style="margin-top: 2px; font-size: 0.65rem; color: #555; font-style: italic; line-height: 1;"> * Status determined strictly by the purchase and sell dates selected above. </div>
-</div>
 """, unsafe_allow_html=True)
 
 with st.expander("View Data"):
     st.dataframe(
         journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']]
-        .sort_values('Date', ascending=False),
+            .sort_values('Date', ascending=False),
         use_container_width=True,
         height=200
     )
