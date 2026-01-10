@@ -9,282 +9,126 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (MARK XVII: THE MONOLITH) ---
-# Core: #0D1117 | Accent: #8AC7DE | Tertiary: #1E293B
+# --- 2. THE "EMPIRE" STYLING (MARK XVIII: THE HEADS-UP DISPLAY) ---
 st.markdown("""
     <style>
-    /* ------------------------------------------------------------------- */
-    /* A. GLOBAL LAYOUT & COLORS */
-    /* ------------------------------------------------------------------- */
+    /* Global Text Clean up */
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
     }
-   
-    /* ------------------------------------------------------------------- */
-    /* B. PERMANENT SIDEBAR (LOCKED OPEN) */
-    /* ------------------------------------------------------------------- */
-   
-    [data-testid="stSidebar"] {
-        background-color: #0D1117;
-        border-right: 1px solid #30363d;
-        width: 300px !important; /* Fixed width */
-        min-width: 300px !important; /* Prevent collapse */
-        max-width: 300px !important;
-        transform: translateX(0) !important; /* Force visible position */
-        left: 0 !important;
-        display: flex !important; /* Ensure layout */
-        visibility: visible !important;
-        transition: none !important; /* Disable slide animation */
-        overflow-y: hidden !important; /* Prevent vertical scrolling */
-        overflow-x: hidden !important; /* Prevent horizontal scrolling */
+    
+    /* The Custom Header Box */
+    .metric-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        background-color: #161B22;
+        border-left: 5px solid #8AC7DE;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
     }
-    /* Target inner div for overflow */
-    section[data-testid="stSidebar"] > div {
-        overflow-y: hidden !important;
-        overflow-x: hidden !important;
+    
+    .ticker-title {
+        font-size: 32px;
+        font-weight: 800;
+        margin-right: 25px;
+        color: #FFFFFF;
+        line-height: 1;
     }
-    /* Hide collapse button (expanded state) */
-    button[data-testid="stSidebarCollapseButton"],
-    button[kind="collapseSidebar"] {
-        display: none !important;
+    
+    .badge-group {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
-   
-    /* Hide expand arrow (collapsed state) */
-    div[data-testid="collapsedControl"],
-    [data-testid="collapsedControl"] {
-        display: none !important;
+    
+    .meta-badge {
+        font-size: 14px;
+        font-weight: 500;
+        color: #8B949E;
+        background-color: #21262D;
+        padding: 4px 10px;
+        border-radius: 4px;
+        margin: 2px 0;
+        border: 1px solid #30363D;
+        width: fit-content;
     }
-   
-    /* Prevent any collapse behavior */
-    [data-testid="stSidebarNav"] {
-        pointer-events: none !important;
-    }
-   
-    /* Compact sidebar content */
-    section[data-testid="stSidebar"] > div > div > div > div.block-container {
-        padding-top: 0.2rem !important;
-        padding-bottom: 0.2rem !important;
-        padding-left: 0.8rem !important; /* Slightly reduced for horizontal fit */
-        padding-right: 0.8rem !important; /* Slightly reduced for horizontal fit */
-    }
-   
-    /* Reduce margins between elements in sidebar */
-    .stSidebar .element-container,
-    .stSidebar .stSelectbox,
-    .stSidebar .stDateInput,
-    .stSidebar .stRadio,
-    .stSidebar .stNumberInput,
-    .stSidebar .stMarkdown,
-    .stSidebar .stInfo {
-        margin-top: 0.2rem !important;
-        margin-bottom: 0.2rem !important;
-    }
-   
-    /* Compact headers and labels */
-    .stSidebar h2 {
-        margin-top: 0.2rem !important;
-        margin-bottom: 0.2rem !important;
-        font-size: 1.2rem !important; /* Slightly smaller for fit */
-    }
-    .stSidebar label {
-        margin-bottom: 0.1rem !important;
-        font-size: 0.9rem !important; /* Slightly smaller for fit */
-    }
-   
-    /* Make horizontal rules thinner */
-    .stSidebar hr {
-        margin: 0.2rem 0 !important;
-        border-top: 1px solid #30363d !important;
-    }
-   
-    /* ------------------------------------------------------------------- */
-    /* C. HEADER FIX (NO WHITE BANNER) */
-    /* ------------------------------------------------------------------- */
-   
-    /* Completely hide the header bar */
-    header[data-testid="stHeader"] {
-        display: none !important;
-    }
-   
-    /* Hide Toolbar & Decoration */
-    [data-testid="stToolbar"] {display: none !important;}
-    [data-testid="stDecoration"] {display: none !important;}
-    footer {display: none !important;}
-   
-    /* Adjust main content to start from top */
-    .main {
-        padding-top: 0 !important;
-    }
-   
-    /* ------------------------------------------------------------------- */
-    /* D. DROPDOWN VISIBILITY (HIGH CONTRAST) */
-    /* ------------------------------------------------------------------- */
-   
-    /* The Box you click */
-    div[data-baseweb="select"] > div,
-    div[data-testid="stDateInput"] > div,
-    div[data-baseweb="input"] > div {
-        background-color: #1E293B !important;
-        border-color: #30363d !important;
-        color: #FFFFFF !important;
-        font-weight: bold !important; /* Bolder text for better visibility */
-    }
-   
-    /* The Text inside input boxes */
-    input {
-        color: #FFFFFF !important;
-        font-weight: bold !important;
-    }
-   
-    /* THE POPUP MENU (Dark Background, White Text) - Higher specificity */
-    div[data-baseweb="popover"],
-    div[data-baseweb="menu"] {
-        background-color: #1E293B !important;
-        border: 1px solid #30363d !important;
-    }
-   
-    /* Nested menu structure for override */
-    div[data-baseweb="popover"] > div[data-baseweb="menu"] {
-        background-color: #1E293B !important;
-        border: 1px solid #30363d !important;
-    }
-   
-    div[data-baseweb="menu"] > ul[role="listbox"] {
-        background-color: #1E293B !important;
-        border: none !important;
-    }
-   
-    /* The List Items */
-    ul[role="listbox"] > li[role="option"] {
-        background-color: #1E293B !important;
-        color: #FFFFFF !important;
-        font-weight: bold !important; /* Bolder text */
-        padding: 12px !important; /* More padding for readability */
-    }
-   
-    /* Hover Highlight (Blue Background, Dark Text) */
-    ul[role="listbox"] > li[role="option"]:hover,
-    ul[role="listbox"] > li[role="option"][aria-selected="true"] {
-        background-color: #8AC7DE !important;
-        color: #0D1117 !important;
-    }
-   
-    /* Icons */
-    .stSelectbox svg, .stDateInput svg {
-        fill: #8AC7DE !important;
-    }
-    /* ------------------------------------------------------------------- */
-    /* E. RADIO BUTTONS (REVERTED TO CIRCLES) */
-    /* ------------------------------------------------------------------- */
-    div[role="radiogroup"] label {
-        color: #E6EDF3 !important;
-    }
-    /* ------------------------------------------------------------------- */
-    /* F. ANTI-SCROLL (COMPACT LAYOUT) */
-    /* ------------------------------------------------------------------- */
-   
-    /* Push content up to the very top */
-    .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 0rem !important;
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
-        max-width: 100%;
-    }
-   
-    /* Hide Scrollbars */
-    ::-webkit-scrollbar {
-        display: none;
-    }
-   
-    /* ------------------------------------------------------------------- */
-    /* G. METRICS & TEXT */
-    /* ------------------------------------------------------------------- */
-    h1, h2, h3, h4, h5, h6, p, label {
-        color: #E6EDF3 !important;
-    }
-   
-    div[data-testid="stMetric"] {
-        background-color: #1E293B;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 10px;
-    }
-    div[data-testid="stMetricLabel"] p {
-        color: #8AC7DE !important;
-    }
-    div[data-testid="stMetricValue"] div {
-        color: #FFFFFF !important;
+    
+    .highlight {
+        color: #8AC7DE;
+        font-weight: 700;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA LOADING ---
+# --- 3. DATA LOADING (NOW WITH MASTER LIST "THE BRAIN") ---
 @st.cache_data(ttl=300)
 def load_data():
     try:
+        # ⚠️ PASTE YOUR NEW MASTER LIST CSV LINK HERE ⚠️
+        m_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=618318322&single=true&output=csv" 
+        
+        # Keep your existing links
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
-       
+        
+        df_m = pd.read_csv(m_url)
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
-       
+        
+        # Clean Data
         df_u['Date'] = pd.to_datetime(df_u['Date'])
         df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
-        return df_u, df_h
+        
+        # Normalize Ticker Column Names if needed
+        if 'Ticker' not in df_m.columns:
+             # Fallback if column A is unnamed or different in Master List
+             df_m.rename(columns={df_m.columns[0]: 'Ticker'}, inplace=True)
+             
+        return df_m, df_u, df_h
     except Exception as e:
-        return None, None
+        return None, None, None
 
-df_unified, df_history = load_data()
+df_master, df_unified, df_history = load_data()
+
 if df_unified is None:
-    st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
+    st.error("🚨 Link Connection Error: Please check your Google Sheet CSV links (especially the new Master List).")
     st.stop()
-
-# Metadata mapping (add more tickers as needed; ideally, load from another sheet)
-metadata = {
-    'AAPW': {'underlying': 'AAPL', 'issuer': 'Roundhill Investments'},
-    'QDTE': {'underlying': 'QQQ', 'issuer': 'Roundhill Investments'},
-    # Add other tickers here, e.g., 'ANOTHER': {'underlying': 'XYZ', 'issuer': 'Some Company'},
-    # For scalability, consider adding a third CSV load with columns: Ticker, Underlying, Issuer
-    # metadata_url = "https://docs.google.com/spreadsheets/d/e/.../pub?gid=NEW_GID&single=true&output=csv"
-    # df_metadata = pd.read_csv(metadata_url)
-    # Then use df_metadata.set_index('Ticker').to_dict('index')
-}
 
 # --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
     st.header("🛡️ Simulator")
-   
-    # Ticker
+    
+    # Ticker Selection
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
-   
+    
     st.markdown("---")
-   
+    
     # 1. Start Date
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
-   
-    # 2. End Date Logic (Reverted to Radio Buttons as requested)
+
+    # 2. End Date Logic
     date_mode = st.radio("Simulation End Point:", ["Hold to Present", "Sell on Specific Date"])
-   
     if date_mode == "Sell on Specific Date":
         end_date = st.date_input("Sell Date", pd.to_datetime("today"))
         end_date = pd.to_datetime(end_date)
     else:
         end_date = pd.to_datetime("today")
-       
+    
     st.markdown("---")
-   
+    
     # 3. Position Size
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
-   
+    
     # 4. Data Filtering Logic
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
     journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
-   
+    
     if not journey.empty:
         entry_price = journey.iloc[0]['Closing Price']
         if mode == "Share Count":
@@ -292,10 +136,9 @@ with st.sidebar:
         else:
             dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
             shares = float(dollars) / entry_price
-       
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
-        st.error("No data available.")
+        st.error("No data available for this date range.")
         st.stop()
 
 # --- 5. CALCULATIONS ---
@@ -328,19 +171,31 @@ start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
-# Get metadata for selected ticker
-if selected_ticker in metadata:
-    underlying = metadata[selected_ticker]['underlying']
-    issuer = metadata[selected_ticker]['issuer']
-else:
-    underlying = "Unknown"
-    issuer = "Unknown"
+# --- 6. DASHBOARD HEADER (THE UPGRADE) ---
 
-# --- 6. DASHBOARD ---
-# Compact Header with added info
-st.markdown(f"### {selected_ticker} Performance Simulator | Underlying: {underlying} | ETF Issuer: {issuer}")
-st.markdown(f"**{shares:.2f} shares** | {buy_date.date()} ➝ {end_date.date()}")
+# Fetch Metadata from Master List
+try:
+    meta_row = df_master[df_master['Ticker'] == selected_ticker].iloc[0]
+    # Check column names match your CSV exactly, adjust if needed
+    underlying = meta_row.get('Underlying Asset', 'Unknown Asset') 
+    issuer = meta_row.get('Company', 'Unknown Issuer')
+except:
+    underlying = "Unknown Asset"
+    issuer = "Unknown Issuer"
 
+# Render The Custom Header
+st.markdown(f"""
+    <div class="metric-container">
+        <div class="ticker-title">{selected_ticker} Simulator</div>
+        <div class="badge-group">
+            <div class="meta-badge">UNDERLYING: <span class="highlight">{underlying}</span></div>
+            <div class="meta-badge">ISSUER: <span class="highlight">{issuer}</span></div>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
+
+# Metrics Row
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
@@ -349,12 +204,14 @@ m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 
 # --- 7. CHART ---
 fig = go.Figure()
+
 # Price Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='Price only',
+    mode='lines', name='Price Only',
     line=dict(color=price_line_color, width=2)
 ))
+
 # True Value Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
@@ -363,12 +220,14 @@ fig.add_trace(go.Scatter(
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
 ))
+
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
+
 fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=380, # Compact Height
+    height=380,
     margin=dict(l=0, r=0, t=20, b=0),
     legend=dict(
         orientation="h",
@@ -376,12 +235,13 @@ fig.update_layout(
         y=1.02,
         xanchor="right",
         x=1,
-        font=dict(color="#E6EDF3")  # Force light text for visibility
+        font=dict(color="#E6EDF3")
     ),
     hovermode="x unified"
 )
+
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
-# Data breakdown (Compact)
+# Data breakdown
 with st.expander("View Data"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True, height=200)
