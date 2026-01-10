@@ -94,73 +94,24 @@ st.markdown("""
     /* =========================================
        THE CALENDAR "EVERYTHING" FIX 
        ========================================= */
-
-    /* 1. The Main Calendar Container */
-    div[data-baseweb="calendar"] {
-        background-color: #1E293B !important;
-        color: #FFFFFF !important;
-        border: 1px solid #30363d !important;
-    }
-
-    /* 2. The Header (Month/Year display) */
-    div[data-baseweb="calendar"] > div {
-        background-color: #1E293B !important;
-    }
-
-    /* 3. The Dropdowns INSIDE the Calendar (Month/Year Selectors) */
-    div[data-baseweb="select"] div {
-        color: #FFFFFF !important;
-    }
-    
-    /* 4. THE DROPDOWN MENU ITSELF (The Popover list of months) - THIS WAS THE ISSUE */
-    ul[role="listbox"], div[data-baseweb="menu"] {
-        background-color: #1E293B !important;
-        border: 1px solid #30363d !important;
-    }
-
-    /* 5. The Items inside the Dropdown (Jan, Feb, Mar...) */
-    li[role="option"] {
-        color: #FFFFFF !important; /* White Text */
-        background-color: #1E293B !important; /* Dark BG */
-    }
-
-    /* 6. Hover/Selected State for Dropdown Items */
-    li[role="option"]:hover, li[role="option"][aria-selected="true"] {
-        background-color: #8AC7DE !important; /* Blue Highlight */
-        color: #0D1117 !important; /* Dark Text on Blue */
-        font-weight: bold !important;
-    }
-
-    /* 7. Navigation Arrows (< >) */
+    div[data-baseweb="calendar"] { background-color: #1E293B !important; color: #FFFFFF !important; border: 1px solid #30363d !important; }
+    div[data-baseweb="calendar"] > div { background-color: #1E293B !important; }
+    div[data-baseweb="select"] div { color: #FFFFFF !important; }
+    ul[role="listbox"], div[data-baseweb="menu"] { background-color: #1E293B !important; border: 1px solid #30363d !important; }
+    li[role="option"] { color: #FFFFFF !important; background-color: #1E293B !important; }
+    li[role="option"]:hover, li[role="option"][aria-selected="true"] { background-color: #8AC7DE !important; color: #0D1117 !important; font-weight: bold !important; }
     div[data-baseweb="calendar"] button svg { fill: #8AC7DE !important; }
     div[data-baseweb="calendar"] button { background-color: transparent !important; }
-
-    /* 8. Day Names (Su, Mo, Tu...) */
     div[data-baseweb="calendar"] div[role="grid"] div { color: #E6EDF3 !important; }
-
-    /* 9. The Day Numbers */
     div[data-baseweb="calendar"] button[aria-label] { color: #FFFFFF !important; }
-
-    /* 10. Selected Day */
-    div[data-baseweb="calendar"] [aria-selected="true"] {
-        background-color: #8AC7DE !important;
-        color: #0D1117 !important;
-        font-weight: bold !important;
-    }
-    
-    /* 11. Hover Day */
-    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
-        background-color: #30363d !important;
-        color: #FFFFFF !important;
-    }
-
-    /* ========================================= */
+    div[data-baseweb="calendar"] [aria-selected="true"] { background-color: #8AC7DE !important; color: #0D1117 !important; font-weight: bold !important; }
+    div[data-baseweb="calendar"] [aria-selected="false"]:hover { background-color: #30363d !important; color: #FFFFFF !important; }
 
     /* TEXT OVERRIDES */
     h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
 
     /* INPUTS & SELECTS GLOBAL */
-    div[data-baseweb="select"] > div, div[data-testid="stDateInput"] > div, div[data-baseweb="input"] > div {
+    div[data-baseweb="select"] > div, div[data-testid="stDateInput"] > div, div[data-baseweb="input"] > div, div[data-baseweb="base-input"] {
         background-color: #1E293B !important;
         border-color: #30363d !important;
         color: #FFFFFF !important;
@@ -175,6 +126,9 @@ st.markdown("""
     .stSidebar .element-container { margin-top: 0rem !important; margin-bottom: 0.5rem !important; }
     .stSidebar .stSelectbox, .stSidebar .stDateInput, .stSidebar .stRadio, .stSidebar .stNumberInput { padding-top: 0rem !important; padding-bottom: 0rem !important; }
     .stSidebar .stCheckbox label { font-weight: bold; color: #8AC7DE !important; }
+
+    /* DATAFRAME FIXES FOR DARK MODE */
+    div[data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 5px; overflow: hidden; }
 
     /* C. DESKTOP LAYOUT LOCK (Min-width 1200px) */
     @media (min-width: 1200px) {
@@ -218,260 +172,305 @@ def load_data():
         return None, None
 
 df_unified, df_history = load_data()
-
 if df_unified is None:
     st.stop()
 
-# --- 4. SIDEBAR CONTROLS ---
+# ==========================================
+#         SIDEBAR & MODE SELECTION
+# ==========================================
 with st.sidebar:
-    st.header("🛡️ Simulator")
+    st.header("Simulator Config")
     
-    tickers = sorted(df_unified['Ticker'].unique())
-    selected_ticker = st.selectbox("Select Asset", tickers)
+    # THE BIG SWITCH
+    app_mode = st.radio("Select Mode", ["🛡️ Single Asset", "⚔️ Head-to-Head"], label_visibility="collapsed")
+    st.markdown("---")
 
-    # NEW: Filter data *now* to get inception date
-    price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
-    
-    if price_df.empty:
-        st.error("No data for this ticker.")
-        st.stop()
+    all_tickers = sorted(df_unified['Ticker'].unique())
+
+    # ------------------------------------
+    # MODE A: SINGLE ASSET (Legacy Logic)
+    # ------------------------------------
+    if app_mode == "🛡️ Single Asset":
+        selected_ticker = st.selectbox("Select Asset", all_tickers)
+
+        # Inception Logic
+        price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
+        if price_df.empty:
+            st.error("No data.")
+            st.stop()
         
-    inception_date = price_df['Date'].min()
+        inception_date = price_df['Date'].min()
+        use_inception = st.checkbox("🚀 Start from Inception", value=False)
 
-    # NEW: Checkbox to toggle logic
-    use_inception = st.checkbox("🚀 Start from Fund Inception", value=False)
-
-    if use_inception:
-        # If checked, set buy_date to inception and show info
-        buy_date = inception_date
-        st.markdown(f"<div style='font-size: 0.8rem; color: #8AC7DE; margin-top: -10px; margin-bottom: 10px; font-weight: bold;'>Starting: {buy_date.date()}</div>", unsafe_allow_html=True)
-    else:
-        # If unchecked, show standard manual input
-        default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
-        # Ensure default doesn't error if it's before inception
-        if default_date < inception_date:
-            default_date = inception_date
-            
-        buy_date = st.date_input("Purchase Date", default_date)
-    
-    buy_date = pd.to_datetime(buy_date)
-    
-    # Sell Logic (Unaffected by the toggle above)
-    date_mode = st.radio("Simulation End Point:", ["Hold to Present", "Sell on Specific Date"])
-    
-    if date_mode == "Sell on Specific Date":
-        end_date = st.date_input("Sell Date", pd.to_datetime("today"))
-        end_date = pd.to_datetime(end_date)
-    else:
-        end_date = pd.to_datetime("today")
-        
-    mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
-    
-    # Filter Journey based on selected dates
-    journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
-    
-    if not journey.empty:
-        entry_price = journey.iloc[0]['Closing Price']
-        if mode == "Share Count":
-            shares = st.number_input("Shares Owned", min_value=1, value=10)
+        if use_inception:
+            buy_date = inception_date
+            st.markdown(f"<div style='font-size: 0.8rem; color: #8AC7DE; margin-top: -10px; margin-bottom: 10px; font-weight: bold;'>Starting: {buy_date.date()}</div>", unsafe_allow_html=True)
         else:
-            dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
-            shares = float(dollars) / entry_price
+            default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
+            if default_date < inception_date: default_date = inception_date
+            buy_date = st.date_input("Purchase Date", default_date)
         
-        st.info(f"Entry Price: ${entry_price:.2f}")
+        buy_date = pd.to_datetime(buy_date)
+        
+        date_mode = st.radio("Simulation End:", ["Hold to Present", "Sell on Specific Date"])
+        if date_mode == "Sell on Specific Date":
+            end_date = st.date_input("Sell Date", pd.to_datetime("today"))
+            end_date = pd.to_datetime(end_date)
+        else:
+            end_date = pd.to_datetime("today")
+            
+        mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
+        
+        # Prepare Data for Main Loop
+        journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
+        
+        if not journey.empty:
+            entry_price = journey.iloc[0]['Closing Price']
+            if mode == "Share Count":
+                shares = st.number_input("Shares Owned", min_value=1, value=10)
+            else:
+                dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
+                shares = float(dollars) / entry_price
+            st.info(f"Entry Price: ${entry_price:.2f}")
+        else:
+            st.error("No data for date range.")
+            st.stop()
+
+    # ------------------------------------
+    # MODE B: HEAD-TO-HEAD (New Logic)
+    # ------------------------------------
     else:
-        st.error("No data available for selected date range.")
-        st.stop()
+        selected_tickers = st.multiselect("Select Assets to Compare", all_tickers, default=all_tickers[:2] if len(all_tickers) > 1 else all_tickers)
+        
+        st.markdown("##### Common Date Range")
+        
+        # Determine safest default date (1 year ago, or max inception)
+        # We default to 1 year ago for simplicity
+        default_start = pd.to_datetime("today") - pd.DateOffset(months=12)
+        
+        buy_date = st.date_input("Start Date", default_start)
+        buy_date = pd.to_datetime(buy_date)
+        
+        end_date = st.date_input("End Date", pd.to_datetime("today"))
+        end_date = pd.to_datetime(end_date)
+        
+        # Note on Normalization
+        st.info("Performance normalized to Total Return % (Price + Dividends).")
 
-# --- 5. CALCULATIONS ---
-div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
-my_divs = div_df[(div_df['Date of Pay'] >= buy_date) & (div_df['Date of Pay'] <= end_date)].copy()
-my_divs['CumDiv'] = my_divs['Amount'].cumsum()
 
-def get_total_div(d):
-    rows = my_divs[my_divs['Date of Pay'] <= d]
-    return rows['CumDiv'].iloc[-1] if not rows.empty else 0.0
+# ==========================================
+#           MAIN PAGE LOGIC
+# ==========================================
 
-journey['Div_Per_Share'] = journey['Date'].apply(get_total_div)
-journey['Market_Value'] = journey['Closing Price'] * shares
-journey['Cash_Banked'] = journey['Div_Per_Share'] * shares
-journey['True_Value'] = journey['Market_Value'] + journey['Cash_Banked']
+# >>>>>>>>>>>>>>> MODE A: SINGLE ASSET DASHBOARD <<<<<<<<<<<<<<<
+if app_mode == "🛡️ Single Asset":
+    
+    # 1. CALCULATIONS
+    div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
+    my_divs = div_df[(div_df['Date of Pay'] >= buy_date) & (div_df['Date of Pay'] <= end_date)].copy()
+    my_divs['CumDiv'] = my_divs['Amount'].cumsum()
 
-initial_cap = entry_price * shares
-current_market_val = journey.iloc[-1]['Market_Value']
-cash_total = journey.iloc[-1]['Cash_Banked']
-current_total_val = journey.iloc[-1]['True_Value']
+    def get_total_div(d):
+        rows = my_divs[my_divs['Date of Pay'] <= d]
+        return rows['CumDiv'].iloc[-1] if not rows.empty else 0.0
 
-market_pl = current_market_val - initial_cap
-total_pl = current_total_val - initial_cap
-total_return_pct = (total_pl / initial_cap) * 100
+    journey['Div_Per_Share'] = journey['Date'].apply(get_total_div)
+    journey['Market_Value'] = journey['Closing Price'] * shares
+    journey['Cash_Banked'] = journey['Div_Per_Share'] * shares
+    journey['True_Value'] = journey['Market_Value'] + journey['Cash_Banked']
 
-start_price = journey.iloc[0]['Closing Price']
-end_price_val = journey.iloc[-1]['Closing Price']
-price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
+    initial_cap = entry_price * shares
+    current_market_val = journey.iloc[-1]['Market_Value']
+    cash_total = journey.iloc[-1]['Cash_Banked']
+    current_total_val = journey.iloc[-1]['True_Value']
 
-# Annualized Yield
-days_held = (end_date - buy_date).days
+    market_pl = current_market_val - initial_cap
+    total_pl = current_total_val - initial_cap
+    total_return_pct = (total_pl / initial_cap) * 100
 
-if days_held > 0:
-    raw_yield = cash_total / initial_cap
-    annual_yield = raw_yield * (365.25 / days_held) * 100
-else:
-    annual_yield = 0.0
+    days_held = (end_date - buy_date).days
+    annual_yield = (cash_total/initial_cap)*(365.25/days_held)*100 if days_held > 0 else 0
 
-# --- 6. DASHBOARD ---
-try:
-    meta_row = price_df.iloc[0]
-    asset_underlying = meta_row.get('Underlying', '-')
-    asset_company = meta_row.get('Company', '-')
-except Exception:
-    asset_underlying = "-"
-    asset_company = "-"
+    # 2. HEADER
+    try:
+        meta_row = price_df.iloc[0]
+        asset_underlying = meta_row.get('Underlying', '-')
+        asset_company = meta_row.get('Company', '-')
+    except:
+        asset_underlying, asset_company = "-", "-"
 
-# --- HEADER SECTION ---
-col_head, col_meta = st.columns([1.8, 1.2])
-
-with col_head:
-    st.markdown(f"""
-        <div style="margin-top: -10px;">
-            <h1 style="font-size: 2.5rem; margin-bottom: 0px; color: #E6EDF3; line-height: 1.2;">
-                {selected_ticker} <span style="color: #8AC7DE;">Performance Simulator</span>
-            </h1>
-            <p style="font-size: 1.1rem; color: #8AC7DE; opacity: 0.8; margin-top: -5px; margin-bottom: 10px;">
-                <b>{shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()} ({days_held} days)
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col_meta:
-    st.markdown(f"""
-        <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
-            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1;">
-                <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Underlying</div>
-                <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_underlying}</div>
+    col_head, col_meta = st.columns([1.8, 1.2])
+    with col_head:
+        st.markdown(f"""
+            <div style="margin-top: -10px;">
+                <h1 style="font-size: 2.5rem; margin-bottom: 0px; color: #E6EDF3; line-height: 1.2;">
+                    {selected_ticker} <span style="color: #8AC7DE;">Performance Simulator</span>
+                </h1>
+                <p style="font-size: 1.1rem; color: #8AC7DE; opacity: 0.8; margin-top: -5px; margin-bottom: 10px;">
+                    <b>{shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()} ({days_held} days)
+                </p>
             </div>
-            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1;">
-                <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Company</div>
-                <div style="color: white; font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis;">{asset_company}</div>
+        """, unsafe_allow_html=True)
+    with col_meta:
+        st.markdown(f"""
+            <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
+                <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; flex-grow: 1;">
+                    <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase;">Underlying</div>
+                    <div style="color: white; font-size: 1.1rem; font-weight: 800;">{asset_underlying}</div>
+                </div>
+                <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; flex-grow: 1;">
+                    <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase;">Company</div>
+                    <div style="color: white; font-size: 1.1rem; font-weight: 800;">{asset_company}</div>
+                </div>
             </div>
-        </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
-# --- 5 COLUMNS ---
-m1, m2, m3, m4, m5 = st.columns(5)
-m1.metric("Initial Capital", f"${initial_cap:,.2f}")
-m2.metric("Asset Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}", help="Value of your shares held at the end of the simulation.")
-m3.metric("Dividends Collected", f"${cash_total:,.2f}") 
-m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
-m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
+    # 3. METRICS
+    m1, m2, m3, m4, m5 = st.columns(5)
+    m1.metric("Initial Capital", f"${initial_cap:,.2f}")
+    m2.metric("Asset Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
+    m3.metric("Dividends Collected", f"${cash_total:,.2f}") 
+    m4.metric("Annualized Yield", f"{annual_yield:.2f}%")
+    m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
-# --- 7. CHART ---
-fig = go.Figure()
+    # 4. SINGLE CHART
+    fig = go.Figure()
+    price_color = '#8AC7DE' if journey.iloc[-1]['Closing Price'] >= journey.iloc[0]['Closing Price'] else '#FF4B4B'
 
-# REAL TRACES (Renamed for correct Tooltip display)
-fig.add_trace(go.Scatter(
-    x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='Asset Price', showlegend=False,
-    line=dict(color=price_line_color, width=2)
-))
+    fig.add_trace(go.Scatter(x=journey['Date'], y=journey['Market_Value'], mode='lines', name='Asset Value', line=dict(color=price_color, width=2)))
+    fig.add_trace(go.Scatter(x=journey['Date'], y=journey['True_Value'], mode='lines', name='True Value', line=dict(color='#00C805', width=3), fill='tonexty', fillcolor='rgba(0, 200, 5, 0.1)'))
+    fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
 
-fig.add_trace(go.Scatter(
-    x=journey['Date'], y=journey['True_Value'],
-    mode='lines', name='True Value', showlegend=False,
-    line=dict(color='#00C805', width=3),
-    fill='tonexty',
-    fillcolor='rgba(0, 200, 5, 0.1)'
-))
+    profit_text = f"PROFIT: +${total_pl:,.2f}" if total_pl >= 0 else f"LOSS: -${abs(total_pl):,.2f}"
+    profit_bg = "#00C805" if total_pl >= 0 else "#FF4B4B"
 
-# FAKE TRACES (For Custom Legend)
-fig.add_trace(go.Scatter(
-    x=[None], y=[None], mode='lines', 
-    name='True Value (Price + Divs)',
-    line=dict(color='#00C805', width=3), showlegend=True
-))
-
-fig.add_trace(go.Scatter(
-    x=[None], y=[None], mode='lines', 
-    name='Asset Value (Price)',
-    line=dict(color='#8AC7DE', width=2), showlegend=True
-))
-
-fig.add_trace(go.Scatter(
-    x=[None], y=[None], mode='lines', 
-    name='Asset Value (Price)',
-    line=dict(color='#FF4B4B', width=2), showlegend=True
-))
-
-fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
-
-# OVERLAY (STAMP)
-profit_bg = "#00C805" if total_pl >= 0 else "#FF4B4B"
-profit_text = f"PROFIT: +${total_pl:,.2f}" if total_pl >= 0 else f"LOSS: -${abs(total_pl):,.2f}"
-
-fig.add_annotation(
-    x=0.02, y=0.95, 
-    xref="paper", yref="paper",
-    text=profit_text,
-    showarrow=False,
-    font=dict(family="Arial Black, sans-serif", size=16, color="white"),
-    bgcolor=profit_bg,
-    bordercolor=profit_bg,
-    borderwidth=1,
-    borderpad=8,
-    opacity=0.9,
-    align="left"
-)
-
-fig.update_layout(
-    template="plotly_dark",
-    paper_bgcolor='rgba(0,0,0,0)',
-    plot_bgcolor='rgba(0,0,0,0)',
-    height=340, 
-    margin=dict(l=0, r=0, t=20, b=0),
-    showlegend=False,
-    hovermode="x unified",
-    xaxis = dict(fixedrange = True),
-    yaxis = dict(fixedrange = True)
-)
-
-st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
-
-# --- COMPACT NAV DECODER BAR ---
-st.markdown("""
-    <div style="
-        background-color: #161b22; 
-        border: 1px solid #30363d; 
-        border-radius: 8px; 
-        padding: 5px 8px; 
-        margin-top: 2px; 
-        margin-bottom: 2px; 
-        text-align: center;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-    ">
-        <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-            <span style="color: #8b949e; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                Line Color Meaning *
-            </span>
-            <span style="color: #00C805; font-weight: 800; font-size: 0.85rem;">
-                💚 True Value - No DRIP (Divs + Price)
-            </span>
-            <span style="color: #8AC7DE; font-weight: 800; font-size: 0.85rem;">
-                🔵 Asset Value - Appreciation
-            </span>
-            <span style="color: #FF4B4B; font-weight: 800; font-size: 0.85rem;">
-                🔴 Asset Value - Erosion
-            </span>
-        </div>
-        <div style="margin-top: 2px; font-size: 0.65rem; color: #555; font-style: italic; line-height: 1;">
-            * Status determined strictly by the purchase and sell dates selected above.
-        </div>
-    </div>
-""", unsafe_allow_html=True)
-
-with st.expander("View Data"):
-    st.dataframe(
-        journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']]
-            .sort_values('Date', ascending=False),
-        use_container_width=True,
-        height=200
+    fig.add_annotation(
+        x=0.02, y=0.95, xref="paper", yref="paper", text=profit_text, showarrow=False,
+        font=dict(family="Arial Black, sans-serif", size=16, color="white"),
+        bgcolor=profit_bg, bordercolor=profit_bg, borderpad=8, opacity=0.9, align="left"
     )
+
+    fig.update_layout(
+        template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+        height=340, margin=dict(l=0, r=0, t=20, b=0), showlegend=False, hovermode="x unified",
+        xaxis=dict(fixedrange=True), yaxis=dict(fixedrange=True)
+    )
+    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+
+    # 5. LEGEND DECODER
+    st.markdown("""
+        <div style="background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 5px 8px; text-align: center;">
+            <span style="color: #00C805; font-weight: 800;">💚 True Value (Divs + Price)</span> &nbsp;&nbsp;
+            <span style="color: #8AC7DE; font-weight: 800;">🔵 Price Appreciation</span> &nbsp;&nbsp;
+            <span style="color: #FF4B4B; font-weight: 800;">🔴 Price Erosion</span>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    with st.expander("View Data"):
+        st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
+
+
+# >>>>>>>>>>>>>>> MODE B: HEAD-TO-HEAD COMPARISON <<<<<<<<<<<<<<<
+else:
+    st.markdown(f"""
+        <h1 style="font-size: 2.2rem; color: #E6EDF3; margin-bottom: 10px;">
+            ⚔️ <span style="color: #F59E0B;">Head-to-Head</span> Comparison
+        </h1>
+    """, unsafe_allow_html=True)
+    
+    if not selected_tickers:
+        st.warning("Please select at least one asset in the sidebar.")
+        st.stop()
+        
+    comp_data = []
+    fig_comp = go.Figure()
+    
+    # Pre-defined colors for lines to ensure they stand out
+    colors = ['#00C805', '#F59E0B', '#8AC7DE', '#FF4B4B', '#A855F7', '#EC4899', '#EAB308']
+    
+    for idx, t in enumerate(selected_tickers):
+        # 1. Get Data for Ticker
+        t_price = df_unified[df_unified['Ticker'] == t].sort_values('Date')
+        t_divs = df_history[df_history['Ticker'] == t].sort_values('Date of Pay')
+        
+        # 2. Filter Date Range
+        t_journey = t_price[(t_price['Date'] >= buy_date) & (t_price['Date'] <= end_date)].copy()
+        
+        if t_journey.empty:
+            continue
+            
+        # 3. Calculate Return
+        start_p = t_journey.iloc[0]['Closing Price']
+        
+        # Div Logic
+        t_div_subset = t_divs[(t_divs['Date of Pay'] >= buy_date) & (t_divs['Date of Pay'] <= end_date)].copy()
+        t_div_subset['CumDiv'] = t_div_subset['Amount'].cumsum()
+        
+        def get_cum_div(d):
+            r = t_div_subset[t_div_subset['Date of Pay'] <= d]
+            return r['CumDiv'].iloc[-1] if not r.empty else 0.0
+            
+        t_journey['CumDivs'] = t_journey['Date'].apply(get_cum_div)
+        
+        # Normalize to Percentage Return (True Value vs Initial Price)
+        # Formula: ((Price + CumDivs) - StartPrice) / StartPrice * 100
+        t_journey['Total_Return_Pct'] = ((t_journey['Closing Price'] + t_journey['CumDivs'] - start_p) / start_p) * 100
+        
+        # 4. Add to Chart
+        line_color = colors[idx % len(colors)]
+        fig_comp.add_trace(go.Scatter(
+            x=t_journey['Date'], 
+            y=t_journey['Total_Return_Pct'], 
+            mode='lines', 
+            name=t,
+            line=dict(color=line_color, width=3)
+        ))
+        
+        # 5. Stats for Table
+        final_ret = t_journey.iloc[-1]['Total_Return_Pct']
+        total_cash = t_journey.iloc[-1]['CumDivs']
+        yield_pct = (total_cash / start_p) * 100
+        
+        comp_data.append({
+            "Ticker": t,
+            "Total Return": final_ret,
+            "Yield Generated": yield_pct,
+            "Start Price": start_p,
+            "End Price": t_journey.iloc[-1]['Closing Price']
+        })
+        
+    # --- RENDER COMPARISON CHART ---
+    fig_comp.add_hline(y=0, line_dash="solid", line_color="white", opacity=0.5, annotation_text="Break Even")
+    
+    fig_comp.update_layout(
+        template="plotly_dark",
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        height=400,
+        margin=dict(l=0, r=0, t=30, b=0),
+        hovermode="x unified",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        yaxis_title="Total Return (%)",
+        xaxis=dict(fixedrange=True), yaxis=dict(fixedrange=True)
+    )
+    
+    st.plotly_chart(fig_comp, use_container_width=True, config={'displayModeBar': False})
+    
+    # --- RENDER LEADERBOARD ---
+    if comp_data:
+        st.markdown("### 🏆 Performance Leaderboard")
+        df_comp = pd.DataFrame(comp_data).sort_values("Total Return", ascending=False)
+        
+        # Formatting for display
+        df_display = df_comp.copy()
+        df_display['Total Return'] = df_display['Total Return'].apply(lambda x: f"{x:+.2f}%")
+        df_display['Yield Generated'] = df_display['Yield Generated'].apply(lambda x: f"{x:.2f}%")
+        df_display['Start Price'] = df_display['Start Price'].apply(lambda x: f"${x:.2f}")
+        df_display['End Price'] = df_display['End Price'].apply(lambda x: f"${x:.2f}")
+        
+        st.dataframe(
+            df_display, 
+            column_order=["Ticker", "Total Return", "Yield Generated", "Start Price", "End Price"],
+            hide_index=True,
+            use_container_width=True
+        )
