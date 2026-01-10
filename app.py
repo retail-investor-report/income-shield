@@ -1,12 +1,14 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+
 # --- 1. PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="Income Shield Simulator",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
 # --- 2. THE "EMPIRE" STYLING (MARK XVII: THE MONOLITH) ---
 # Core: #0D1117 | Accent: #8AC7DE | Tertiary: #1E293B
 st.markdown("""
@@ -27,36 +29,36 @@ st.markdown("""
         background-color: #0D1117;
         border-right: 1px solid #30363d;
         width: 300px !important; /* Fixed width */
-        min-width: 300px !important; /* Enforce minimum to prevent collapse */
-        visibility: visible !important; /* Force visibility */
-        transform: translateX(0px) !important; /* Force expanded position */
+        min-width: 300px !important; /* Prevent collapse */
+        max-width: 300px !important;
+        transform: translateX(0) !important; /* Force visible position */
+        left: 0 !important;
+        display: flex !important; /* Ensure layout */
+        visibility: visible !important;
+        transition: none !important; /* Disable slide animation */
     }
-    /* Force expanded on all screen sizes, including mobile/narrow */
-    @media (max-width: 768px) {
-        [data-testid="stSidebar"] {
-            transform: translateX(0px) !important;
-            width: 300px !important;
-        }
-    }
-    /* 1. HIDE the Close Sidebar Button (The X) - USER CANNOT CLOSE IT */
-    [data-testid="stSidebarCollapseBtn"] {
+    /* Hide collapse button (expanded state) */
+    button[data-testid="stSidebarCollapseButton"],
+    button[kind="collapseSidebar"] {
         display: none !important;
     }
    
-    /* Style the Open Sidebar Arrow (make visible with accent color if it appears) */
-    [data-testid="stSidebarCollapsedControl"] {
-        background-color: #0D1117 !important;
-        color: #E6EDF3 !important;
+    /* Hide expand arrow (collapsed state) */
+    div[data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] {
+        display: none !important;
     }
-    [data-testid="stSidebarCollapsedControl"] svg {
-        fill: #8AC7DE !important; /* Accent color for visibility */
+   
+    /* Prevent any collapse behavior */
+    [data-testid="stSidebarNav"] {
+        pointer-events: none !important;
     }
    
     /* ------------------------------------------------------------------- */
     /* C. HEADER FIX (NO WHITE BANNER) */
     /* ------------------------------------------------------------------- */
    
-    /* Completely hide the header to remove any banner/overlap */
+    /* Completely hide the header bar */
     header[data-testid="stHeader"] {
         display: none !important;
     }
@@ -65,6 +67,12 @@ st.markdown("""
     [data-testid="stToolbar"] {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
     footer {display: none !important;}
+   
+    /* Adjust main content to start from top */
+    .main {
+        padding-top: 0 !important;
+    }
+   
     /* ------------------------------------------------------------------- */
     /* D. DROPDOWN VISIBILITY (HIGH CONTRAST) */
     /* ------------------------------------------------------------------- */
@@ -76,60 +84,44 @@ st.markdown("""
         background-color: #1E293B !important;
         border-color: #30363d !important;
         color: #FFFFFF !important;
-        font-size: 16px !important; /* Increase font size for better visibility */
+        font-weight: bold !important; /* Bolder text for better visibility */
     }
    
     /* The Text inside input boxes */
     input {
         color: #FFFFFF !important;
+        font-weight: bold !important;
     }
    
-    /* THE POPUP MENU (Dark Background, White Text) - More targeted selectors */
-    div[data-baseweb="popover"], div[data-baseweb="menu"] {
+    /* THE POPUP MENU (Dark Background, White Text) - Higher specificity */
+    div[data-baseweb="popover"],
+    div[data-baseweb="menu"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
     }
-    div[data-baseweb="popover"] > div[role="presentation"] {
-        background-color: #1E293B !important; /* Target inner popover content */
+   
+    /* Nested menu structure for override */
+    div[data-baseweb="popover"] > div[data-baseweb="menu"] {
+        background-color: #1E293B !important;
+        border: 1px solid #30363d !important;
     }
-    div[data-baseweb="popover"] > div > div {
-        background-color: #1E293B !important; /* Additional nesting for inner divs */
-    }
-    div[data-baseweb="menu"] > div {
-        background-color: #1E293B !important; /* Target menu inner div */
-    }
-    div[data-baseweb="menu"] > div > ul {
-        background-color: #1E293B !important; /* Target nested ul in menu */
-    }
-    ul[role="listbox"] {
-        background-color: #1E293B !important; /* Force dark bg on list */
-    }
-    div[data-baseweb="popover"] ul[role="listbox"] {
-        background-color: #1E293B !important; /* Nested selector for reliability */
-    }
-    div[role="listbox"] {
-        background-color: #1E293B !important; /* Additional for listbox div */
-    }
-    div[role="listbox"] ul {
-        background-color: #1E293B !important; /* Target ul inside listbox */
-    }
-    .stSelectbox ul {
-        background-color: #1E293B !important; /* Streamlit-specific */
-    }
-    [data-baseweb="select"] ul {
-        background-color: #1E293B !important; /* Under select */
+   
+    div[data-baseweb="menu"] > ul[role="listbox"] {
+        background-color: #1E293B !important;
+        border: none !important;
     }
    
     /* The List Items */
-    li[role="option"] {
+    ul[role="listbox"] > li[role="option"] {
+        background-color: #1E293B !important;
         color: #FFFFFF !important;
-        font-size: 16px !important; /* Larger font for tickers */
-        padding: 10px !important; /* More padding for easier reading/clicking */
-        background-color: transparent !important; /* No white bg on items */
+        font-weight: bold !important; /* Bolder text */
+        padding: 12px !important; /* More padding for readability */
     }
    
     /* Hover Highlight (Blue Background, Dark Text) */
-    li[role="option"]:hover, li[role="option"][aria-selected="true"] {
+    ul[role="listbox"] > li[role="option"]:hover,
+    ul[role="listbox"] > li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
@@ -183,6 +175,7 @@ st.markdown("""
     }
     </style>
     """, unsafe_allow_html=True)
+
 # --- 3. DATA LOADING ---
 @st.cache_data(ttl=300)
 def load_data():
@@ -198,10 +191,12 @@ def load_data():
         return df_u, df_h
     except Exception as e:
         return None, None
+
 df_unified, df_history = load_data()
 if df_unified is None:
     st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
     st.stop()
+
 # --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
     st.header("🛡️ Simulator")
@@ -247,39 +242,48 @@ with st.sidebar:
     else:
         st.error("No data available.")
         st.stop()
+
 # --- 5. CALCULATIONS ---
 div_df = df_history[df_history['Ticker'] == selected_ticker].sort_values('Date of Pay')
 my_divs = div_df[(div_df['Date of Pay'] >= buy_date) & (div_df['Date of Pay'] <= end_date)].copy()
 my_divs['CumDiv'] = my_divs['Amount'].cumsum()
+
 def get_total_div(d):
     rows = my_divs[my_divs['Date of Pay'] <= d]
     return rows['CumDiv'].iloc[-1] if not rows.empty else 0.0
+
 journey['Div_Per_Share'] = journey['Date'].apply(get_total_div)
 journey['Market_Value'] = journey['Closing Price'] * shares
 journey['Cash_Banked'] = journey['Div_Per_Share'] * shares
 journey['True_Value'] = journey['Market_Value'] + journey['Cash_Banked']
+
 # Totals
 initial_cap = entry_price * shares
 current_market_val = journey.iloc[-1]['Market_Value']
 cash_total = journey.iloc[-1]['Cash_Banked']
 current_total_val = journey.iloc[-1]['True_Value']
+
 # Deltas
 market_pl = current_market_val - initial_cap
 total_pl = current_total_val - initial_cap
 total_return_pct = (total_pl / initial_cap) * 100
+
 # Chart Color Logic
 start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
+
 # --- 6. DASHBOARD ---
 # Compact Header
 st.markdown(f"### {selected_ticker} Performance Simulator")
 st.markdown(f"**{shares:.2f} shares** | {buy_date.date()} ➝ {end_date.date()}")
+
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
 m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
+
 # --- 7. CHART ---
 fig = go.Figure()
 # Price Line
@@ -307,6 +311,7 @@ fig.update_layout(
     hovermode="x unified"
 )
 st.plotly_chart(fig, use_container_width=True)
+
 # Data breakdown (Compact)
 with st.expander("View Data"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True, height=200)
