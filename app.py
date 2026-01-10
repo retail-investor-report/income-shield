@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "PADDING STRATEGY" STYLING ---
+# --- 2. THE "CALCULATED FIT" STYLING ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -84,19 +84,26 @@ st.markdown("""
             border-right: 1px solid #30363d !important;
             z-index: 100;
             transform: none !important;
-            padding-top: 2rem !important; /* Space at top */
         }
 
-        /* 2. MAIN CONTENT - THE PADDING FIX */
-        /* Instead of moving the container, we just pad the inside massively */
+        /* 2. MAIN CONTENT - THE CALCULATED RESIZE */
+        /* This is the "block" logic. We tell the main container to start 
+           at 300px and ONLY be as wide as the remaining screen space. */
+        .main {
+            margin-left: 300px !important;          /* Push content past sidebar */
+            width: calc(100% - 300px) !important;   /* Force shrink width */
+            display: block !important;              /* Ensure block behavior */
+        }
+        
+        /* 3. Ensure the inner container fills that calculated space */
         .main .block-container {
-            padding-left: 330px !important; /* 300px sidebar + 30px buffer */
-            padding-right: 2rem !important;
-            max-width: 100vw !important;    /* Force full width */
-            width: 100vw !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            padding-left: 3rem !important;
+            padding-right: 3rem !important;
         }
 
-        /* 3. Hide Controls */
+        /* 4. Hide Controls */
         header[data-testid="stHeader"],
         button[data-testid="stSidebarCollapseBtn"],
         div[data-testid="collapsedControl"] {
@@ -108,6 +115,10 @@ st.markdown("""
     /* C. MOBILE LAYOUT (Max-width: 767px) */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
+        .main {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
         .main .block-container {
             padding-left: 1rem !important;
             padding-right: 1rem !important;
@@ -161,7 +172,7 @@ with st.sidebar:
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
     
-    st.markdown("---")
+    # [REMOVED FIRST DIVIDER HERE]
     
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
@@ -175,7 +186,7 @@ with st.sidebar:
     else:
         end_date = pd.to_datetime("today")
         
-    # --- HERE IS YOUR DIVIDER ---
+    # [THIS IS THE ONLY DIVIDER NOW]
     st.markdown("---")
     
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
