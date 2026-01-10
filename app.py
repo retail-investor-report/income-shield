@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (FINAL DESKTOP FIX) ---
+# --- 2. THE "EMPIRE" STYLING (latest working version with desktop fix) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -68,24 +68,23 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP ONLY - Lock sidebar & fix bunching */
+    /* B. DESKTOP ONLY - Lock sidebar & perfect alignment */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
-        /* Force sidebar fixed & visible */
+        /* Sidebar fixed on left */
         [data-testid="stSidebar"] {
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
             width: 300px !important;
-            min-width: 300px !important;
-            position: fixed !important;          /* ← Key: fix position */
-            top: 0 !important;
-            left: 0 !important;
+            position: fixed !important;
+            top: 0;
+            left: 0;
             height: 100vh !important;
             z-index: 1000 !important;
-            transform: translateX(0) !important;
+            overflow-y: auto !important;
         }
 
-        /* Hide collapse controls & header on desktop */
+        /* Hide collapse & header on desktop */
         [data-testid*="SidebarCollapseBtn"],
         [data-testid*="collapsedControl"],
         header[data-testid="stHeader"],
@@ -93,19 +92,21 @@ st.markdown("""
             display: none !important;
         }
 
-        /* Push main content right - this is the fix for bunching */
+        /* Main content perfectly positioned next to sidebar */
         .main .block-container {
-            margin-left: 320px !important;       /* sidebar 300px + 20px margin */
+            margin-left: 320px !important;      /* 300px sidebar + 20px margin */
             max-width: calc(100% - 340px) !important;
-            padding-left: 2rem !important;
-            padding-right: 2rem !important;
-            padding-top: 1rem !important;
-            padding-bottom: 1rem !important;
+            padding: 1rem 2rem 2rem 1rem !important;
+        }
+
+        /* Optional polish: center content horizontally if too wide */
+        .main {
+            margin: 0 auto !important;
         }
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE ONLY - Native collapse */
+    /* C. MOBILE ONLY - Native collapse (perfect as is) */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
         header[data-testid="stHeader"] {
@@ -138,19 +139,24 @@ st.markdown("""
 @st.cache_data(ttl=300)
 def load_data():
     try:
+        # UPDATED UNIFIED DATA LINK (the one you provided)
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
+        
+        # History link (unchanged - assuming it's still correct)
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
+        
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
+        
         df_u['Date'] = pd.to_datetime(df_u['Date'])
         df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
         return df_u, df_h
     except Exception as e:
+        st.error(f"Data loading error: {str(e)}")
         return None, None
 
 df_unified, df_history = load_data()
 if df_unified is None:
-    st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
     st.stop()
 
 # --- 4. SIDEBAR CONTROLS ---
@@ -191,7 +197,7 @@ with st.sidebar:
        
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
-        st.error("No data available.")
+        st.error("No data available for selected date range.")
         st.stop()
 
 # --- 5. CALCULATIONS ---
@@ -297,4 +303,3 @@ with st.expander("View Data"):
         use_container_width=True,
         height=200
     )
-
