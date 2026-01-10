@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE STYLING (Layout Fixed + "Jazzed Up" Typography) ---
+# --- 2. THE STYLING (Compact & Jazzed Up) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -24,31 +24,26 @@ st.markdown("""
     ::-webkit-scrollbar { display: none !important; }
     
     /* ------------------------------------------------------------------- */
-    /* B. COMPONENT STYLING (METRICS & INPUTS) */
+    /* B. COMPONENT STYLING */
     /* ------------------------------------------------------------------- */
     
-    /* METRICS: Make them pop a bit more */
+    /* METRICS: Compact but popped */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
-        border-radius: 12px; /* Softer corners */
-        padding: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Subtle depth */
-        transition: transform 0.2s;
-    }
-    div[data-testid="stMetric"]:hover {
-        transform: translateY(-2px); /* Tiny lift on hover */
-        border-color: #8AC7DE;
+        border-radius: 10px;
+        padding: 10px 15px; /* Reduced vertical padding */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }
     
     div[data-testid="stMetricLabel"] p { 
         color: #8AC7DE !important; 
-        font-size: 0.9rem !important;
+        font-size: 0.85rem !important;
         font-weight: 600 !important;
     }
     div[data-testid="stMetricValue"] div { 
         color: #FFFFFF !important; 
-        font-size: 1.8rem !important; /* Bigger numbers */
+        font-size: 1.6rem !important; /* Slightly smaller for fit */
         font-weight: 700 !important;
     }
 
@@ -63,7 +58,8 @@ st.markdown("""
         border-color: #30363d !important;
         color: #FFFFFF !important;
         font-weight: bold !important;
-        border-radius: 8px !important;
+        border-radius: 6px !important;
+        min-height: 40px !important; /* Force compactness */
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
 
@@ -79,10 +75,15 @@ st.markdown("""
     }
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
-    /* SIDEBAR COMPACTING */
-    .stSidebar .element-container, .stSidebar .stSelectbox, .stSidebar .stDateInput {
-        margin-top: 0.1rem !important;
-        margin-bottom: 0.1rem !important;
+    /* SIDEBAR COMPACTING - AGGRESSIVE */
+    .stSidebar .element-container {
+        margin-top: 0rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    /* Specific overrides for widgets */
+    .stSidebar .stSelectbox, .stSidebar .stDateInput, .stSidebar .stRadio, .stSidebar .stNumberInput {
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
     }
 
     /* ------------------------------------------------------------------- */
@@ -102,6 +103,14 @@ st.markdown("""
             border-right: 1px solid #30363d !important;
             z-index: 9999 !important;
             transform: none !important;
+            padding-top: 1rem !important; /* Minimal top padding */
+        }
+        
+        /* Reduce sidebar header margin */
+        section[data-testid="stSidebar"] h2 {
+            padding-top: 0rem !important;
+            margin-top: 0rem !important;
+            margin-bottom: 1rem !important;
         }
 
         /* MAIN APP SECTION */
@@ -112,11 +121,12 @@ st.markdown("""
             display: block !important;
         }
 
-        /* INNER PADDING */
+        /* INNER PADDING - TIGHTENED */
         .block-container {
-            padding-left: 4rem !important; /* Little more breathing room */
-            padding-right: 4rem !important;
-            padding-top: 3rem !important;
+            padding-left: 3rem !important; 
+            padding-right: 3rem !important;
+            padding-top: 2rem !important; /* Pulled up significantly */
+            padding-bottom: 1rem !important;
             max-width: 100% !important;
         }
 
@@ -169,8 +179,6 @@ with st.sidebar:
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
     
-    # NO DIVIDER
-    
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
@@ -183,8 +191,6 @@ with st.sidebar:
     else:
         end_date = pd.to_datetime("today")
         
-    # NO DIVIDER
-    
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
     
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
@@ -239,38 +245,36 @@ except Exception:
     asset_underlying = "-"
     asset_company = "-"
 
-# --- NEW: BIGGER, BOLDER HEADER LAYOUT ---
+# --- HEADER SECTION (TIGHTENED) ---
 col_head, col_meta = st.columns([2.5, 1])
 
 with col_head:
-    # Using HTML for maximum control over size and weight
     st.markdown(f"""
-        <div style="margin-top: 0px;">
-            <h1 style="font-size: 3rem; margin-bottom: 0px; color: #E6EDF3;">
+        <div style="margin-top: -10px;"> <h1 style="font-size: 2.8rem; margin-bottom: 0px; color: #E6EDF3; line-height: 1.2;">
                 {selected_ticker} <span style="color: #8AC7DE;">Simulator</span>
             </h1>
-            <p style="font-size: 1.2rem; color: #8AC7DE; opacity: 0.8; margin-top: -10px;">
+            <p style="font-size: 1.1rem; color: #8AC7DE; opacity: 0.8; margin-top: -5px; margin-bottom: 10px;">
                 <b>{shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()}
             </p>
         </div>
     """, unsafe_allow_html=True)
 
 with col_meta:
-    # "Jazzed Up" Badges for Company/Underlying
+    # Compact Badges
     st.markdown(f"""
-        <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; height: 100%;">
-            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 10px; padding: 10px 15px; text-align: center; min-width: 100px;">
-                <div style="color: #8AC7DE; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Underlying</div>
-                <div style="color: white; font-size: 1.2rem; font-weight: 800;">{asset_underlying}</div>
+        <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 90px;">
+                <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Underlying</div>
+                <div style="color: white; font-size: 1.1rem; font-weight: 800;">{asset_underlying}</div>
             </div>
-            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 10px; padding: 10px 15px; text-align: center; min-width: 100px;">
-                <div style="color: #8AC7DE; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Company</div>
-                <div style="color: white; font-size: 1.2rem; font-weight: 800;">{asset_company}</div>
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 90px;">
+                <div style="color: #8AC7DE; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Company</div>
+                <div style="color: white; font-size: 1.1rem; font-weight: 800;">{asset_company}</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
-st.markdown("<div style='height: 20px'></div>", unsafe_allow_html=True) # Spacer
+# NO SPACER HERE ANYMORE
 
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
@@ -301,7 +305,7 @@ fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=450, # Made chart slightly taller to match the grander header
+    height=380, # Reduced height to prevent scroll
     margin=dict(l=0, r=0, t=30, b=0),
     legend=dict(
         orientation="h",
