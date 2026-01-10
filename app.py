@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (final desktop content resize fix) ---
+# --- 2. THE "EMPIRE" STYLING (final fix: main content no longer hidden behind sidebar) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -68,10 +68,10 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP ONLY - fixed sidebar + properly resized main content */
+    /* B. DESKTOP ONLY - fixed sidebar + main content starts correctly */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
-        /* Sidebar locked fixed, no movement, no scroll, no arrow */
+        /* Sidebar locked fixed */
         [data-testid="stSidebar"] {
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
@@ -86,44 +86,41 @@ st.markdown("""
             transform: translateX(0) !important;
         }
 
-        /* Hide all collapse/expand controls & arrows */
+        /* Hide all collapse controls */
         [data-testid*="SidebarCollapse"],
         [data-testid*="collapsedControl"],
         [data-testid*="stSidebarCollapseBtn"],
-        [data-testid*="stSidebarUserContent"] button,
         button[aria-label*="Collapse"],
         button[aria-label*="Open"],
         button[aria-label*="sidebar"],
-        button[title*="Collapse"],
-        button[title*="Expand"],
-        button[kind="primary"],
-        section[data-testid="stSidebar"] button,
-        .stSidebarUserContent button,
         svg[aria-label*="chevron"],
         svg[aria-label*="arrow"] {
             display: none !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
         }
 
         header[data-testid="stHeader"],
-        [data-testid="stToolbar"],
-        [data-testid="stDecoration"] {
+        [data-testid="stToolbar"] {
             display: none !important;
         }
 
-        /* Main content starts right after sidebar and takes ~13/16 of remaining width */
-        .main .block-container {
-            margin-left: 320px !important;           /* 300px sidebar + 20px gap */
-            margin-right: auto !important;
-            max-width: calc(100% - 340px) !important;  /* Leaves space on right */
-            width: calc(100% - 340px) !important;
-            padding: 1rem 2rem 2rem 1rem !important;
+        /* Main content starts AFTER the sidebar, no hiding */
+        .main {
+            margin-left: 300px !important;
+            box-sizing: border-box !important;
         }
 
-        .main {
-            margin: 0 auto !important;
-            width: 100% !important;
+        .main .block-container {
+            margin-left: 20px !important;               /* breathing room after sidebar */
+            max-width: calc(100vw - 320px) !important;  /* full remaining width */
+            width: calc(100vw - 320px) !important;
+            padding: 1rem 2rem 2rem 1rem !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Safety: prevent any overflow */
+        .stAppViewContainer {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
         }
     }
 
