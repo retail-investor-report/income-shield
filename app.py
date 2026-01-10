@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "CALCULATED FIT" STYLING ---
+# --- 2. THE "COMPLETELY NEW" STYLING STRATEGY ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -20,13 +20,9 @@ st.markdown("""
         color: #E6EDF3;
     }
 
-    /* Hide scrollbars globally */
-    ::-webkit-scrollbar {
-        display: none !important;
-        width: 0px !important;
-        background: transparent !important;
-    }
-
+    /* Kill Scrollbars */
+    ::-webkit-scrollbar { display: none !important; }
+    
     /* Metrics & Text */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
@@ -61,18 +57,19 @@ st.markdown("""
     }
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
-    /* Sidebar Compact Spacing */
+    /* Sidebar Spacing - Tighter */
     .stSidebar .element-container, .stSidebar .stSelectbox, .stSidebar .stDateInput {
         margin-top: 0.1rem !important;
         margin-bottom: 0.1rem !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP LAYOUT (Min-width: 768px) */
+    /* B. DESKTOP "SECTION TARGETING" (Min-width: 768px)                   */
+    /* Strategy: Target the PARENT section (stMain), not the child block.  */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         
-        /* 1. SIDEBAR: Fixed, 300px, Hidden Scrollbar */
+        /* 1. SIDEBAR: Fixed, Solid Background, High Z-Index */
         section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
@@ -82,28 +79,27 @@ st.markdown("""
             left: 0 !important;
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
-            z-index: 100;
+            z-index: 9999 !important; /* Always on top */
             transform: none !important;
         }
 
-        /* 2. MAIN CONTENT - THE CALCULATED RESIZE */
-        /* This is the "block" logic. We tell the main container to start 
-           at 300px and ONLY be as wide as the remaining screen space. */
-        .main {
-            margin-left: 300px !important;          /* Push content past sidebar */
-            width: calc(100% - 300px) !important;   /* Force shrink width */
-            display: block !important;              /* Ensure block behavior */
-        }
-        
-        /* 3. Ensure the inner container fills that calculated space */
-        .main .block-container {
-            max-width: 100% !important;
-            width: 100% !important;
-            padding-left: 3rem !important;
-            padding-right: 3rem !important;
+        /* 2. MAIN SECTION: The "Constraint" Fix */
+        /* We shrink the actual app container so it fits next to sidebar */
+        section[data-testid="stMain"] {
+            margin-left: 300px !important;         /* Start 300px right */
+            width: calc(100% - 300px) !important;  /* Shrink width */
+            position: relative !important;
+            display: block !important;
         }
 
-        /* 4. Hide Controls */
+        /* 3. INNER PADDING: Fine tune the whitespace */
+        .block-container {
+            padding-left: 3rem !important;
+            padding-right: 3rem !important;
+            max-width: 100% !important;
+        }
+
+        /* 4. REMOVE HEADER & CONTROLS */
         header[data-testid="stHeader"],
         button[data-testid="stSidebarCollapseBtn"],
         div[data-testid="collapsedControl"] {
@@ -112,23 +108,22 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE LAYOUT (Max-width: 767px) */
+    /* C. MOBILE (Max-width: 767px)                                        */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        .main {
+        section[data-testid="stMain"] {
             margin-left: 0 !important;
             width: 100% !important;
-        }
-        .main .block-container {
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-            padding-top: 4rem !important;
-            max-width: 100% !important;
         }
         section[data-testid="stSidebar"] {
             position: relative !important;
             width: 100% !important;
             transform: none;
+        }
+        .block-container {
+            padding-top: 4rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
         }
         header[data-testid="stHeader"] {
             display: block !important;
@@ -172,7 +167,7 @@ with st.sidebar:
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
     
-    # [REMOVED FIRST DIVIDER HERE]
+    # [NO DIVIDER]
     
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
@@ -186,8 +181,7 @@ with st.sidebar:
     else:
         end_date = pd.to_datetime("today")
         
-    # [THIS IS THE ONLY DIVIDER NOW]
-    st.markdown("---")
+    # [NO DIVIDER]
     
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
     
