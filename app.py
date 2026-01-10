@@ -241,8 +241,7 @@ except Exception:
     asset_underlying = "-"
     asset_company = "-"
 
-# --- HEADER SECTION (WIDER COLUMNS FOR BADGES) ---
-# Changed from [2.5, 1] to [1.8, 1.2] to give badges 40% of space
+# --- HEADER SECTION ---
 col_head, col_meta = st.columns([1.8, 1.2])
 
 with col_head:
@@ -258,7 +257,6 @@ with col_head:
     """, unsafe_allow_html=True)
 
 with col_meta:
-    # UPDATED BADGE CSS: Added flex-grow to ensure they expand
     st.markdown(f"""
         <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; height: 100%; padding-top: 5px;">
             <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 80px; max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1;">
@@ -283,38 +281,18 @@ m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 # --- 7. CHART ---
 fig = go.Figure()
 
-# REAL TRACES (Hidden from legend)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='_hidden_price', showlegend=False,
+    mode='lines', name='Asset Value',
     line=dict(color=price_line_color, width=2)
 ))
 
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
-    mode='lines', name='_hidden_true', showlegend=False,
+    mode='lines', name='True Value',
     line=dict(color='#00C805', width=3),
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
-))
-
-# FAKE TRACES (For Custom Legend)
-fig.add_trace(go.Scatter(
-    x=[None], y=[None], mode='lines', 
-    name='True Value (Price + Divs)',
-    line=dict(color='#00C805', width=3), showlegend=True
-))
-
-fig.add_trace(go.Scatter(
-    x=[None], y=[None], mode='lines', 
-    name='Asset Value (Price)',
-    line=dict(color='#8AC7DE', width=2), showlegend=True
-))
-
-fig.add_trace(go.Scatter(
-    x=[None], y=[None], mode='lines', 
-    name='Asset Value (Price)',
-    line=dict(color='#FF4B4B', width=2), showlegend=True
 ))
 
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
@@ -343,14 +321,7 @@ fig.update_layout(
     plot_bgcolor='rgba(0,0,0,0)',
     height=380,
     margin=dict(l=0, r=0, t=30, b=0),
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="right",
-        x=1,
-        font=dict(color="#E6EDF3")
-    ),
+    showlegend=False, # LEGEND REMOVED
     hovermode="x unified",
     xaxis = dict(fixedrange = True),
     yaxis = dict(fixedrange = True)
@@ -358,13 +329,13 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
-# --- COMPACT NAV DECODER BAR ---
+# --- COMPACT NAV DECODER BAR (UPDATED TEXT) ---
 st.markdown("""
     <div style="
         background-color: #161b22; 
         border: 1px solid #30363d; 
         border-radius: 8px; 
-        padding: 8px 10px; 
+        padding: 8px 10px;
         margin-top: 5px; 
         margin-bottom: 5px; 
         text-align: center;
@@ -375,13 +346,13 @@ st.markdown("""
                 Line Color Meaning *
             </span>
             <span style="color: #00C805; font-weight: 800; font-size: 0.9rem;">
-                💚 DIVS+PRICE
+                💚 TRUE VALUE (DIVS + PRICE)
             </span>
             <span style="color: #8AC7DE; font-weight: 800; font-size: 0.9rem;">
-                🔵 APPRECIATION
+                🔵 ASSET VALUE - APPRECIATION
             </span>
             <span style="color: #FF4B4B; font-weight: 800; font-size: 0.9rem;">
-                🔴 EROSION
+                🔴 ASSET VALUE - EROSION
             </span>
         </div>
         <div style="margin-top: 4px; font-size: 0.7rem; color: #555; font-style: italic; line-height: 1;">
