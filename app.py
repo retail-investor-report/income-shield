@@ -34,6 +34,16 @@ st.markdown("""
     
     div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; font-size: 0.85rem !important; font-weight: 600 !important; }
     div[data-testid="stMetricValue"] div { color: #FFFFFF !important; font-size: 1.5rem !important; font-weight: 700 !important; }
+
+    /* --- NEW: DELTA (COLORED NUMBERS) STYLING --- */
+    div[data-testid="stMetricDelta"] svg {
+        transform: scale(1.2); /* Make the arrow icon bigger */
+    }
+    div[data-testid="stMetricDelta"] > div {
+        font-size: 1.1rem !important; /* INCREASE SIZE (was default small) */
+        font-weight: 800 !important;  /* Make it extra bold */
+        filter: brightness(1.2);      /* Make the colors (red/green) pop more */
+    }
     
     /* TOOLTIP FIX */
     div[data-testid="stMetricLabel"] svg { fill: #E6EDF3 !important; opacity: 0.7; }
@@ -225,13 +235,12 @@ with col_meta:
 
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
-# RESTORED Market Value
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
 m4.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 m5.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
 
-# --- 7. CHART WITH "STAMP" OVERLAY ---
+# --- 7. CHART ---
 fig = go.Figure()
 
 fig.add_trace(go.Scatter(
@@ -250,8 +259,7 @@ fig.add_trace(go.Scatter(
 
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
 
-# NEW: "STAMP" STYLE OVERLAY
-# Solid Background, White Text
+# OVERLAY (SOLID BLOCK)
 profit_bg = "#00C805" if total_pl >= 0 else "#FF4B4B"
 profit_text = f"PROFIT: +${total_pl:,.2f}" if total_pl >= 0 else f"LOSS: -${abs(total_pl):,.2f}"
 
@@ -261,14 +269,14 @@ fig.add_annotation(
     text=profit_text,
     showarrow=False,
     font=dict(
-        family="Arial Black, sans-serif", # Heavy font
+        family="Arial Black, sans-serif",
         size=16,
-        color="white" # White text on colored bg
+        color="white"
     ),
     bgcolor=profit_bg,
     bordercolor=profit_bg,
     borderwidth=1,
-    borderpad=8, # More padding for "button" look
+    borderpad=8,
     opacity=0.9,
     align="left"
 )
