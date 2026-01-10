@@ -351,34 +351,34 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
-# --- NAV DECODER BAR (UPDATED WITH GREEN) ---
+# --- COMPACT NAV DECODER BAR (FINE PRINT VERSION) ---
 st.markdown("""
     <div style="
         background-color: #161b22; 
         border: 1px solid #30363d; 
         border-radius: 8px; 
-        padding: 15px; 
-        margin-top: 10px; 
-        margin-bottom: 20px; 
+        padding: 8px 10px; /* Reduced Padding */
+        margin-top: 5px; 
+        margin-bottom: 5px; 
         text-align: center;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
     ">
         <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px;">
-            <span style="color: #8b949e; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">
-                What does the line color mean? *
+            <span style="color: #8b949e; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                Line Color Meaning *
             </span>
-            <span style="color: #00C805; font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 10px rgba(0, 200, 5, 0.3);">
-                💚 GREEN = DIVS + PRICE
+            <span style="color: #00C805; font-weight: 800; font-size: 0.9rem;">
+                💚 DIVS+PRICE
             </span>
-            <span style="color: #8AC7DE; font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 10px rgba(138, 199, 222, 0.3);">
-                🔵 BLUE = APPRECIATION
+            <span style="color: #8AC7DE; font-weight: 800; font-size: 0.9rem;">
+                🔵 APPRECIATION
             </span>
-            <span style="color: #FF4B4B; font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 10px rgba(255, 75, 75, 0.3);">
-                🔴 RED = EROSION
+            <span style="color: #FF4B4B; font-weight: 800; font-size: 0.9rem;">
+                🔴 EROSION
             </span>
         </div>
-        <div style="margin-top: 8px; font-size: 0.75rem; color: #555; font-style: italic;">
-            * Status is determined strictly by the purchase and sell dates selected above.
+        <div style="margin-top: 4px; font-size: 0.7rem; color: #555; font-style: italic; line-height: 1;">
+            * Status determined strictly by the purchase and sell dates selected above.
         </div>
     </div>
 """, unsafe_allow_html=True)
