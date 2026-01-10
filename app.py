@@ -34,7 +34,7 @@ st.markdown("""
         border-radius: 10px;
         padding: 10px 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        min-height: 100px; /* Ensure uniform height for 5 columns */
+        min-height: 100px; /* Uniform height */
     }
     
     div[data-testid="stMetricLabel"] p { 
@@ -44,7 +44,7 @@ st.markdown("""
     }
     div[data-testid="stMetricValue"] div { 
         color: #FFFFFF !important; 
-        font-size: 1.5rem !important; /* Slightly smaller to fit 5 cols */
+        font-size: 1.5rem !important;
         font-weight: 700 !important;
     }
 
@@ -76,7 +76,7 @@ st.markdown("""
     }
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
-    /* SIDEBAR COMPACTING - AGGRESSIVE */
+    /* SIDEBAR COMPACTING */
     .stSidebar .element-container {
         margin-top: 0rem !important;
         margin-bottom: 0.5rem !important;
@@ -249,7 +249,7 @@ except Exception:
     asset_underlying = "-"
     asset_company = "-"
 
-# --- HEADER SECTION ---
+# --- HEADER SECTION (Performance Added Back) ---
 col_head, col_meta = st.columns([2.5, 1])
 
 with col_head:
@@ -278,12 +278,12 @@ with col_meta:
         </div>
     """, unsafe_allow_html=True)
 
-# --- 5 COLUMNS FOR METRICS ---
+# --- 5 COLUMNS ---
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
 m2.metric("Market Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
 m3.metric("Dividends Collected", f"${cash_total:,.2f}", f"+{cash_total:,.2f}")
-m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Extrapolated yield based on dividends received in this timeframe.")
+m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year (Average if >1yr, Extrapolated if <1yr)")
 m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
 # --- 7. CHART ---
