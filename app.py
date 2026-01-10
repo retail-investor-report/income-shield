@@ -270,37 +270,6 @@ m3.metric("Dividends Collected", f"${cash_total:,.2f}")
 m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
 m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
-# --- NEW: NAV DECODER STICKERS (The "Comic" Guide) ---
-# Placed between metrics and chart for maximum visibility
-st.markdown(f"""
-    <div style="display: flex; gap: 20px; margin-top: 15px; margin-bottom: 5px; align-items: center;">
-        <div style="
-            background: rgba(138, 199, 222, 0.1); 
-            border: 1px solid #8AC7DE; 
-            border-radius: 20px; 
-            padding: 5px 15px; 
-            color: #8AC7DE; 
-            font-weight: bold; 
-            font-size: 0.9rem;
-            display: flex; align-items: center; gap: 8px;">
-            <div style="width: 12px; height: 12px; background: #8AC7DE; border-radius: 50%;"></div>
-            BLUE LINE = APPRECIATION
-        </div>
-        <div style="
-            background: rgba(255, 75, 75, 0.1); 
-            border: 1px solid #FF4B4B; 
-            border-radius: 20px; 
-            padding: 5px 15px; 
-            color: #FF4B4B; 
-            font-weight: bold; 
-            font-size: 0.9rem;
-            display: flex; align-items: center; gap: 8px;">
-            <div style="width: 12px; height: 12px; background: #FF4B4B; border-radius: 50%;"></div>
-            RED LINE = EROSION
-        </div>
-    </div>
-""", unsafe_allow_html=True)
-
 # --- 7. CHART ---
 fig = go.Figure()
 
@@ -343,7 +312,7 @@ fig.update_layout(
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
     height=380,
-    margin=dict(l=0, r=0, t=10, b=0), # Reduced top margin since we removed title
+    margin=dict(l=0, r=0, t=30, b=0),
     legend=dict(
         orientation="h",
         yanchor="bottom",
@@ -358,6 +327,30 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
+
+# --- NEW: "NAV DECODER BAR" (BOTTOM OF CHART) ---
+# Striking, Centered, Educational
+st.markdown("""
+    <div style="
+        background-color: #161b22; 
+        border: 1px solid #30363d; 
+        border-radius: 8px; 
+        padding: 15px; 
+        margin-top: 10px; 
+        margin-bottom: 20px; 
+        text-align: center;
+    ">
+        <span style="color: #8b949e; font-size: 0.9rem; margin-right: 15px; text-transform: uppercase; letter-spacing: 1px;">
+            What does the line color mean?
+        </span>
+        <span style="color: #8AC7DE; font-weight: 900; font-size: 1.1rem; margin-right: 20px; text-shadow: 0 0 10px rgba(138, 199, 222, 0.3);">
+            🔵 BLUE = APPRECIATION
+        </span>
+        <span style="color: #FF4B4B; font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 10px rgba(255, 75, 75, 0.3);">
+            🔴 RED = EROSION
+        </span>
+    </div>
+""", unsafe_allow_html=True)
 
 with st.expander("View Data"):
     st.dataframe(
