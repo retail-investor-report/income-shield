@@ -79,7 +79,7 @@ st.markdown("""
     }
 
     /* =========================================
-       THE CALENDAR "BRUTE FORCE" FIX
+       THE CALENDAR FIX (Desktop Hover & White Blocks)
        ========================================= */
 
     /* 1. Force the Main Calendar Container Dark */
@@ -98,34 +98,44 @@ st.markdown("""
     div[data-baseweb="calendar"] button svg {
         fill: #8AC7DE !important; 
     }
-    
-    /* 4. THE GRID FIX (Removing White Squares) */
-    /* Target EVERY generic div inside the grid and make it transparent by default */
-    div[data-baseweb="calendar"] div[role="grid"] > div {
+    div[data-baseweb="calendar"] button {
         background-color: transparent !important;
-        color: #E6EDF3 !important;
-        border: none !important;
     }
 
-    /* 5. THE DAYS (Targeting elements with an aria-label, e.g., "Choose Sunday...") */
+    /* 4. THE WHITE SQUARES FIX */
+    /* Target any div in the grid that does NOT have a day label (the filler squares) */
+    div[data-baseweb="calendar"] div[role="grid"] > div:not([aria-label]) {
+        background-color: transparent !important;
+        border: none !important;
+    }
+    /* Backup: Target empty divs specifically */
+    div[data-baseweb="calendar"] div[role="grid"] > div:empty {
+        background-color: transparent !important;
+    }
+
+    /* 5. THE DAY CELLS (Normal State) */
     div[data-baseweb="calendar"] div[role="grid"] [aria-label] {
         color: #FFFFFF !important;
         background-color: transparent !important;
-        font-weight: bold !important;
+        border-radius: 50%; /* Optional: Makes hover circle nicer */
     }
 
-    /* 6. HOVER STATE (The "Ghost" Fix) */
-    /* When hovering a day that is NOT selected */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-label]:not([aria-selected="true"]):hover {
-        background-color: #30363d !important; /* Dark Grey */
-        color: #FFFFFF !important;
+    /* 6. THE HOVER FIX (Crucial for Desktop) */
+    /* This overrides the default "White on White" hover */
+    div[data-baseweb="calendar"] div[role="grid"] [aria-label]:hover {
+        background-color: #30363d !important; /* Dark Grey Background */
+        color: #FFFFFF !important; /* White Text */
+        font-weight: bold !important;
         cursor: pointer !important;
     }
-    
-    /* 7. SELECTED STATE */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-selected="true"] {
-        background-color: #8AC7DE !important; /* Blue */
+
+    /* 7. SELECTED DATE STATE (Overrides Hover) */
+    /* Keeps the selected date Blue even when you hover over it */
+    div[data-baseweb="calendar"] div[role="grid"] [aria-selected="true"],
+    div[data-baseweb="calendar"] div[role="grid"] [aria-selected="true"]:hover {
+        background-color: #8AC7DE !important;
         color: #0D1117 !important; /* Dark Text */
+        font-weight: 800 !important;
     }
 
     /* =========================================
@@ -145,7 +155,6 @@ st.markdown("""
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
-    /* Force internal text to inherit color */
     li[role="option"] * {
         color: inherit !important;
     }
