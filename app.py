@@ -79,69 +79,58 @@ st.markdown("""
     }
 
     /* =========================================
-       THE CALENDAR FIX (Desktop Hover & White Blocks)
+       THE NUCLEAR CALENDAR FIX
        ========================================= */
 
-    /* 1. Force the Main Calendar Container Dark */
+    /* 1. MAIN CONTAINER & HEADER */
     div[data-baseweb="calendar"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
-    
-    /* 2. Force the Header (Month/Year) Dark */
-    div[data-baseweb="calendar"] > div {
+    /* Force Header (Month/Year) background */
+    div[data-baseweb="calendar"] > div:first-child {
         background-color: #1E293B !important;
     }
-    
-    /* 3. Navigation Arrows (< >) */
-    div[data-baseweb="calendar"] button svg {
-        fill: #8AC7DE !important; 
-    }
-    div[data-baseweb="calendar"] button {
-        background-color: transparent !important;
-    }
+    /* Arrows */
+    div[data-baseweb="calendar"] button svg { fill: #8AC7DE !important; }
 
-    /* 4. THE WHITE SQUARES FIX */
-    /* Target any div in the grid that does NOT have a day label (the filler squares) */
-    div[data-baseweb="calendar"] div[role="grid"] > div:not([aria-label]) {
+    /* 2. THE GRID CLEANUP (Removing White Squares) */
+    /* Target EVERY SINGLE CELL in the grid and force it transparent initially. */
+    div[data-baseweb="calendar"] div[role="grid"] > div {
         background-color: transparent !important;
         border: none !important;
     }
-    /* Backup: Target empty divs specifically */
-    div[data-baseweb="calendar"] div[role="grid"] > div:empty {
-        background-color: transparent !important;
-    }
-
-    /* 5. THE DAY CELLS (Normal State) */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-label] {
+    
+    /* 3. THE VALID DAYS (Re-painting the real dates) */
+    /* Only target cells that have an aria-label (actual days) */
+    div[data-baseweb="calendar"] div[role="grid"] > div[aria-label] {
         color: #FFFFFF !important;
-        background-color: transparent !important;
-        border-radius: 50%; /* Optional: Makes hover circle nicer */
+        background-color: transparent !important; /* Default state */
     }
 
-    /* 6. THE HOVER FIX (Crucial for Desktop) */
-    /* This overrides the default "White on White" hover */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-label]:hover {
-        background-color: #30363d !important; /* Dark Grey Background */
-        color: #FFFFFF !important; /* White Text */
-        font-weight: bold !important;
+    /* 4. THE HOVER FIX (The "White on White" Ghost Fix) */
+    /* When hovering a REAL day, force background Dark Grey and Text White */
+    div[data-baseweb="calendar"] div[role="grid"] > div[aria-label]:hover {
+        background-color: #30363d !important;
+        color: #FFFFFF !important;
         cursor: pointer !important;
     }
 
-    /* 7. SELECTED DATE STATE (Overrides Hover) */
-    /* Keeps the selected date Blue even when you hover over it */
-    div[data-baseweb="calendar"] div[role="grid"] [aria-selected="true"],
-    div[data-baseweb="calendar"] div[role="grid"] [aria-selected="true"]:hover {
+    /* 5. THE SELECTED DAY */
+    /* Must override the hover rule above */
+    div[data-baseweb="calendar"] div[role="grid"] > div[aria-selected="true"] {
         background-color: #8AC7DE !important;
-        color: #0D1117 !important; /* Dark Text */
+        color: #0D1117 !important;
         font-weight: 800 !important;
     }
+    /* Ensure selected day stays Blue even on hover */
+    div[data-baseweb="calendar"] div[role="grid"] > div[aria-selected="true"]:hover {
+        background-color: #8AC7DE !important;
+        color: #0D1117 !important;
+    }
 
-    /* =========================================
-       THE DROPDOWN FIX (Year/Month Picker)
-       ========================================= */
-       
+    /* 6. DROPDOWN FIX (Month/Year Picker) */
     ul[role="listbox"] {
         background-color: #1E293B !important;
         border: 1px solid #30363d !important;
@@ -155,9 +144,7 @@ st.markdown("""
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
-    li[role="option"] * {
-        color: inherit !important;
-    }
+    li[role="option"] * { color: inherit !important; }
 
     /* ========================================= */
 
