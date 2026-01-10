@@ -273,18 +273,38 @@ m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 # --- 7. CHART ---
 fig = go.Figure()
 
+# 1. Price Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='Price only',
+    mode='lines', name='Asset Value (Price)',
     line=dict(color=price_line_color, width=2)
 ))
 
+# 2. True Value Line
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
     mode='lines', name='True Value (Price + Divs)',
     line=dict(color='#00C805', width=3),
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
+))
+
+# 3. LEGEND TRICK: Add "Fake" traces to create the Asset Value Color Key
+# These will show up in the legend but won't draw lines (visible=True but no data)
+fig.add_trace(go.Scatter(
+    x=[None], y=[None],
+    mode='lines',
+    name='Appreciation (End > Start)',
+    line=dict(color='#8AC7DE', width=2), # Blue
+    showlegend=True
+))
+
+fig.add_trace(go.Scatter(
+    x=[None], y=[None],
+    mode='lines',
+    name='Erosion (End < Start)',
+    line=dict(color='#FF4B4B', width=2), # Red
+    showlegend=True
 ))
 
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
@@ -307,28 +327,19 @@ fig.add_annotation(
     align="left"
 )
 
-# CHART LAYOUT + NEW "NAV COLOR GUIDE" TITLE
 fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
     height=380,
-    margin=dict(l=0, r=0, t=40, b=0), # Added top margin for the title
-    # --- NEW: CHART TITLE AS "LEGEND GUIDE" ---
-    title=dict(
-        text='Asset Value: <span style="color:#8AC7DE">Blue = Appreciation</span> | <span style="color:#FF4B4B">Red = Erosion</span>',
-        x=1, y=1,
-        xanchor='right',
-        yanchor='bottom',
-        font=dict(size=12, color="white")
-    ),
+    margin=dict(l=0, r=0, t=30, b=0),
     legend=dict(
         orientation="h",
         yanchor="bottom",
         y=1.02,
         xanchor="right",
         x=1,
-        font=dict(color="#E6EDF3")
+        font=dict(color="#E6EDF3", size=10) # Made font slightly smaller to fit it all
     ),
     hovermode="x unified",
     xaxis = dict(fixedrange = True),
