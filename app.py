@@ -180,62 +180,50 @@ df_unified, df_history = load_data()
 if df_unified is None:
     st.stop()
 
-# --- HELPER: COMPOUNDING ENGINE (THE SNOWBALL) ---
+# --- HELPER: COMPOUNDING ENGINE ---
 def calculate_journey(ticker, start_date, end_date, initial_shares, drip_enabled, unified_df, history_df):
-    # 1. Get Price Data
     t_price = unified_df[unified_df['Ticker'] == ticker].sort_values('Date')
     journey = t_price[(t_price['Date'] >= start_date) & (t_price['Date'] <= end_date)].copy()
     
     if journey.empty:
         return journey
         
-    # 2. Get Dividend Data
     t_divs = history_df[history_df['Ticker'] == ticker].sort_values('Date of Pay')
     relevant_divs = t_divs[(t_divs['Date of Pay'] >= start_date) & (t_divs['Date of Pay'] <= end_date)].copy()
     
-    # 3. Calculate Daily State
     journey = journey.set_index('Date')
-    
-    # Initialize Tracking Columns
     journey['Shares'] = initial_shares
     journey['Cash_Pocketed'] = 0.0
     
     current_shares = initial_shares
     cum_cash = 0.0
     
-    # --- THE COMPOUNDING LOOP ---
     if not relevant_divs.empty:
         for _, row in relevant_divs.iterrows():
             d_date = row['Date of Pay']
             d_amt = row['Amount']
             
-            # Only process if this date exists in our price journey
             if d_date in journey.index:
-                # Calculate the Payout for this specific day
-                # NOTE: current_shares grows over time if DRIP is on
                 payout = current_shares * d_amt
                 
                 if drip_enabled:
-                    # DRIP ON: Buy more shares
                     reinvest_price = journey.loc[d_date, 'Closing Price']
                     new_shares = payout / reinvest_price
                     current_shares += new_shares
-                    # Update share count for this day and all future days
                     journey.loc[d_date:, 'Shares'] = current_shares
                 else:
-                    # DRIP OFF: Put cash in pocket
                     cum_cash += payout
                     journey.loc[d_date:, 'Cash_Pocketed'] = cum_cash
 
-    # 4. Final Values
     journey = journey.reset_index()
     journey['Market_Value'] = journey['Closing Price'] * journey['Shares']
     
+    # Base Value = What your initial shares are worth today (No DRIP, No Cash)
+    journey['Base_Asset_Value'] = journey['Closing Price'] * initial_shares
+
     if drip_enabled:
-        # If DRIP, True Value is just the Market Value (Cash is inside the shares)
         journey['True_Value'] = journey['Market_Value']
     else:
-        # If Income, True Value is Shares + Cash Pocketed
         journey['True_Value'] = journey['Market_Value'] + journey['Cash_Pocketed']
     
     return journey
@@ -245,15 +233,8 @@ def calculate_journey(ticker, start_date, end_date, initial_shares, drip_enabled
 #         SIDEBAR & MODE SELECTION
 # ==========================================
 with st.sidebar:
-    # THE BIG SWITCH
     app_mode = st.radio("Select Mode", ["🛡️ Single Asset", "⚔️ Head-to-Head"], label_visibility="collapsed")
-    
     all_tickers = sorted(df_unified['Ticker'].unique())
-
-    # GLOBAL DRIP TOGGLE
-    st.markdown("---")
-    use_drip = st.checkbox("🔄 Enable DRIP", value=False, help="Reinvests all dividends back into shares on the Pay Date.")
-    st.markdown("---")
 
     # ------------------------------------
     # MODE A: SINGLE ASSET
@@ -261,7 +242,6 @@ with st.sidebar:
     if app_mode == "🛡️ Single Asset":
         selected_ticker = st.selectbox("Select Asset", all_tickers)
 
-        # Inception Logic
         price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
         if price_df.empty:
             st.error("No data.")
@@ -289,15 +269,20 @@ with st.sidebar:
             
         mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
         
+        # MOVED DRIP TOGGLE HERE (Under Input Method)
+        use_drip = st.checkbox("🔄 Enable DRIP", value=False, help="Reinvests all dividends back into shares.")
+
         # Initial Share Calculation
         temp_journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)]
         if not temp_journey.empty:
             entry_price = temp_journey.iloc[0]['Closing Price']
             if mode == "Share Count":
                 initial_shares = st.number_input("Shares Owned", min_value=1, value=10)
+                sim_amt = initial_shares * entry_price # approx
             else:
                 dollars = st.number_input("Amount Invested ($)", min_value=100, value=1000, step=100)
                 initial_shares = float(dollars) / entry_price
+                sim_amt = dollars
             st.info(f"Entry Price: ${entry_price:.2f}")
         else:
             st.error("No data for date range.")
@@ -311,15 +296,16 @@ with st.sidebar:
         
         st.markdown("##### Common Date Range")
         default_start = pd.to_datetime("today") - pd.DateOffset(months=12)
-        
         buy_date = st.date_input("Start Date", default_start)
         buy_date = pd.to_datetime(buy_date)
-        
         end_date = st.date_input("End Date", pd.to_datetime("today"))
         end_date = pd.to_datetime(end_date)
 
         st.markdown("##### Comparison Inputs")
         sim_amt = st.number_input("Hypothetical Investment ($)", value=10000, step=1000)
+        
+        # MOVED DRIP TOGGLE HERE (Under Amount)
+        use_drip = st.checkbox("🔄 Enable DRIP", value=False, help="Reinvests all dividends back into shares.")
         
         st.info(f"Leaderboard assumes ${sim_amt:,.0f} invested in each.")
 
@@ -331,7 +317,6 @@ with st.sidebar:
 # >>>>>>>>>>>>>>> MODE A: SINGLE ASSET DASHBOARD <<<<<<<<<<<<<<<
 if app_mode == "🛡️ Single Asset":
     
-    # 1. CALCULATE JOURNEY (using the Helper Function)
     journey = calculate_journey(selected_ticker, buy_date, end_date, initial_shares, use_drip, df_unified, df_history)
     
     initial_cap = entry_price * initial_shares
@@ -385,7 +370,6 @@ if app_mode == "🛡️ Single Asset":
     m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Initial Capital", f"${initial_cap:,.2f}")
     
-    # Conditional Metric Logic
     val_label = "End Asset Value" if not use_drip else "End Value (DRIP)"
     cash_label = "Dividends Collected" if not use_drip else "New Shares Acquired"
     
@@ -401,17 +385,33 @@ if app_mode == "🛡️ Single Asset":
 
     m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
-    # 4. SINGLE CHART
+    # 4. SINGLE CHART (Restored Logic)
     fig = go.Figure()
     
-    # Logic: If DRIP is ON, "True Value" line includes reinvestment growth.
+    # Trace A: The "Bottom" Line (Reference)
+    # If DRIP OFF: This is Market Value (Price Action)
+    # If DRIP ON:  This is Base Asset Value (What it would be without DRIP)
+    bottom_y = journey['Market_Value'] if not use_drip else journey['Base_Asset_Value']
     
-    fig.add_trace(go.Scatter(x=journey['Date'], y=journey['True_Value'], mode='lines', name='Total Value', line=dict(color='#00C805', width=3), fill='tonexty', fillcolor='rgba(0, 200, 5, 0.1)'))
+    # Trace B: The "Top" Line (Total Return)
+    top_y = journey['True_Value']
     
-    # Optional: If DRIP is off, show simple price line too. If DRIP is on, "Market Value" IS "True Value" so no need for 2 lines.
-    if not use_drip:
-        price_color = '#8AC7DE' if journey.iloc[-1]['Closing Price'] >= journey.iloc[0]['Closing Price'] else '#FF4B4B'
-        fig.add_trace(go.Scatter(x=journey['Date'], y=journey['Market_Value'], mode='lines', name='Asset Price', line=dict(color=price_color, width=2, dash='dot')))
+    # 1. Plot Bottom Line (Reference)
+    price_color = '#8AC7DE' if journey.iloc[-1]['Closing Price'] >= journey.iloc[0]['Closing Price'] else '#FF4B4B'
+    fig.add_trace(go.Scatter(
+        x=journey['Date'], y=bottom_y, 
+        mode='lines', name='Asset Price', 
+        line=dict(color=price_color, width=2) # Solid line for base
+    ))
+
+    # 2. Plot Top Line (Total Value) with FILL to the Bottom Line
+    fig.add_trace(go.Scatter(
+        x=journey['Date'], y=top_y, 
+        mode='lines', name='True Value', 
+        line=dict(color='#00C805', width=3), 
+        fill='tonexty', # This fills the gap between this line and the previous one (Asset Price)
+        fillcolor='rgba(0, 200, 5, 0.1)'
+    ))
     
     fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
 
@@ -441,14 +441,11 @@ if app_mode == "🛡️ Single Asset":
     """, unsafe_allow_html=True)
     
     with st.expander("View Data"):
-        st.dataframe(journey[['Date', 'Closing Price', 'Shares', 'Cash_Pocketed', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True)
+        st.dataframe(journey.sort_values('Date', ascending=False), use_container_width=True)
 
 
 # >>>>>>>>>>>>>>> MODE B: HEAD-TO-HEAD COMPARISON <<<<<<<<<<<<<<<
 else:
-    # --------------------------------------------------------
-    # NEW TITLE STYLE: Metallic Gradient with Rounded Corners
-    # --------------------------------------------------------
     st.markdown("""
         <div style="margin-bottom: 10px;">
             <h1 style="
@@ -477,16 +474,9 @@ else:
     comp_data = []
     fig_comp = go.Figure()
     
-    # Pre-defined colors for lines
     colors = ['#00C805', '#F59E0B', '#8AC7DE', '#FF4B4B', '#A855F7', '#EC4899', '#EAB308']
     
     for idx, t in enumerate(selected_tickers):
-        # 1. Calculate Journey for this ticker using the same engine
-        # To normalize, we assume an initial investment of 10,000 for the Chart calculation
-        # But for the chart % line, the specific amount doesn't matter, just the ratio.
-        # We will use the 'sim_amt' from sidebar to get accurate final values.
-        
-        # Get start price
         t_price_check = df_unified[df_unified['Ticker'] == t].sort_values('Date')
         t_price_check = t_price_check[(t_price_check['Date'] >= buy_date) & (t_price_check['Date'] <= end_date)]
         
@@ -496,18 +486,14 @@ else:
         start_p = t_price_check.iloc[0]['Closing Price']
         initial_s = sim_amt / start_p
         
-        # RUN THE ENGINE
         t_journey = calculate_journey(t, buy_date, end_date, initial_s, use_drip, df_unified, df_history)
         
         if t_journey.empty:
             continue
 
-        # 2. Normalize to Percentage Return
-        # Total Return = (True Value - Initial Cap) / Initial Cap
         initial_cap = sim_amt
         t_journey['Total_Return_Pct'] = ((t_journey['True_Value'] - initial_cap) / initial_cap) * 100
         
-        # 3. Add to Chart
         line_color = colors[idx % len(colors)]
         fig_comp.add_trace(go.Scatter(
             x=t_journey['Date'], 
@@ -517,7 +503,6 @@ else:
             line=dict(color=line_color, width=3)
         ))
         
-        # 4. Stats for Table
         final_row = t_journey.iloc[-1]
         final_ret = final_row['Total_Return_Pct']
         
@@ -525,13 +510,11 @@ else:
         cash_generated = final_row['Cash_Pocketed']
         final_total = final_row['True_Value']
         
-        # Yield is only relevant if DRIP is OFF
         if not use_drip:
             yield_pct = (cash_generated / initial_cap) * 100
         else:
-            yield_pct = 0.0 # Or we could show "Growth %"
+            yield_pct = 0.0
         
-        # DRIP SPECIFIC DATA
         shares_added = final_row['Shares'] - initial_s
         
         data_row = {
@@ -542,7 +525,7 @@ else:
         
         if use_drip:
             data_row["📈 New Shares Added"] = shares_added
-            data_row["Yield %"] = "N/A" # DRIP enabled
+            data_row["Yield %"] = "N/A"
         else:
             data_row["💰 Cash Generated"] = cash_generated
             data_row["Yield %"] = yield_pct
@@ -550,7 +533,6 @@ else:
 
         comp_data.append(data_row)
         
-    # --- RENDER COMPARISON CHART ---
     fig_comp.add_hline(y=0, line_dash="solid", line_color="white", opacity=0.5, annotation_text="Break Even")
     
     fig_comp.update_layout(
@@ -567,12 +549,10 @@ else:
     
     st.plotly_chart(fig_comp, use_container_width=True, config={'displayModeBar': False})
     
-    # --- RENDER LEADERBOARD ---
     if comp_data:
         st.markdown(f"### 🏆 Leaderboard (${sim_amt:,.0f} Investment)")
         df_comp = pd.DataFrame(comp_data).sort_values("Total Return", ascending=False)
         
-        # Formatting
         df_display = df_comp.copy()
         df_display['Total Return'] = df_display['Total Return'].apply(lambda x: f"{x:+.2f}%")
         df_display['💚 Total Value'] = df_display['💚 Total Value'].apply(lambda x: f"${x:,.2f}")
