@@ -9,18 +9,25 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (FINAL DESKTOP LOCK) ---
+# --- 2. THE "EMPIRE" STYLING (COMPACT DESKTOP / PERFECT MOBILE) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. GLOBAL COLORS (Applies everywhere) */
+    /* A. GLOBAL COLORS & SCROLLBAR HIDING */
     /* ------------------------------------------------------------------- */
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
     }
     
-    /* Sidebar Background Color */
+    /* KILL ALL SCROLLBARS (Visual Only) - Solves the "Tiny scrollbar" issue */
+    ::-webkit-scrollbar {
+        display: none !important;
+        width: 0px !important;
+        background: transparent !important;
+    }
+    
+    /* Force Sidebar Background */
     section[data-testid="stSidebar"] {
         background-color: #0D1117 !important;
         border-right: 1px solid #30363d;
@@ -64,64 +71,73 @@ st.markdown("""
     }
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
-    /* Remove Scrollbars Globally */
-    ::-webkit-scrollbar { display: none; }
-
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP MODE (Screens wider than 768px) */
+    /* B. DESKTOP MODE (> 768px) - LOCKED & COMPACT */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         
-        /* 1. HIDE THE COLLAPSE BUTTON (The "X" or "Arrow") */
-        button[data-testid="stSidebarCollapseButton"] {
-            display: none !important;
-        }
-        
-        /* 2. HIDE THE EXPAND BUTTON (The arrow that appears if collapsed) */
-        [data-testid="collapsedControl"] {
-            display: none !important;
-        }
+        /* 1. HIDE BUTTONS (Prevent Ghost Arrow) */
+        button[data-testid="stSidebarCollapseButton"] { display: none !important; }
+        [data-testid="collapsedControl"] { display: none !important; }
 
-        /* 3. LOCK SIDEBAR WIDTH & VISIBILITY */
+        /* 2. LOCK SIDEBAR & SQUEEZE CONTENT */
         section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
             max-width: 300px !important;
-            transform: none !important; /* Disable slide animation */
-            visibility: visible !important;
+            position: fixed !important;
+            top: 0 !important; left: 0 !important; bottom: 0 !important;
+            z-index: 100 !important;
+            overflow: hidden !important; /* STRICTLY NO SCROLL */
+        }
+        
+        /* 3. COMPACT SPACING (The "Squeeze") */
+        /* Reduce gap between sidebar elements */
+        section[data-testid="stSidebar"] .stElementContainer {
+            margin-bottom: 0.5rem !important; /* Tighter vertical spacing */
+        }
+        /* Reduce header size slightly in sidebar */
+        section[data-testid="stSidebar"] h2 {
+            font-size: 1.2rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+        /* Tighten the horizontal rules */
+        section[data-testid="stSidebar"] hr {
+            margin: 1em 0 !important;
         }
 
-        /* 4. HIDE HEADER (Cleaner Desktop Look) */
+        /* 4. CONTENT PADDING */
         header[data-testid="stHeader"] { display: none !important; }
         div[data-testid="stToolbar"] { display: none !important; }
-
-        /* 5. ADJUST MAIN CONTENT (Push it right by 300px) */
+        
         .main .block-container {
             margin-left: 300px !important;
             width: calc(100% - 300px) !important;
-            padding-left: 2rem !important;
-            padding-right: 2rem !important;
-            padding-top: 1rem !important;
+            padding: 2rem !important;
         }
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE MODE (Screens smaller than 768px) */
+    /* C. MOBILE MODE (< 768px) - PRESERVED & LENGTHENED */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        /* NO LAYOUT OVERRIDES HERE. 
-           We let Streamlit handle the sidebar collapse/expand naturally. 
-           Only the global colors from Section A apply. */
-           
-        /* Ensure Header is visible for the menu button */
+        /* Standard Streamlit Header for Menu Access */
         header[data-testid="stHeader"] {
             display: block !important;
             background-color: #0D1117 !important;
         }
         
-        /* Add padding so header doesn't cover content */
+        /* Ensure content is not hidden behind header */
         .main .block-container {
             padding-top: 4rem !important;
+        }
+        
+        /* ATTEMPT TO LENGTHEN APP (Remove Scroll-within-scroll) */
+        /* This tells the browser "Don't clip the app, let it grow" */
+        .stApp {
+            height: auto !important;
+            min-height: 100vh !important;
+            overflow: visible !important;
         }
     }
     </style>
@@ -131,9 +147,8 @@ st.markdown("""
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        # Link from your latest snippet
+        # LINK SOURCE: User Provided
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
-        # History link
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         
         df_u = pd.read_csv(u_url)
@@ -148,7 +163,7 @@ def load_data():
 df_unified, df_history = load_data()
 
 if df_unified is None:
-    st.error("Connection Error: Please check the Google Sheet links.")
+    st.error("Connection Error. Please refresh.")
     st.stop()
 
 # --- 4. SIDEBAR CONTROLS ---
@@ -156,6 +171,7 @@ with st.sidebar:
     st.header("🛡️ Simulator")
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
+    
     st.markdown("---")
     
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
@@ -184,7 +200,7 @@ with st.sidebar:
             shares = float(dollars) / entry_price
         st.info(f"Entry Price: ${entry_price:.2f}")
     else:
-        st.error("No data available for selected date range.")
+        st.error("No data available.")
         st.stop()
 
 # --- 5. CALCULATIONS ---
