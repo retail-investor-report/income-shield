@@ -9,37 +9,26 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (FINAL HYBRID FIX) ---
+# --- 2. THE "EMPIRE" STYLING (CLEAN HYBRID FIX) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. GLOBAL COLOR THEME (APPLIES TO BOTH MOBILE & DESKTOP) */
+    /* A. GLOBAL COLORS (Applies everywhere, safely) */
     /* ------------------------------------------------------------------- */
     
-    /* 1. Main Backgrounds */
+    /* App Background */
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
     }
     
-    /* 2. Sidebar Background - FORCED DARK ALWAYS */
+    /* Sidebar Background (Just Color, No Layout) */
     section[data-testid="stSidebar"] {
         background-color: #0D1117 !important;
         border-right: 1px solid #30363d;
     }
     
-    /* 3. Metrics & Text Colors */
-    div[data-testid="stMetric"] {
-        background-color: #1E293B;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 10px;
-    }
-    div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; }
-    div[data-testid="stMetricValue"] div { color: #FFFFFF !important; }
-    h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
-    
-    /* 4. Input Fields & Dropdowns (High Contrast) */
+    /* Inputs & Dropdowns (High Contrast) */
     div[data-baseweb="select"] > div,
     div[data-testid="stDateInput"] > div,
     div[data-baseweb="input"] > div {
@@ -50,7 +39,18 @@ st.markdown("""
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
     
-    /* 5. Popups/Menus */
+    /* Metrics */
+    div[data-testid="stMetric"] {
+        background-color: #1E293B;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; }
+    div[data-testid="stMetricValue"] div { color: #FFFFFF !important; }
+    h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
+    
+    /* Menus/Popups */
     div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
         background-color: #1E293B !important;
         border-color: #30363d !important;
@@ -66,99 +66,90 @@ st.markdown("""
     }
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
     
-    /* 6. Sidebar Spacing */
-    .stSidebar .element-container, .stSidebar .stSelectbox, .stSidebar .stDateInput {
-        margin-top: 0.2rem !important;
-        margin-bottom: 0.2rem !important;
-    }
-    
-    /* 7. Hide Scrollbars globally */
+    /* Global scrollbar hide */
     ::-webkit-scrollbar { display: none; }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP LAYOUT (> 768px) - "THE MONOLITH" */
+    /* B. DESKTOP ONLY (> 768px) */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
-        /* Lock Sidebar Open */
+        
+        /* 1. FORCE SIDEBAR FIXED & VISIBLE */
         section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
             max-width: 300px !important;
-            transform: translateX(0) !important;
-            visibility: visible !important;
             position: fixed !important;
-            left: 0 !important;
+            z-index: 100 !important;
             top: 0 !important;
+            left: 0 !important;
             bottom: 0 !important;
+            transform: none !important;
+            visibility: visible !important;
         }
         
-        /* Hide Header & Buttons */
-        header[data-testid="stHeader"] { display: none !important; }
-        button[data-testid="stSidebarCollapseButton"] { display: none !important; }
-        div[data-testid="collapsedControl"] { display: none !important; }
-        [data-testid="stToolbar"] { display: none !important; }
-        
-        /* Content Padding to avoid overlap */
-        .block-container {
-            padding-top: 1rem !important;
-            padding-left: 2rem !important;
+        /* 2. PUSH MAIN CONTENT RIGHT (Fixes the "Cut Off" issue) */
+        .main .block-container {
+            margin-left: 300px !important; /* Move content past sidebar */
+            padding-left: 2rem !important; /* Add standard padding */
             padding-right: 2rem !important;
+            max-width: calc(100% - 300px) !important; /* Prevent scroll */
         }
+
+        /* 3. HIDE HEADER/NAV */
+        header[data-testid="stHeader"] { display: none !important; }
+        div[data-testid="stToolbar"] { display: none !important; }
+        button[data-testid="stSidebarCollapseButton"] { display: none !important; }
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE LAYOUT (< 768px) - "FUNCTIONAL MODE" */
+    /* C. MOBILE ONLY (< 768px) */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        /* Restore Header & Hamburger */
+        
+        /* 1. RESTORE HEADER & HAMBURGER (So you can use the menu) */
         header[data-testid="stHeader"] {
             display: block !important;
             background-color: #0D1117 !important;
-            z-index: 999999 !important;
+            border-bottom: 1px solid #30363d;
         }
         
-        button[data-testid="stSidebarCollapseButton"] {
-            display: block !important;
-            color: #E6EDF3 !important;
-        }
-        
-        /* Allow normal collapse behavior (remove locked position) */
-        section[data-testid="stSidebar"] {
-            position: relative !important;
-            width: auto !important;
-            transform: none !important;
-        }
-        
-        /* Content Padding for Header */
-        .block-container {
-            padding-top: 4rem !important;
+        /* 2. RESET CONTENT PADDING (No "Shift Right" on mobile) */
+        .main .block-container {
+            margin-left: 0 !important;
             padding-left: 1rem !important;
             padding-right: 1rem !important;
+            padding-top: 4rem !important; /* Make room for header */
         }
+        
+        /* 3. SIDEBAR: DO NOTHING. 
+           We let Streamlit handle the width, position, and collapse animation.
+           We only touch the colors (handled in Global section). */
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA LOADING ---
+# --- 3. DATA LOADING (FIXED: NO CACHING ERRORS) ---
+# Defined outside to ensure they are clean
+URL_UNIFIED = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
+URL_HISTORY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
+
 @st.cache_data(ttl=300)
 def load_data():
-    try:
-        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
-        h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
-        
-        df_u = pd.read_csv(u_url)
-        df_h = pd.read_csv(h_url)
-        
-        df_u['Date'] = pd.to_datetime(df_u['Date'])
-        df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
-        return df_u, df_h
-    except Exception as e:
-        return None, None
+    # REMOVED try/except here. If this fails, we want it to CRASH
+    # so Streamlit does NOT cache a "None" result.
+    df_u = pd.read_csv(URL_UNIFIED)
+    df_h = pd.read_csv(URL_HISTORY)
+    
+    df_u['Date'] = pd.to_datetime(df_u['Date'])
+    df_h['Date of Pay'] = pd.to_datetime(df_h['Date of Pay'])
+    return df_u, df_h
 
-df_unified, df_history = load_data()
-
-if df_unified is None:
-    st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
+try:
+    df_unified, df_history = load_data()
+except Exception as e:
+    # We handle the error HERE, outside the cache
+    st.error(f"⚠️ Connection Error. Please refresh the page. Details: {e}")
     st.stop()
 
 # --- 4. SIDEBAR CONTROLS ---
@@ -318,4 +309,3 @@ st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 # Data breakdown (Compact)
 with st.expander("View Data"):
     st.dataframe(journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']].sort_values('Date', ascending=False), use_container_width=True, height=200)
-
