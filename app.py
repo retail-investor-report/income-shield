@@ -188,7 +188,7 @@ with st.sidebar:
     all_tickers = sorted(df_unified['Ticker'].unique())
 
     # ------------------------------------
-    # MODE A: SINGLE ASSET (Legacy Logic)
+    # MODE A: SINGLE ASSET
     # ------------------------------------
     if app_mode == "🛡️ Single Asset":
         selected_ticker = st.selectbox("Select Asset", all_tickers)
@@ -237,15 +237,12 @@ with st.sidebar:
             st.stop()
 
     # ------------------------------------
-    # MODE B: HEAD-TO-HEAD (New Logic)
+    # MODE B: HEAD-TO-HEAD
     # ------------------------------------
     else:
         selected_tickers = st.multiselect("Select Assets to Compare", all_tickers, default=all_tickers[:2] if len(all_tickers) > 1 else all_tickers)
         
         st.markdown("##### Common Date Range")
-        
-        # Determine safest default date (1 year ago, or max inception)
-        # We default to 1 year ago for simplicity
         default_start = pd.to_datetime("today") - pd.DateOffset(months=12)
         
         buy_date = st.date_input("Start Date", default_start)
@@ -253,9 +250,11 @@ with st.sidebar:
         
         end_date = st.date_input("End Date", pd.to_datetime("today"))
         end_date = pd.to_datetime(end_date)
+
+        st.markdown("##### Comparison Inputs")
+        sim_amt = st.number_input("Hypothetical Investment ($)", value=10000, step=1000)
         
-        # Note on Normalization
-        st.info("Performance normalized to Total Return % (Price + Dividends).")
+        st.info(f"Leaderboard assumes ${sim_amt:,.0f} invested in each.")
 
 
 # ==========================================
@@ -385,11 +384,11 @@ else:
     comp_data = []
     fig_comp = go.Figure()
     
-    # Pre-defined colors for lines to ensure they stand out
+    # Pre-defined colors for lines
     colors = ['#00C805', '#F59E0B', '#8AC7DE', '#FF4B4B', '#A855F7', '#EC4899', '#EAB308']
     
     for idx, t in enumerate(selected_tickers):
-        # 1. Get Data for Ticker
+        # 1. Get Data
         t_price = df_unified[df_unified['Ticker'] == t].sort_values('Date')
         t_divs = df_history[df_history['Ticker'] == t].sort_values('Date of Pay')
         
@@ -401,6 +400,7 @@ else:
             
         # 3. Calculate Return
         start_p = t_journey.iloc[0]['Closing Price']
+        end_p = t_journey.iloc[-1]['Closing Price']
         
         # Div Logic
         t_div_subset = t_divs[(t_divs['Date of Pay'] >= buy_date) & (t_divs['Date of Pay'] <= end_date)].copy()
@@ -426,17 +426,23 @@ else:
             line=dict(color=line_color, width=3)
         ))
         
-        # 5. Stats for Table
+        # 5. Stats for Table (Using sim_amt)
         final_ret = t_journey.iloc[-1]['Total_Return_Pct']
-        total_cash = t_journey.iloc[-1]['CumDivs']
-        yield_pct = (total_cash / start_p) * 100
+        total_cash_per_share = t_journey.iloc[-1]['CumDivs']
+        yield_pct = (total_cash_per_share / start_p) * 100
+        
+        # Dollar Simulation
+        shares_bought = sim_amt / start_p
+        end_value = shares_bought * end_p
+        cash_generated = shares_bought * total_cash_per_share
         
         comp_data.append({
             "Ticker": t,
             "Total Return": final_ret,
-            "Yield Generated": yield_pct,
-            "Start Price": start_p,
-            "End Price": t_journey.iloc[-1]['Closing Price']
+            "Yield %": yield_pct,
+            "💰 Cash Generated": cash_generated,
+            "📉 End Asset Value": end_value,
+            "Total Value": end_value + cash_generated
         })
         
     # --- RENDER COMPARISON CHART ---
@@ -458,19 +464,20 @@ else:
     
     # --- RENDER LEADERBOARD ---
     if comp_data:
-        st.markdown("### 🏆 Performance Leaderboard")
+        st.markdown(f"### 🏆 Leaderboard (${sim_amt:,.0f} Investment)")
         df_comp = pd.DataFrame(comp_data).sort_values("Total Return", ascending=False)
         
         # Formatting for display
         df_display = df_comp.copy()
         df_display['Total Return'] = df_display['Total Return'].apply(lambda x: f"{x:+.2f}%")
-        df_display['Yield Generated'] = df_display['Yield Generated'].apply(lambda x: f"{x:.2f}%")
-        df_display['Start Price'] = df_display['Start Price'].apply(lambda x: f"${x:.2f}")
-        df_display['End Price'] = df_display['End Price'].apply(lambda x: f"${x:.2f}")
+        df_display['Yield %'] = df_display['Yield %'].apply(lambda x: f"{x:.2f}%")
+        df_display['💰 Cash Generated'] = df_display['💰 Cash Generated'].apply(lambda x: f"${x:,.2f}")
+        df_display['📉 End Asset Value'] = df_display['📉 End Asset Value'].apply(lambda x: f"${x:,.2f}")
         
+        # Show specific columns
         st.dataframe(
             df_display, 
-            column_order=["Ticker", "Total Return", "Yield Generated", "Start Price", "End Price"],
+            column_order=["Ticker", "Total Return", "Yield %", "💰 Cash Generated", "📉 End Asset Value"],
             hide_index=True,
             use_container_width=True
         )
