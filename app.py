@@ -69,32 +69,13 @@ st.markdown("""
         opacity: 1.0 !important;
     }
 
-    /* --- POPOVER GENERAL (Tooltips) --- */
-    /* This sets the default for tooltips to be White BG / Black Text */
+    /* --- TOOLTIP POPUP CONTENT --- */
     div[data-baseweb="popover"] {
         background-color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
     div[data-baseweb="popover"] * {
         color: #000000 !important;
-    }
-
-    /* --- CALENDAR SPECIFIC OVERRIDE (THE FIX) --- */
-    /* The calendar is ALSO a popover, so we must override the override */
-    div[data-baseweb="calendar"] {
-        background-color: #1E293B !important; /* Dark Blue BG */
-        color: #FFFFFF !important; /* White Text */
-    }
-    div[data-baseweb="calendar"] button {
-        color: #FFFFFF !important; /* White Arrow Buttons */
-    }
-    div[data-baseweb="calendar"] div {
-        color: #FFFFFF !important; /* White Days/Months */
-    }
-    /* Hover state for days */
-    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
-        background-color: #30363d !important;
-        color: #8AC7DE !important;
     }
 
     /* TEXT OVERRIDES */
@@ -112,8 +93,7 @@ st.markdown("""
     input { color: #FFFFFF !important; font-weight: bold !important; }
 
     /* --- DROPDOWNS --- */
-    /* Because the dropdown is ALSO a popover, we keep this styling to ensure it looks good */
-    ul[role="listbox"], li[role="option"] {
+    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"], li[role="option"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
@@ -130,6 +110,22 @@ st.markdown("""
         color: #0D1117 !important;
     }
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
+
+    /* --- CALENDAR OVERRIDE --- */
+    div[data-baseweb="calendar"] {
+        background-color: #1E293B !important;
+        color: #FFFFFF !important;
+    }
+    div[data-baseweb="calendar"] button {
+        color: #FFFFFF !important;
+    }
+    div[data-baseweb="calendar"] div {
+        color: #FFFFFF !important;
+    }
+    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
+        background-color: #30363d !important;
+        color: #8AC7DE !important;
+    }
 
     /* SIDEBAR COMPACTING */
     .stSidebar .element-container { margin-top: 0rem !important; margin-bottom: 0.5rem !important; }
@@ -369,7 +365,7 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
-# --- COMPACT NAV DECODER BAR ---
+# --- COMPACT NAV DECODER BAR (UPDATED TEXT) ---
 st.markdown("""
     <div style="
         background-color: #161b22; 
@@ -386,7 +382,7 @@ st.markdown("""
                 Line Color Meaning *
             </span>
             <span style="color: #00C805; font-weight: 800; font-size: 0.9rem;">
-                💚 True Value (Divs + Price)
+                💚 True Value - No DRIP (Divs + Price)
             </span>
             <span style="color: #8AC7DE; font-weight: 800; font-size: 0.9rem;">
                 🔵 Asset Value - Appreciation
