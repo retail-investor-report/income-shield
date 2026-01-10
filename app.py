@@ -69,13 +69,32 @@ st.markdown("""
         opacity: 1.0 !important;
     }
 
-    /* --- TOOLTIP POPUP CONTENT --- */
+    /* --- POPOVER GENERAL (Tooltips) --- */
+    /* This sets the default for tooltips to be White BG / Black Text */
     div[data-baseweb="popover"] {
         background-color: #FFFFFF !important;
         border: 1px solid #30363d !important;
     }
     div[data-baseweb="popover"] * {
         color: #000000 !important;
+    }
+
+    /* --- CALENDAR SPECIFIC OVERRIDE (THE FIX) --- */
+    /* The calendar is ALSO a popover, so we must override the override */
+    div[data-baseweb="calendar"] {
+        background-color: #1E293B !important; /* Dark Blue BG */
+        color: #FFFFFF !important; /* White Text */
+    }
+    div[data-baseweb="calendar"] button {
+        color: #FFFFFF !important; /* White Arrow Buttons */
+    }
+    div[data-baseweb="calendar"] div {
+        color: #FFFFFF !important; /* White Days/Months */
+    }
+    /* Hover state for days */
+    div[data-baseweb="calendar"] [aria-selected="false"]:hover {
+        background-color: #30363d !important;
+        color: #8AC7DE !important;
     }
 
     /* TEXT OVERRIDES */
@@ -93,7 +112,8 @@ st.markdown("""
     input { color: #FFFFFF !important; font-weight: bold !important; }
 
     /* --- DROPDOWNS --- */
-    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"], li[role="option"] {
+    /* Because the dropdown is ALSO a popover, we keep this styling to ensure it looks good */
+    ul[role="listbox"], li[role="option"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #30363d !important;
@@ -281,18 +301,38 @@ m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:
 # --- 7. CHART ---
 fig = go.Figure()
 
+# REAL TRACES (Hidden from legend)
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['Market_Value'],
-    mode='lines', name='Asset Value',
+    mode='lines', name='_hidden_price', showlegend=False,
     line=dict(color=price_line_color, width=2)
 ))
 
 fig.add_trace(go.Scatter(
     x=journey['Date'], y=journey['True_Value'],
-    mode='lines', name='True Value',
+    mode='lines', name='_hidden_true', showlegend=False,
     line=dict(color='#00C805', width=3),
     fill='tonexty',
     fillcolor='rgba(0, 200, 5, 0.1)'
+))
+
+# FAKE TRACES (For Custom Legend)
+fig.add_trace(go.Scatter(
+    x=[None], y=[None], mode='lines', 
+    name='True Value (Price + Divs)',
+    line=dict(color='#00C805', width=3), showlegend=True
+))
+
+fig.add_trace(go.Scatter(
+    x=[None], y=[None], mode='lines', 
+    name='Asset Value (Price)',
+    line=dict(color='#8AC7DE', width=2), showlegend=True
+))
+
+fig.add_trace(go.Scatter(
+    x=[None], y=[None], mode='lines', 
+    name='Asset Value (Price)',
+    line=dict(color='#FF4B4B', width=2), showlegend=True
 ))
 
 fig.add_hline(y=initial_cap, line_dash="dash", line_color="white", opacity=0.3)
@@ -321,7 +361,7 @@ fig.update_layout(
     plot_bgcolor='rgba(0,0,0,0)',
     height=380,
     margin=dict(l=0, r=0, t=30, b=0),
-    showlegend=False, # LEGEND REMOVED
+    showlegend=False,
     hovermode="x unified",
     xaxis = dict(fixedrange = True),
     yaxis = dict(fixedrange = True)
@@ -329,7 +369,7 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
-# --- COMPACT NAV DECODER BAR (UPDATED TEXT) ---
+# --- COMPACT NAV DECODER BAR ---
 st.markdown("""
     <div style="
         background-color: #161b22; 
@@ -346,13 +386,13 @@ st.markdown("""
                 Line Color Meaning *
             </span>
             <span style="color: #00C805; font-weight: 800; font-size: 0.9rem;">
-                💚 TRUE VALUE (DIVS + PRICE)
+                💚 True Value (Divs + Price)
             </span>
             <span style="color: #8AC7DE; font-weight: 800; font-size: 0.9rem;">
-                🔵 ASSET VALUE - APPRECIATION
+                🔵 Asset Value - Appreciation
             </span>
             <span style="color: #FF4B4B; font-weight: 800; font-size: 0.9rem;">
-                🔴 ASSET VALUE - EROSION
+                🔴 Asset Value - Erosion
             </span>
         </div>
         <div style="margin-top: 4px; font-size: 0.7rem; color: #555; font-style: italic; line-height: 1;">
