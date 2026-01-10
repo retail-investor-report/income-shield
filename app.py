@@ -58,7 +58,6 @@ st.markdown("""
     }
     
     /* --- TOOLTIP ICON (The Question Mark) --- */
-    /* Forces the icon to be White and Visible */
     [data-testid="stMetricLabel"] svg {
         fill: #E6EDF3 !important;
         opacity: 0.9 !important;
@@ -66,24 +65,17 @@ st.markdown("""
         height: 16px !important;
     }
     [data-testid="stMetricLabel"]:hover svg {
-        fill: #F59E0B !important; /* Turns Gold on Hover */
+        fill: #F59E0B !important;
         opacity: 1.0 !important;
     }
 
-    /* --- TOOLTIP POPUP TEXT (THE FIX) --- */
-    /* 1. Target the box itself */
-    div[role="tooltip"] > div {
-        background-color: #FFFFFF !important; /* White Background */
-        border: 1px solid #30363d;
+    /* --- TOOLTIP POPUP CONTENT FIX --- */
+    div[data-baseweb="popover"] {
+        background-color: #FFFFFF !important;
+        border: 1px solid #30363d !important;
     }
-    
-    /* 2. NUCLEAR OPTION: Force ALL text elements inside the tooltip to be BLACK. */
-    div[role="tooltip"] *, 
-    div[role="tooltip"] p, 
-    div[role="tooltip"] div,
-    div[role="tooltip"] span {
-        color: #000000 !important; /* BLACK TEXT */
-        font-weight: bold !important;
+    div[data-baseweb="popover"] * {
+        color: #000000 !important;
     }
 
     /* TEXT OVERRIDES */
@@ -273,17 +265,10 @@ with col_meta:
 # --- 5 COLUMNS ---
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
-
-# Tooltip 1: Asset Value
 m2.metric("Asset Value", f"${current_market_val:,.2f}", f"{market_pl:,.2f}", help="Value of your shares held at the end of the simulation.")
-
 m3.metric("Dividends Collected", f"${cash_total:,.2f}") 
-
-# Tooltip 2: Annualized Yield
 m4.metric("Annualized Yield", f"{annual_yield:.2f}%", help="Div Yield normalized to 1 year")
-
-# Tooltip 3: True Total Value (NEW)
-m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%", help="The Value of your Shares + All the divs you received (NO DRIP)")
+m5.metric("True Total Value", f"${current_total_val:,.2f}", f"{total_return_pct:.2f}%")
 
 # --- 7. CHART ---
 fig = go.Figure()
@@ -322,12 +307,21 @@ fig.add_annotation(
     align="left"
 )
 
+# CHART LAYOUT + NEW "NAV COLOR GUIDE" TITLE
 fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
     height=380,
-    margin=dict(l=0, r=0, t=30, b=0),
+    margin=dict(l=0, r=0, t=40, b=0), # Added top margin for the title
+    # --- NEW: CHART TITLE AS "LEGEND GUIDE" ---
+    title=dict(
+        text='Asset Value: <span style="color:#8AC7DE">Blue = Appreciation</span> | <span style="color:#FF4B4B">Red = Erosion</span>',
+        x=1, y=1,
+        xanchor='right',
+        yanchor='bottom',
+        font=dict(size=12, color="white")
+    ),
     legend=dict(
         orientation="h",
         yanchor="bottom",
