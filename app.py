@@ -328,8 +328,7 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
-# --- NEW: "NAV DECODER BAR" (BOTTOM OF CHART) ---
-# Striking, Centered, Educational
+# --- NAV DECODER BAR (UPDATED) ---
 st.markdown("""
     <div style="
         background-color: #161b22; 
@@ -340,15 +339,20 @@ st.markdown("""
         margin-bottom: 20px; 
         text-align: center;
     ">
-        <span style="color: #8b949e; font-size: 0.9rem; margin-right: 15px; text-transform: uppercase; letter-spacing: 1px;">
-            What does the line color mean?
-        </span>
-        <span style="color: #8AC7DE; font-weight: 900; font-size: 1.1rem; margin-right: 20px; text-shadow: 0 0 10px rgba(138, 199, 222, 0.3);">
-            🔵 BLUE = APPRECIATION
-        </span>
-        <span style="color: #FF4B4B; font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 10px rgba(255, 75, 75, 0.3);">
-            🔴 RED = EROSION
-        </span>
+        <div>
+            <span style="color: #8b949e; font-size: 0.9rem; margin-right: 15px; text-transform: uppercase; letter-spacing: 1px;">
+                What does the line color mean? *
+            </span>
+            <span style="color: #8AC7DE; font-weight: 900; font-size: 1.1rem; margin-right: 20px; text-shadow: 0 0 10px rgba(138, 199, 222, 0.3);">
+                🔵 BLUE = APPRECIATION
+            </span>
+            <span style="color: #FF4B4B; font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 10px rgba(255, 75, 75, 0.3);">
+                🔴 RED = EROSION
+            </span>
+        </div>
+        <div style="margin-top: 8px; font-size: 0.75rem; color: #555; font-style: italic;">
+            * Status is determined strictly by the purchase and sell dates selected above.
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
