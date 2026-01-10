@@ -241,6 +241,17 @@ if df_unified is None:
     st.error("🚨 Link Connection Error: Check your Google Sheet CSV links.")
     st.stop()
 
+# Metadata mapping (add more tickers as needed; ideally, load from another sheet)
+metadata = {
+    'AAPW': {'underlying': 'AAPL', 'issuer': 'Roundhill Investments'},
+    'QDTE': {'underlying': 'QQQ', 'issuer': 'Roundhill Investments'},
+    # Add other tickers here, e.g., 'ANOTHER': {'underlying': 'XYZ', 'issuer': 'Some Company'},
+    # For scalability, consider adding a third CSV load with columns: Ticker, Underlying, Issuer
+    # metadata_url = "https://docs.google.com/spreadsheets/d/e/.../pub?gid=NEW_GID&single=true&output=csv"
+    # df_metadata = pd.read_csv(metadata_url)
+    # Then use df_metadata.set_index('Ticker').to_dict('index')
+}
+
 # --- 4. SIDEBAR CONTROLS ---
 with st.sidebar:
     st.header("🛡️ Simulator")
@@ -317,9 +328,17 @@ start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
 
+# Get metadata for selected ticker
+if selected_ticker in metadata:
+    underlying = metadata[selected_ticker]['underlying']
+    issuer = metadata[selected_ticker]['issuer']
+else:
+    underlying = "Unknown"
+    issuer = "Unknown"
+
 # --- 6. DASHBOARD ---
-# Compact Header
-st.markdown(f"### {selected_ticker} Performance Simulator")
+# Compact Header with added info
+st.markdown(f"### {selected_ticker} Performance Simulator | Underlying: {underlying} | ETF Issuer: {issuer}")
 st.markdown(f"**{shares:.2f} shares** | {buy_date.date()} ➝ {end_date.date()}")
 
 m1, m2, m3, m4 = st.columns(4)
