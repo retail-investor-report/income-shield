@@ -9,41 +9,31 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (MOBILE MENU FIX + DESKTOP COLOR & LAYOUT FIX) ---
+# --- 2. THE "EMPIRE" STYLING (FINAL DESKTOP FIX) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
-    /* A. GLOBAL STYLES (Colors & Basics) */
+    /* A. GLOBAL STYLES */
     /* ------------------------------------------------------------------- */
     .stApp {
         background-color: #0D1117;
         color: #E6EDF3;
     }
 
-    /* Global scrollbar hide */
-    ::-webkit-scrollbar {
-        display: none;
-    }
+    ::-webkit-scrollbar { display: none; }
 
-    /* Metrics Styling */
+    /* Metrics & Text */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
         border-radius: 8px;
         padding: 10px;
     }
-    div[data-testid="stMetricLabel"] p {
-        color: #8AC7DE !important;
-    }
-    div[data-testid="stMetricValue"] div {
-        color: #FFFFFF !important;
-    }
+    div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; }
+    div[data-testid="stMetricValue"] div { color: #FFFFFF !important; }
+    h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
 
-    h1, h2, h3, h4, h5, h6, p, label {
-        color: #E6EDF3 !important;
-    }
-
-    /* Dropdown/Input Styling */
+    /* Inputs & Dropdowns */
     div[data-baseweb="select"] > div,
     div[data-testid="stDateInput"] > div,
     div[data-baseweb="input"] > div {
@@ -52,103 +42,89 @@ st.markdown("""
         color: #FFFFFF !important;
         font-weight: bold !important;
     }
+    input { color: #FFFFFF !important; font-weight: bold !important; }
 
-    input {
-        color: #FFFFFF !important;
-        font-weight: bold !important;
-    }
-
-    /* Menu/Popover Backgrounds */
-    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
+    div[data-baseweb="popover"],
+    div[data-baseweb="menu"],
+    ul[role="listbox"],
+    li[role="option"] {
         background-color: #1E293B !important;
-        border-color: #30363d !important;
-    }
-    ul[role="listbox"] > li[role="option"] {
         color: #FFFFFF !important;
-        background-color: #1E293B !important;
+        border: 1px solid #30363d !important;
     }
-    ul[role="listbox"] > li[role="option"]:hover, 
-    ul[role="listbox"] > li[role="option"][aria-selected="true"] {
+    li[role="option"]:hover,
+    li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
-    .stSelectbox svg, .stDateInput svg {
-        fill: #8AC7DE !important;
-    }
+    .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
-    /* Sidebar Text Spacing */
-    .stSidebar .element-container, 
-    .stSidebar .stSelectbox, 
+    /* Sidebar compact spacing */
+    .stSidebar .element-container,
+    .stSidebar .stSelectbox,
     .stSidebar .stDateInput {
         margin-top: 0.2rem !important;
         margin-bottom: 0.2rem !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP ONLY (> 768px) - "THE MONOLITH" */
+    /* B. DESKTOP ONLY - Lock sidebar & fix bunching */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
-        /* Lock sidebar open & fixed width */
+        /* Force sidebar fixed & visible */
         [data-testid="stSidebar"] {
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
             width: 300px !important;
             min-width: 300px !important;
-            max-width: 300px !important;
+            position: fixed !important;          /* ← Key: fix position */
+            top: 0 !important;
+            left: 0 !important;
+            height: 100vh !important;
+            z-index: 1000 !important;
             transform: translateX(0) !important;
-            visibility: visible !important;
         }
 
-        /* Hide collapse button & arrow on desktop */
+        /* Hide collapse controls & header on desktop */
         [data-testid*="SidebarCollapseBtn"],
         [data-testid*="collapsedControl"],
-        button[data-testid*="SidebarCollapse"] {
+        header[data-testid="stHeader"],
+        [data-testid="stToolbar"] {
             display: none !important;
         }
 
-        /* Hide header completely on desktop */
-        header[data-testid="stHeader"] {
-            display: none !important;
-        }
-
-        /* Toolbar & decoration */
-        [data-testid="stToolbar"] { display: none !important; }
-
-        /* Fix bunching: push main content right by sidebar width + breathing room */
-        .block-container {
-            padding-top: 1rem !important;
-            padding-left: 340px !important;   /* 300px sidebar + 40px margin */
-            padding-right: 2rem !important;
-            padding-bottom: 1rem !important;
+        /* Push main content right - this is the fix for bunching */
+        .main .block-container {
+            margin-left: 320px !important;       /* sidebar 300px + 20px margin */
             max-width: calc(100% - 340px) !important;
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
         }
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE ONLY (< 768px) - "FUNCTIONAL MODE" */
+    /* C. MOBILE ONLY - Native collapse */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        /* Restore header for hamburger */
         header[data-testid="stHeader"] {
             display: block !important;
             background-color: #0D1117 !important;
-            z-index: 999999 !important;
+            z-index: 999 !important;
         }
 
-        /* Force hamburger button visibility */
         button[data-testid*="SidebarCollapseButton"],
         [data-testid*="collapsedControl"] {
             display: block !important;
             color: #E6EDF3 !important;
         }
 
-        /* Allow normal collapse on mobile */
         [data-testid="stSidebar"] {
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
         }
 
-        /* Push content down */
         .block-container {
             padding-top: 4rem !important;
             padding-left: 1rem !important;
@@ -162,7 +138,7 @@ st.markdown("""
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
+        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
@@ -181,18 +157,15 @@ if df_unified is None:
 with st.sidebar:
     st.header("🛡️ Simulator")
     
-    # Ticker
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
     
     st.markdown("---")
     
-    # 1. Start Date
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
     buy_date = pd.to_datetime(buy_date)
     
-    # 2. End Date Logic
     date_mode = st.radio("Simulation End Point:", ["Hold to Present", "Sell on Specific Date"])
     
     if date_mode == "Sell on Specific Date":
@@ -203,10 +176,8 @@ with st.sidebar:
        
     st.markdown("---")
     
-    # 3. Position Size
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
     
-    # 4. Data Filtering Logic
     price_df = df_unified[df_unified['Ticker'] == selected_ticker].sort_values('Date')
     journey = price_df[(price_df['Date'] >= buy_date) & (price_df['Date'] <= end_date)].copy()
    
@@ -237,18 +208,15 @@ journey['Market_Value'] = journey['Closing Price'] * shares
 journey['Cash_Banked'] = journey['Div_Per_Share'] * shares
 journey['True_Value'] = journey['Market_Value'] + journey['Cash_Banked']
 
-# Totals
 initial_cap = entry_price * shares
 current_market_val = journey.iloc[-1]['Market_Value']
 cash_total = journey.iloc[-1]['Cash_Banked']
 current_total_val = journey.iloc[-1]['True_Value']
 
-# Deltas
 market_pl = current_market_val - initial_cap
 total_pl = current_total_val - initial_cap
 total_return_pct = (total_pl / initial_cap) * 100
 
-# Chart Color Logic
 start_price = journey.iloc[0]['Closing Price']
 end_price_val = journey.iloc[-1]['Closing Price']
 price_line_color = '#8AC7DE' if end_price_val >= start_price else '#FF4B4B'
@@ -321,7 +289,7 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
-# Data breakdown (Compact)
+# Data breakdown
 with st.expander("View Data"):
     st.dataframe(
         journey[['Date', 'Closing Price', 'Market_Value', 'Cash_Banked', 'True_Value']]
@@ -329,4 +297,3 @@ with st.expander("View Data"):
         use_container_width=True,
         height=200
     )
-
