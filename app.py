@@ -130,8 +130,8 @@ st.markdown("""
     /* DATAFRAME FIXES */
     div[data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 5px; overflow: hidden; }
     
-    /* >>> HIDE THE COLUMN MENU (3 DOTS) <<< */
-    button[title="View column menu"] { display: none !important; }
+    /* >>> NUCLEAR FIX: HIDE COLUMN MENU BUTTONS <<< */
+    div[data-testid="stDataFrame"] div[role="columnheader"] button { display: none !important; }
 
     /* C. DESKTOP LAYOUT LOCK (Min-width 1200px) */
     @media (min-width: 1200px) {
