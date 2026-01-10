@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "COMPLETELY NEW" STYLING STRATEGY ---
+# --- 2. THE STYLING (Layout Fixed + "Jazzed Up" Typography) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -23,18 +23,39 @@ st.markdown("""
     /* Kill Scrollbars */
     ::-webkit-scrollbar { display: none !important; }
     
-    /* Metrics & Text */
+    /* ------------------------------------------------------------------- */
+    /* B. COMPONENT STYLING (METRICS & INPUTS) */
+    /* ------------------------------------------------------------------- */
+    
+    /* METRICS: Make them pop a bit more */
     div[data-testid="stMetric"] {
         background-color: #1E293B;
         border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 10px;
+        border-radius: 12px; /* Softer corners */
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Subtle depth */
+        transition: transform 0.2s;
     }
-    div[data-testid="stMetricLabel"] p { color: #8AC7DE !important; }
-    div[data-testid="stMetricValue"] div { color: #FFFFFF !important; }
+    div[data-testid="stMetric"]:hover {
+        transform: translateY(-2px); /* Tiny lift on hover */
+        border-color: #8AC7DE;
+    }
+    
+    div[data-testid="stMetricLabel"] p { 
+        color: #8AC7DE !important; 
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+    }
+    div[data-testid="stMetricValue"] div { 
+        color: #FFFFFF !important; 
+        font-size: 1.8rem !important; /* Bigger numbers */
+        font-weight: 700 !important;
+    }
+
+    /* GENERAL TEXT OVERRIDES */
     h1, h2, h3, h4, h5, h6, p, label { color: #E6EDF3 !important; }
 
-    /* Inputs */
+    /* INPUTS & DROPDOWNS */
     div[data-baseweb="select"] > div,
     div[data-testid="stDateInput"] > div,
     div[data-baseweb="input"] > div {
@@ -42,10 +63,11 @@ st.markdown("""
         border-color: #30363d !important;
         color: #FFFFFF !important;
         font-weight: bold !important;
+        border-radius: 8px !important;
     }
     input { color: #FFFFFF !important; font-weight: bold !important; }
 
-    /* Dropdowns */
+    /* DROPDOWN MENUS */
     div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"], li[role="option"] {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
@@ -57,19 +79,18 @@ st.markdown("""
     }
     .stSelectbox svg, .stDateInput svg { fill: #8AC7DE !important; }
 
-    /* Sidebar Spacing - Tighter */
+    /* SIDEBAR COMPACTING */
     .stSidebar .element-container, .stSidebar .stSelectbox, .stSidebar .stDateInput {
         margin-top: 0.1rem !important;
         margin-bottom: 0.1rem !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP "SECTION TARGETING" (Min-width: 768px)                   */
-    /* Strategy: Target the PARENT section (stMain), not the child block.  */
+    /* C. DESKTOP LAYOUT LOCK (Min-width: 768px) */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         
-        /* 1. SIDEBAR: Fixed, Solid Background, High Z-Index */
+        /* SIDEBAR */
         section[data-testid="stSidebar"] {
             width: 300px !important;
             min-width: 300px !important;
@@ -79,27 +100,27 @@ st.markdown("""
             left: 0 !important;
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
-            z-index: 9999 !important; /* Always on top */
+            z-index: 9999 !important;
             transform: none !important;
         }
 
-        /* 2. MAIN SECTION: The "Constraint" Fix */
-        /* We shrink the actual app container so it fits next to sidebar */
+        /* MAIN APP SECTION */
         section[data-testid="stMain"] {
-            margin-left: 300px !important;         /* Start 300px right */
-            width: calc(100% - 300px) !important;  /* Shrink width */
+            margin-left: 300px !important;
+            width: calc(100% - 300px) !important;
             position: relative !important;
             display: block !important;
         }
 
-        /* 3. INNER PADDING: Fine tune the whitespace */
+        /* INNER PADDING */
         .block-container {
-            padding-left: 3rem !important;
-            padding-right: 3rem !important;
+            padding-left: 4rem !important; /* Little more breathing room */
+            padding-right: 4rem !important;
+            padding-top: 3rem !important;
             max-width: 100% !important;
         }
 
-        /* 4. REMOVE HEADER & CONTROLS */
+        /* HIDE CONTROLS */
         header[data-testid="stHeader"],
         button[data-testid="stSidebarCollapseBtn"],
         div[data-testid="collapsedControl"] {
@@ -108,33 +129,14 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE (Max-width: 767px)                                        */
+    /* D. MOBILE LAYOUT (Max-width: 767px) */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
-        section[data-testid="stMain"] {
-            margin-left: 0 !important;
-            width: 100% !important;
-        }
-        section[data-testid="stSidebar"] {
-            position: relative !important;
-            width: 100% !important;
-            transform: none;
-        }
-        .block-container {
-            padding-top: 4rem !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-        header[data-testid="stHeader"] {
-            display: block !important;
-            background-color: #0D1117 !important;
-            z-index: 99999 !important;
-        }
-        button[data-testid*="SidebarCollapseButton"],
-        [data-testid*="collapsedControl"] {
-            display: block !important;
-            color: #E6EDF3 !important;
-        }
+        section[data-testid="stMain"] { margin-left: 0 !important; width: 100% !important; }
+        section[data-testid="stSidebar"] { position: relative !important; width: 100% !important; transform: none; }
+        .block-container { padding-top: 4rem !important; padding-left: 1rem !important; padding-right: 1rem !important; }
+        header[data-testid="stHeader"] { display: block !important; background-color: #0D1117 !important; z-index: 99999 !important; }
+        button[data-testid*="SidebarCollapseButton"], [data-testid*="collapsedControl"] { display: block !important; color: #E6EDF3 !important; }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -167,7 +169,7 @@ with st.sidebar:
     tickers = sorted(df_unified['Ticker'].unique())
     selected_ticker = st.selectbox("Select Asset", tickers)
     
-    # [NO DIVIDER]
+    # NO DIVIDER
     
     default_date = pd.to_datetime("today") - pd.DateOffset(months=12)
     buy_date = st.date_input("Purchase Date", default_date)
@@ -181,7 +183,7 @@ with st.sidebar:
     else:
         end_date = pd.to_datetime("today")
         
-    # [NO DIVIDER]
+    # NO DIVIDER
     
     mode = st.radio("Input Method:", ["Share Count", "Dollar Amount"])
     
@@ -237,20 +239,38 @@ except Exception:
     asset_underlying = "-"
     asset_company = "-"
 
-col_head, col_meta = st.columns([3, 1])
+# --- NEW: BIGGER, BOLDER HEADER LAYOUT ---
+col_head, col_meta = st.columns([2.5, 1])
+
 with col_head:
-    st.markdown(f"### {selected_ticker} Performance Simulator")
-    st.markdown(f"**{shares:.2f} shares** | {buy_date.date()} ➝ {end_date.date()}")
-with col_meta:
+    # Using HTML for maximum control over size and weight
     st.markdown(f"""
-        <div style="text-align: left; padding: 5px; border-left: 2px solid #30363d; margin-top: 5px; padding-left: 15px;">
-            <span style="color: #8AC7DE; font-size: 0.8rem;">Underlying</span><br>
-            <span style="color: #E6EDF3; font-weight: bold; font-size: 1rem;">{asset_underlying}</span><br>
-            <div style="height: 5px;"></div>
-            <span style="color: #8AC7DE; font-size: 0.8rem;">Company</span><br>
-            <span style="color: #E6EDF3; font-weight: bold; font-size: 1rem;">{asset_company}</span>
+        <div style="margin-top: 0px;">
+            <h1 style="font-size: 3rem; margin-bottom: 0px; color: #E6EDF3;">
+                {selected_ticker} <span style="color: #8AC7DE;">Simulator</span>
+            </h1>
+            <p style="font-size: 1.2rem; color: #8AC7DE; opacity: 0.8; margin-top: -10px;">
+                <b>{shares:.2f} shares</b> &nbsp;|&nbsp; {buy_date.date()} ➝ {end_date.date()}
+            </p>
         </div>
     """, unsafe_allow_html=True)
+
+with col_meta:
+    # "Jazzed Up" Badges for Company/Underlying
+    st.markdown(f"""
+        <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; height: 100%;">
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 10px; padding: 10px 15px; text-align: center; min-width: 100px;">
+                <div style="color: #8AC7DE; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Underlying</div>
+                <div style="color: white; font-size: 1.2rem; font-weight: 800;">{asset_underlying}</div>
+            </div>
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #30363d; border-radius: 10px; padding: 10px 15px; text-align: center; min-width: 100px;">
+                <div style="color: #8AC7DE; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Company</div>
+                <div style="color: white; font-size: 1.2rem; font-weight: 800;">{asset_company}</div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("<div style='height: 20px'></div>", unsafe_allow_html=True) # Spacer
 
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Initial Capital", f"${initial_cap:,.2f}")
@@ -281,8 +301,8 @@ fig.update_layout(
     template="plotly_dark",
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
-    height=380,
-    margin=dict(l=0, r=0, t=20, b=0),
+    height=450, # Made chart slightly taller to match the grander header
+    margin=dict(l=0, r=0, t=30, b=0),
     legend=dict(
         orientation="h",
         yanchor="bottom",
