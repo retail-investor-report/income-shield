@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (latest working version with desktop fix) ---
+# --- 2. THE "EMPIRE" STYLING (final desktop lock + no scrollbars) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -68,45 +68,55 @@ st.markdown("""
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. DESKTOP ONLY - Lock sidebar & perfect alignment */
+    /* B. DESKTOP ONLY - Permanent, non-collapsible sidebar, no arrows/scroll */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
-        /* Sidebar fixed on left */
+        /* Sidebar fixed, non-collapsible, no scrollbars */
         [data-testid="stSidebar"] {
             background-color: #0D1117 !important;
             border-right: 1px solid #30363d !important;
             width: 300px !important;
+            min-width: 300px !important;
+            max-width: 300px !important;
             position: fixed !important;
             top: 0;
             left: 0;
             height: 100vh !important;
             z-index: 1000 !important;
-            overflow-y: auto !important;
+            overflow: hidden !important;           /* ← No scrollbars */
+            transform: translateX(0) !important;
         }
 
-        /* Hide collapse & header on desktop */
-        [data-testid*="SidebarCollapseBtn"],
+        /* Completely hide ALL collapse/open controls and arrows on desktop */
+        [data-testid*="SidebarCollapse"],
         [data-testid*="collapsedControl"],
+        [data-testid*="stSidebarCollapseBtn"],
+        button[aria-label*="Collapse"],
+        button[aria-label*="Open sidebar"],
+        button[kind="primary"] svg,
+        section[data-testid="stSidebar"] button {
+            display: none !important;
+        }
+
         header[data-testid="stHeader"],
         [data-testid="stToolbar"] {
             display: none !important;
         }
 
-        /* Main content perfectly positioned next to sidebar */
+        /* Main content starts right next to sidebar */
         .main .block-container {
-            margin-left: 320px !important;      /* 300px sidebar + 20px margin */
+            margin-left: 320px !important;         /* 300px + 20px breathing room */
             max-width: calc(100% - 340px) !important;
             padding: 1rem 2rem 2rem 1rem !important;
         }
 
-        /* Optional polish: center content horizontally if too wide */
         .main {
             margin: 0 auto !important;
         }
     }
 
     /* ------------------------------------------------------------------- */
-    /* C. MOBILE ONLY - Native collapse (perfect as is) */
+    /* C. MOBILE ONLY - leave completely alone (perfect as is) */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
         header[data-testid="stHeader"] {
@@ -139,10 +149,7 @@ st.markdown("""
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        # UPDATED UNIFIED DATA LINK (the one you provided)
         u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
-        
-        # History link (unchanged - assuming it's still correct)
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         
         df_u = pd.read_csv(u_url)
