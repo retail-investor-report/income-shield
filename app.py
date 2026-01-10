@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. THE "EMPIRE" STYLING (MOBILE MENU FIX + DESKTOP COLOR FIX) ---
+# --- 2. THE "EMPIRE" STYLING (MOBILE MENU FIX + DESKTOP COLOR & LAYOUT FIX) ---
 st.markdown("""
     <style>
     /* ------------------------------------------------------------------- */
@@ -58,52 +58,40 @@ st.markdown("""
         font-weight: bold !important;
     }
 
-    /* Menu/Popover Backgrounds - strong enforcement */
-    div[data-baseweb="popover"],
-    div[data-baseweb="menu"],
-    ul[role="listbox"],
-    ul[role="listbox"] > li[role="option"] {
+    /* Menu/Popover Backgrounds */
+    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
         background-color: #1E293B !important;
-        border: 1px solid #30363d !important;
+        border-color: #30363d !important;
     }
-
-    li[role="option"] {
+    ul[role="listbox"] > li[role="option"] {
         color: #FFFFFF !important;
         background-color: #1E293B !important;
     }
-
-    li[role="option"]:hover,
-    li[role="option"][aria-selected="true"] {
+    ul[role="listbox"] > li[role="option"]:hover, 
+    ul[role="listbox"] > li[role="option"][aria-selected="true"] {
         background-color: #8AC7DE !important;
         color: #0D1117 !important;
     }
-
     .stSelectbox svg, .stDateInput svg {
         fill: #8AC7DE !important;
     }
 
     /* Sidebar Text Spacing */
-    .stSidebar .element-container,
-    .stSidebar .stSelectbox,
+    .stSidebar .element-container, 
+    .stSidebar .stSelectbox, 
     .stSidebar .stDateInput {
         margin-top: 0.2rem !important;
         margin-bottom: 0.2rem !important;
     }
 
     /* ------------------------------------------------------------------- */
-    /* B. SIDEBAR BASE - always apply dark background (fixes desktop glitch) */
-    /* ------------------------------------------------------------------- */
-    [data-testid="stSidebar"] {
-        background-color: #0D1117 !important;
-        border-right: 1px solid #30363d !important;
-    }
-
-    /* ------------------------------------------------------------------- */
-    /* C. DESKTOP ONLY (> 768px) - "THE MONOLITH" - fixed colors & no overlap */
+    /* B. DESKTOP ONLY (> 768px) - "THE MONOLITH" */
     /* ------------------------------------------------------------------- */
     @media (min-width: 768px) {
         /* Lock sidebar open & fixed width */
         [data-testid="stSidebar"] {
+            background-color: #0D1117 !important;
+            border-right: 1px solid #30363d !important;
             width: 300px !important;
             min-width: 300px !important;
             max-width: 300px !important;
@@ -126,17 +114,18 @@ st.markdown("""
         /* Toolbar & decoration */
         [data-testid="stToolbar"] { display: none !important; }
 
-        /* Give main content space so it doesn't bunch right */
+        /* Fix bunching: push main content right by sidebar width + breathing room */
         .block-container {
             padding-top: 1rem !important;
-            padding-left: 320px !important;  /* ← This fixes the bunching */
+            padding-left: 340px !important;   /* 300px sidebar + 40px margin */
             padding-right: 2rem !important;
             padding-bottom: 1rem !important;
+            max-width: calc(100% - 340px) !important;
         }
     }
 
     /* ------------------------------------------------------------------- */
-    /* D. MOBILE ONLY (< 768px) - "FUNCTIONAL MODE" - your original logic */
+    /* C. MOBILE ONLY (< 768px) - "FUNCTIONAL MODE" */
     /* ------------------------------------------------------------------- */
     @media (max-width: 767px) {
         /* Restore header for hamburger */
@@ -153,9 +142,10 @@ st.markdown("""
             color: #E6EDF3 !important;
         }
 
-        /* Let Streamlit handle sidebar naturally on mobile */
+        /* Allow normal collapse on mobile */
         [data-testid="stSidebar"] {
-            /* No forced width/transform here - allows full collapse */
+            background-color: #0D1117 !important;
+            border-right: 1px solid #30363d !important;
         }
 
         /* Push content down */
@@ -172,7 +162,7 @@ st.markdown("""
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=1848266904&single=true&output=csv"
+        u_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=728728946&single=true&output=csv"
         h_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBejJoRecA-lq52GgBYkpqFv7LanUurbzcl4Hqd0QRjufGX-2LSSZjAjPg7DeQ9-Q8o_sc3A9y3739/pub?gid=970184313&single=true&output=csv"
         df_u = pd.read_csv(u_url)
         df_h = pd.read_csv(h_url)
@@ -339,4 +329,3 @@ with st.expander("View Data"):
         use_container_width=True,
         height=200
     )
-
