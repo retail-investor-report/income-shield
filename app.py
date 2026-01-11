@@ -332,6 +332,7 @@ if app_mode == "🛡️ Single Asset":
     final_shares = journey.iloc[-1]['Shares']
 
     market_pl = current_market_val - initial_cap
+    market_pl_pct = (market_pl / initial_cap) * 100 if initial_cap != 0 else 0
     total_pl = current_total_val - initial_cap
     total_return_pct = (total_pl / initial_cap) * 100
 
@@ -379,7 +380,9 @@ if app_mode == "🛡️ Single Asset":
     val_label = "End Asset Value" if not use_drip else "End Value (DRIP)"
     cash_label = "Dividends Collected" if not use_drip else "New Shares Acquired"
     
-    m2.metric(val_label, f"${current_market_val:,.2f}", f"{market_pl:,.2f}")
+    # Calculate delta string with percentage
+    asset_delta_str = f"{market_pl:,.2f} ({market_pl_pct:+.2f}%)"
+    m2.metric(val_label, f"${current_market_val:,.2f}", asset_delta_str)
     
     if use_drip:
         shares_gained = final_shares - initial_shares
