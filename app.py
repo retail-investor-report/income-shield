@@ -380,9 +380,8 @@ if app_mode == "🛡️ Single Asset":
     val_label = "End Asset Value" if not use_drip else "End Value (DRIP)"
     cash_label = "Dividends Collected" if not use_drip else "New Shares Acquired"
     
-    # Calculate delta string with percentage
-    asset_delta_str = f"{market_pl:,.2f} ({market_pl_pct:+.2f}%)"
-    m2.metric(val_label, f"${current_market_val:,.2f}", asset_delta_str)
+    # MODIFIED: Showing only percentage change in delta
+    m2.metric(val_label, f"${current_market_val:,.2f}", f"{market_pl_pct:+.2f}%")
     
     if use_drip:
         shares_gained = final_shares - initial_shares
